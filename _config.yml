@@ -25,10 +25,6 @@ disqus_shortname: nianlong
 disqus_url: "http://nianlonggu.github.io"
 #########################################
 
-# Comment
-comment:
-  disqus: nianlonggu
-
 # Build settings
 markdown: kramdown
 
