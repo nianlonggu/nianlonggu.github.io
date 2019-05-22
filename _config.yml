@@ -24,7 +24,6 @@ newsourceroot: https://github.com/LiXizhi/LiXizhi.github.io/new/master
 disqus_shortname: nianlong
 disqus_url: "http://nianlonggu.github.io"
 #########################################
-
 # Build settings
 markdown: kramdown
 
