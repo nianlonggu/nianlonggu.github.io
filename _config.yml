@@ -21,8 +21,8 @@ newsourceroot: https://github.com/nianlonggu/nianlonggu.github.io
 #duoshuo_shortname: lixizhi
 #duoshuo_url: "http://lixizhi.github.io"
 # disqus.com commenting system. please note that it is exclusive with duoshuo.com
-disqus_shortname: nianlonggu
-disqus_url: "http://nianlonggu.disqus.com"
+disqus_shortname: nlgoo-top
+disqus_url: "http://nianlonggu.github.io"
 #########################################
 # comment:
 #     disqus: nianlonggu
