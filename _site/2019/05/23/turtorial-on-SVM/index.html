@@ -72,6 +72,8 @@
 </head>
 
 
+
+
 <!-- hack iOS CSS :active style -->
 <body ontouchstart="">
 
@@ -259,25 +261,21 @@
 
 				<!-- > “Yeah It's on. ” -->
 
-<h2 id="contents">Contents</h2>
+<h1 id="contents">Contents</h1>
 <p><a href="#what-is-SVM">What is SVM?</a></p>
 
 <p id="what-is-SVM"></p>
 
-<h2 id="what-is-svm">What is SVM?</h2>
-<p>Support Vector Machine (SVM) is a method for classification (and possibly for regression). Here we mainly discuss the most common application: <strong>binary classification problem</strong>.</p>
+<h1 id="what-is-svm">What is SVM?</h1>
+<p>Support Vector Machine (SVM) is a method for classification (and possibly for regression). Here we mainly discuss the most common application: <strong>binary classification problem</strong>.<br /></p>
+<blockquote>
+  <p>Given a training dataset $\zeta(s) = \sum_{n=1}^\infty \frac{1}{n^s}$</p>
+</blockquote>
 
 
 
                 <hr style="visibility: hidden;">
                 <ul class="pager">
-                    
-                    <li class="previous">
-                        <a href="/2019/05/23/turtorial-on-SVM/" data-toggle="tooltip" data-placement="top" title="Turtorial On Svm">
-                        Previous<br>
-                        <span>Turtorial On Svm</span>
-                        </a>
-                    </li>
                     
                     
                 </ul>
@@ -601,8 +599,25 @@
 
 
 <!-- Image to hack wechat -->
-<img src="/img/icon_wechat.png" width="0" height="0" />
+<!-- <img src="/img/icon_wechat.png" width="0" height="0" /> -->
 <!-- Migrate from head to bottom, no longer block render and still work -->
+<!-- MathJax Section -->
+<!-- copied from http://docs.mathjax.org/en/latest/configuration.html -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      extensions: ["tex2jax.js"],
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+      },
+      "HTML-CSS": { fonts: ["TeX"] }
+    });
+</script>
+<script type="text/javascript"
+   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_CHTML">
+</script>
 
 </body>
 

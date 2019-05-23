@@ -15,12 +15,13 @@ tags:
 
 <!-- > “Yeah It's on. ” -->
 
-## Contents
+# Contents
 [What is SVM?](#what-is-SVM)
 
 <p id = "what-is-SVM"></p>
 
-## What is SVM?
-Support Vector Machine (SVM) is a method for classification (and possibly for regression). Here we mainly discuss the most common application: **binary classification problem**.
+# What is SVM?
+Support Vector Machine (SVM) is a method for classification (and possibly for regression). Here we mainly discuss the most common application: **binary classification problem**.<br>
+> Given a training dataset $\zeta(s) = \sum_{n=1}^\infty \frac{1}{n^s}$
 
 
