@@ -5,24 +5,26 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Thu, 23 May 2019 21:56:38 +0200</pubDate>
-    <lastBuildDate>Thu, 23 May 2019 21:56:38 +0200</lastBuildDate>
+    <pubDate>Thu, 23 May 2019 23:38:58 +0200</pubDate>
+    <lastBuildDate>Thu, 23 May 2019 23:38:58 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
         <title>An Introduction to Support Vector Machines (SVM)</title>
         <description>&lt;!-- &gt; “Yeah It's on. ” --&gt;
 
-&lt;h1 id=&quot;contents&quot;&gt;Contents&lt;/h1&gt;
+&lt;h2 id=&quot;contents&quot;&gt;Contents&lt;/h2&gt;
 &lt;p&gt;&lt;a href=&quot;#what-is-SVM&quot;&gt;What is SVM?&lt;/a&gt;&lt;/p&gt;
 
 &lt;p id=&quot;what-is-SVM&quot;&gt;&lt;/p&gt;
 
-&lt;h1 id=&quot;what-is-svm&quot;&gt;What is SVM?&lt;/h1&gt;
+&lt;h2 id=&quot;what-is-svm&quot;&gt;What is SVM?&lt;/h2&gt;
 &lt;p&gt;Support Vector Machine (SVM) is a method for classification (and possibly for regression). Here we mainly discuss the most common application: &lt;strong&gt;binary classification problem&lt;/strong&gt;.&lt;br /&gt;&lt;/p&gt;
 &lt;blockquote&gt;
-  &lt;p&gt;Given a training dataset $\zeta(s) = \sum_{n=1}^\infty \frac{1}{n^s}$&lt;/p&gt;
+  &lt;p&gt;Given a training dataset \({(x_i, y_i)}, i=1,2,…,n\)&lt;/p&gt;
 &lt;/blockquote&gt;
+
+&lt;p&gt;sfwe&lt;/p&gt;
 
 </description>
         <pubDate>Thu, 23 May 2019 19:00:00 +0200</pubDate>
