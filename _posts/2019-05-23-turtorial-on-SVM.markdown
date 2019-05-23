@@ -1,0 +1,29 @@
+---
+layout:     post
+title:      "An Introduction to Support Vector Machines (SVM)"
+subtitle:   " 支持向量机(SVM)概述：原理与实现"
+date:       2019-05-23 17:00:00
+author:     "Gu"
+header-img: "img/post-bg-2019-05-23.jpg"
+catalog: true
+tags:
+    - 支持向量机
+    - 机器学习
+    - SVM
+    - Machine Learning
+---
+
+<!-- > “Yeah It's on. ” -->
+
+## Contents
+[What is SVM?](#what-is-SVM)
+
+
+
+
+<p id = "what-is-SVM"></p>
+
+## What is SVM?
+SVM represents support vector machine.
+
+
