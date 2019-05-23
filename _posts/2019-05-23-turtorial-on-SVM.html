@@ -1,51 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>Gu's Blog</title>
-    <description></description>
-    <link>http://localhost:4000/</link>
-    <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Thu, 23 May 2019 21:13:46 +0200</pubDate>
-    <lastBuildDate>Thu, 23 May 2019 21:13:46 +0200</lastBuildDate>
-    <generator>Jekyll v3.8.5</generator>
-    
-      <item>
-        <title>An Introduction to Support Vector Machines (SVM)</title>
-        <description>&lt;!-- &gt; “Yeah It's on. ” --&gt;
-
-&lt;h2 id=&quot;contents&quot;&gt;Contents&lt;/h2&gt;
-&lt;p&gt;&lt;a href=&quot;#what-is-SVM&quot;&gt;What is SVM?&lt;/a&gt;&lt;/p&gt;
-
-&lt;p id=&quot;what-is-SVM&quot;&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;what-is-svm&quot;&gt;What is SVM?&lt;/h2&gt;
-&lt;p&gt;Support Vector Machine (SVM) is a method for classification (and possibly for regression). Here we mainly discuss the most common application: &lt;strong&gt;binary classification problem&lt;/strong&gt;.&lt;/p&gt;
-
-</description>
-        <pubDate>Thu, 23 May 2019 19:00:00 +0200</pubDate>
-        <link>http://localhost:4000/2019/05/23/turtorial-on-SVM/</link>
-        <guid isPermaLink="true">http://localhost:4000/2019/05/23/turtorial-on-SVM/</guid>
-        
-        <category>支持向量机</category>
-        
-        <category>机器学习</category>
-        
-        <category>SVM</category>
-        
-        <category>Machine Learning</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>Turtorial On Svm</title>
-        <description>&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;meta name=&quot;subtitle&quot; content=&quot;&amp;quot; 支持向量机(SVM)概述：原理与实现&amp;quot;&quot;&gt;
-&lt;meta name=&quot;date&quot; content=&quot;2019-05-23 17:00:00&quot;&gt;
-&lt;meta name=&quot;catalog&quot; content=&quot;true&quot;&gt;
-&lt;meta name=&quot;layout&quot; content=&quot;post&quot;&gt;
-&lt;meta name=&quot;header-img&quot; content=&quot;&amp;quot;img/post-bg-2019-05-23.jpg&amp;quot;&quot;&gt;
-&lt;meta name=&quot;tags&quot; content=&quot;,- 支持向量机,- 机器学习,- SVM,- Machine Learning&quot;&gt;
-&lt;meta name=&quot;author&quot; content=&quot;&amp;quot;Gu&amp;quot;&quot;&gt;&lt;style&gt;body {
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="subtitle" content="&quot; 支持向量机(SVM)概述：原理与实现&quot;">
+<meta name="date" content="2019-05-23 17:00:00">
+<meta name="catalog" content="true">
+<meta name="layout" content="post">
+<meta name="header-img" content="&quot;img/post-bg-2019-05-23.jpg&quot;">
+<meta name="tags" content=",- 支持向量机,- 机器学习,- SVM,- Machine Learning">
+<meta name="author" content="&quot;Gu&quot;"><style>body {
   max-width: 980px;
   border: 1px solid #ddd;
   outline: 1300px solid #fff;
@@ -68,7 +27,7 @@ body .markdown-body
   -webkit-text-size-adjust: 100%;
   color: #333333;
   overflow: hidden;
-  font-family: &quot;Helvetica Neue&quot;, Helvetica, &quot;Segoe UI&quot;, Arial, freesans, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif;
   font-size: 16px;
   line-height: 1.6;
   word-wrap: break-word;
@@ -150,7 +109,7 @@ body .markdown-body
   line-height: normal;
 }
 
-.markdown-body input[type=&quot;checkbox&quot;] {
+.markdown-body input[type="checkbox"] {
   box-sizing: border-box;
   padding: 0;
 }
@@ -229,7 +188,7 @@ body .markdown-body
 }
 
 .markdown-body input {
-  font: 13px Helvetica, arial, freesans, clean, sans-serif, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;;
+  font: 13px Helvetica, arial, freesans, clean, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
   line-height: 1.4;
 }
 
@@ -256,7 +215,7 @@ body .markdown-body
 .markdown-body hr:before,
 .markdown-body hr:after {
   display: table;
-  content: &quot; &quot;;
+  content: " ";
 }
 
 .markdown-body hr:after {
@@ -328,7 +287,7 @@ body .markdown-body
 .markdown-body code,
 .markdown-body pre,
 .markdown-body samp {
-  font-family: Consolas, &quot;Liberation Mono&quot;, Menlo, Courier, monospace;
+  font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
   font-size: 12px;
 }
 
@@ -348,15 +307,15 @@ body .markdown-body
   color: #000;
   padding: 3px 5px;
   line-height: 10px;
-  font: 11px Consolas, &quot;Liberation Mono&quot;, Menlo, Courier, monospace;
+  font: 11px Consolas, "Liberation Mono", Menlo, Courier, monospace;
   display: inline-block;
 }
 
-.markdown-body&gt;*:first-child {
+.markdown-body>*:first-child {
   margin-top: 0 !important;
 }
 
-.markdown-body&gt;*:last-child {
+.markdown-body>*:last-child {
   margin-bottom: 0 !important;
 }
 
@@ -469,7 +428,7 @@ body .markdown-body
   margin-bottom: 0;
 }
 
-.markdown-body li&gt;p {
+.markdown-body li>p {
   margin-top: 16px;
 }
 
@@ -496,11 +455,11 @@ body .markdown-body
   border-left: 4px solid #ddd;
 }
 
-.markdown-body blockquote&gt;:first-child {
+.markdown-body blockquote>:first-child {
   margin-top: 0;
 }
 
-.markdown-body blockquote&gt;:last-child {
+.markdown-body blockquote>:last-child {
   margin-bottom: 0;
 }
 
@@ -551,10 +510,10 @@ body .markdown-body
 .markdown-body code:before,
 .markdown-body code:after {
   letter-spacing: -0.2em;
-  content: &quot;\00a0&quot;;
+  content: "\00a0";
 }
 
-.markdown-body pre&gt;code {
+.markdown-body pre>code {
   padding: 0;
   margin: 0;
   font-size: 100%;
@@ -628,31 +587,31 @@ body .markdown-body
   margin: 0;
 }
 
-.markdown-body .admonition&gt;.admonition-title {
+.markdown-body .admonition>.admonition-title {
   color: #333;
 }
 
-.markdown-body .attention&gt;.admonition-title {
+.markdown-body .attention>.admonition-title {
   color: #a6d796;
 }
 
-.markdown-body .caution&gt;.admonition-title {
+.markdown-body .caution>.admonition-title {
   color: #d7a796;
 }
 
-.markdown-body .hint&gt;.admonition-title {
+.markdown-body .hint>.admonition-title {
   color: #96c6d7;
 }
 
-.markdown-body .danger&gt;.admonition-title {
+.markdown-body .danger>.admonition-title {
   color: #c25f77;
 }
 
-.markdown-body .question&gt;.admonition-title {
+.markdown-body .question>.admonition-title {
   color: #96a6d7;
 }
 
-.markdown-body .note&gt;.admonition-title {
+.markdown-body .note>.admonition-title {
   color: #d7c896;
 }
 
@@ -679,37 +638,37 @@ body .markdown-body
 }
 
 .markdown-body .admonition:before {
-  content: &quot;\f056\00a0&quot;;
+  content: "\f056\00a0";
   color: 333;
 }
 
 .markdown-body .attention:before {
-  content: &quot;\f058\00a0&quot;;
+  content: "\f058\00a0";
   color: #a6d796;
 }
 
 .markdown-body .caution:before {
-  content: &quot;\f06a\00a0&quot;;
+  content: "\f06a\00a0";
   color: #d7a796;
 }
 
 .markdown-body .hint:before {
-  content: &quot;\f05a\00a0&quot;;
+  content: "\f05a\00a0";
   color: #96c6d7;
 }
 
 .markdown-body .danger:before {
-  content: &quot;\f057\00a0&quot;;
+  content: "\f057\00a0";
   color: #c25f77;
 }
 
 .markdown-body .question:before {
-  content: &quot;\f059\00a0&quot;;
+  content: "\f059\00a0";
   color: #96a6d7;
 }
 
 .markdown-body .note:before {
-  content: &quot;\f040\00a0&quot;;
+  content: "\f040\00a0";
   color: #d7c896;
 }
 
@@ -741,11 +700,11 @@ body .markdown-body
   border-left: 6px solid #d7c896;
 }
 
-.markdown-body .admonition&gt;*:first-child {
+.markdown-body .admonition>*:first-child {
   margin-top: 0 !important;
 }
 
-.markdown-body .admonition&gt;*:last-child {
+.markdown-body .admonition>*:last-child {
   margin-bottom: 0 !important;
 }
 
@@ -976,17 +935,17 @@ body .markdown-body
   }
 
   .markdown-body a[href]:after {
-    content: &quot; (&quot; attr(href) &quot;)&quot;;
+    content: " (" attr(href) ")";
   }
 
   .markdown-body abbr[title]:after {
-    content: &quot; (&quot; attr(title) &quot;)&quot;;
+    content: " (" attr(title) ")";
   }
 
   .markdown-body .ir a:after,
-  .markdown-body a[href^=&quot;javascript:&quot;]:after,
-  .markdown-body a[href^=&quot;#&quot;]:after {
-    content: &quot;&quot;;
+  .markdown-body a[href^="javascript:"]:after,
+  .markdown-body a[href^="#"]:after {
+    content: "";
   }
 
   .markdown-body pre {
@@ -1039,7 +998,7 @@ body .markdown-body
     page-break-after: avoid;
   }
 }
-&lt;/style&gt;&lt;style&gt;/*GitHub*/
+</style><style>/*GitHub*/
 .codehilite {background-color:#fff;color:#333333;}
 .codehilite .hll {background-color:#ffffcc;}
 .codehilite .c{color:#999988;font-style:italic}
@@ -1102,20 +1061,11 @@ body .markdown-body
 .codehilite .vi{color:teal}
 .codehilite .il{color:#009999}
 .codehilite .gc{color:#999;background-color:#EAF2F5}
-&lt;/style&gt;&lt;title&gt;&quot;An Introduction to Support Vector Machines (SVM)&quot;&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;article class=&quot;markdown-body&quot;&gt;&lt;!-- &gt; “Yeah It's on. ” --&gt;
+</style><title>"An Introduction to Support Vector Machines (SVM)"</title></head><body><article class="markdown-body"><!-- > “Yeah It's on. ” -->
 
-&lt;h2 id=&quot;contents&quot;&gt;Contents&lt;a class=&quot;headerlink&quot; href=&quot;#contents&quot; title=&quot;Permanent link&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
-&lt;p&gt;&lt;a href=&quot;#what-is-SVM&quot;&gt;What is SVM?&lt;/a&gt;&lt;/p&gt;
-&lt;p id = &quot;what-is-SVM&quot;&gt;&lt;/p&gt;
+<h2 id="contents">Contents<a class="headerlink" href="#contents" title="Permanent link"></a></h2>
+<p><a href="#what-is-SVM">What is SVM?</a></p>
+<p id = "what-is-SVM"></p>
 
-&lt;h2 id=&quot;what-is-svm&quot;&gt;What is SVM?&lt;a class=&quot;headerlink&quot; href=&quot;#what-is-svm&quot; title=&quot;Permanent link&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
-&lt;p&gt;Support Vector Machine (SVM) is a method for classification (and possibly for regression). Here we mainly discuss the most common application: binary classification problem.&lt;/p&gt;&lt;/article&gt;&lt;/body&gt;&lt;/html&gt;</description>
-        <pubDate>Thu, 23 May 2019 00:00:00 +0200</pubDate>
-        <link>http://localhost:4000/2019/05/23/turtorial-on-SVM/</link>
-        <guid isPermaLink="true">http://localhost:4000/2019/05/23/turtorial-on-SVM/</guid>
-        
-        
-      </item>
-    
-  </channel>
-</rss>
+<h2 id="what-is-svm">What is SVM?<a class="headerlink" href="#what-is-svm" title="Permanent link"></a></h2>
+<p>Support Vector Machine (SVM) is a method for classification (and possibly for regression). Here we mainly discuss the most common application: binary classification problem.</p></article></body></html>
