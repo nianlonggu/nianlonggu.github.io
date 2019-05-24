@@ -26,7 +26,7 @@ Support Vector Machine (SVM) is a method for classification (and possibly for re
 
 Here the margin represents the minimum distance from points of both classes to the hyperplane. **Support vectors** represent the points which are closest to the hyperplane. These points determine the position and direction of the hyperplane, so they are called "support vectors".
  <br>
-<center>![what is svm](../img/2019-05-23-SVM/icon2.png)</center>
+<center>![what is svm](https://nianlonggu.github.io/img/2019-05-23-SVM/icon2.png)</center>
 
 
 ### Linea
