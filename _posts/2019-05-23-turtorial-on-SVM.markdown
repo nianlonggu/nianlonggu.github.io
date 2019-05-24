@@ -28,4 +28,4 @@ Support Vector Machine (SVM) is a method for classification (and possibly for re
 > Given a training dataset $\{({x}_i, y_i)\}, i=1,2,...,n$, where $x_i$ is a $p$ dimensional vector and 
 
 
-de
+de  
