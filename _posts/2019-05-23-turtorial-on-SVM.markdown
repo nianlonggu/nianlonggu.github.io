@@ -21,8 +21,10 @@ tags:
 <p id = "what-is-SVM"></p>
 
 ## What is SVM?
-Support Vector Machine (SVM) is a method for classification (and possibly for regression). Here we mainly discuss the most common application: **binary classification problem**.<br>
-> Given a training dataset \\({(x_i, y_i)}, i=1,2,...,n\\)
+Support Vector Machine (SVM) is a method for classification (and possibly for regression). Here we mainly discuss the most common application: **binary classification problem**. Given a training dataset with binary classes {+1, -1}, SVM means to find a separating hyperplane which can maximize the margin. Here the margin represents the minimum distance from points of both classes to the hyperplane. **Support vectors** mean <br>
 
-sfwe
+### Linea
+> Given a training dataset $\{({x}_i, y_i)\}, i=1,2,...,n$, where $x_i$ is a $p$ dimensional vector and 
 
+
+de
