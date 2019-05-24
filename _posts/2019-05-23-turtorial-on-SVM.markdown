@@ -14,6 +14,7 @@ tags:
 ---
 
 > “Hello, my first notebook.”
+
 ## Contents
 [What is SVM?](#what-is-SVM)<br>
 [SVM in Linearly Separable Case](#SVM-in-Linearly-Separable-Case)
