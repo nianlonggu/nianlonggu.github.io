@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 24 May 2019 15:38:42 +0200</pubDate>
-    <lastBuildDate>Fri, 24 May 2019 15:38:42 +0200</lastBuildDate>
+    <pubDate>Fri, 24 May 2019 17:33:30 +0200</pubDate>
+    <lastBuildDate>Fri, 24 May 2019 17:33:30 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -50,7 +50,7 @@
 &lt;h3 id=&quot;svm-in-linearly-separable-case&quot;&gt;SVM in Linearly Separable Case&lt;/h3&gt;
 &lt;p&gt;The linearly separable case means that in the training dataset, points with two different classes can be linearly separated by a hyperplane $H:\{\mathbf{x}|\mathbf{w}^{T}\mathbf{x}+b=0 \}$. The goal of SVM is to find the optimal parameters of $\hat{\mathbf{w}}$ and $\hat{b}$ which maximize the margin. See figure &lt;a href=&quot;#linear-svm&quot;&gt;Linear-SVM&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;Given a training dataset $\{(\mathbf{x}_i,\ y_i)\}, i=1,\dots,n$, where $\mathbf{x}\in{R^p}$ and $y\in\{-1,+1\}$. If such a separating hyperplane exists as shown in figure &lt;a href=&quot;#linear-svm&quot;&gt;Linear-SVM&lt;/a&gt;, there exists a positive value, $\gamma$, which satisfies that&lt;/p&gt;
+&lt;p&gt;Given a training dataset $\{(\mathbf{x}_i,\ y_i)\}, i=1,\dots,n$, where $\mathbf{x}\in{R^p}$ and $y\in\{-1,+1\}$. If such a separating hyperplane exists as shown in figure &lt;a href=&quot;#linear-svm&quot;&gt;Linear-SVM&lt;/a&gt;, there exists a positive value, $\gamma&amp;gt;0$, which satisfies that&lt;/p&gt;
 &lt;ul&gt;
   &lt;li&gt;for any $y_i=+1$, $\mathbf{w}^T\mathbf{x}_i+b\geq \gamma$&lt;/li&gt;
   &lt;li&gt;for any $y_i=-1$, $\mathbf{w}^T\mathbf{x}_i+b\leq -\gamma$&lt;/li&gt;
@@ -58,20 +58,34 @@
 
 &lt;p&gt;Those two conditions can be summarized into one condition by considering $y_i$ and $\mathbf{x}_ {i}$ jointly:&lt;/p&gt;
 &lt;ul&gt;
-  &lt;li&gt;$y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq \gamma \ \ \ $ for any $i=1,\dots,n$,&lt;/li&gt;
+  &lt;li&gt;$y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq \gamma \ \ \ $ for any $i=1,\dots,n$&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;The equality holds for &lt;strong&gt;marginal points&lt;/strong&gt; (like the blue square, and red circles in figure &lt;a href=&quot;#linear-svm&quot;&gt;Linear-SVM&lt;/a&gt;). This condition ensures that the hyperplane can correctly classify two classes in the training dataset, yet we have another condition in SVM which is to maximize the margin.&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;How is the margin is defined?&lt;/strong&gt; &lt;br /&gt;
-The margin is defined by the Euclidean distance between the closest points (marginal points) to the hyperplane. Since for marginal points $(\mathbf{x}_ i, y_i)$ it holds $\mathbf{w}^T\mathbf{x}_ i+b = \gamma$ or $\mathbf{w}^T\mathbf{x}_ i+b = -\gamma$, and the hyperplane satisfies $\mathbf{w}^T\mathbf{x}_ i+b = 0$, computing the margin is equivalent to computing the distance between two parallel hyperplane $h_1:\{\mathbf{x}|\mathbf{w}^T\mathbf{x}_ i+b = \gamma\}$ and $h_2:\{\mathbf{w}^T\mathbf{x}_ i+b = 0\}$. Therefore, the margin is &lt;script type=&quot;math/tex&quot;&gt;\frac{\gamma}{\|\mathbf{w}\|}&lt;/script&gt;.&lt;/p&gt;
+The margin is defined by the Euclidean distance between the closest points (marginal points) to the hyperplane. Since for marginal points $(\mathbf{x}, y)$ it holds $\mathbf{w}^T\mathbf{x}+b = \gamma$ or $\mathbf{w}^T\mathbf{x}+b = -\gamma$, and the hyperplane satisfies $\mathbf{w}^T\mathbf{x}+b = 0$, computing the margin is equivalent to computing the distance between two parallel hyperplane $h_1:\{\mathbf{x}|\mathbf{w}^T\mathbf{x}+b = \gamma\}$ and $h_2:\{\mathbf{w}^T\mathbf{x}+b = 0\}$. Therefore, the margin is &lt;script type=&quot;math/tex&quot;&gt;\frac{\gamma}{\|\mathbf{w}\|}&lt;/script&gt;. &lt;script type=&quot;math/tex&quot;&gt;\|\mathbf{w}\|&lt;/script&gt; represent the norm of the vector &lt;script type=&quot;math/tex&quot;&gt;\mathbf{w}&lt;/script&gt;.&lt;/p&gt;
 &lt;blockquote&gt;
   &lt;p&gt;Recall of linear algebra:&lt;br /&gt;&lt;/p&gt;
   &lt;ul&gt;
     &lt;li&gt;the normal vector of hyperplane $h_1:\{\mathbf{x}|\mathbf{w}^T\mathbf{x}+b_1=0\}$ is &lt;script type=&quot;math/tex&quot;&gt;\frac{\mathbf{w}}{\|\mathbf{w}\|}&lt;/script&gt;&lt;/li&gt;
-    &lt;li&gt;the distance from origin $\mathbf{0}$ to hyperplane $h_1:\{\mathbf{x}|\mathbf{w}^T\mathbf{x}+b_1=0\}$ is $\frac{b_1}{||\mathbf{w}||}$&lt;/li&gt;
+    &lt;li&gt;the distance from origin $\mathbf{0}$ to hyperplane &lt;script type=&quot;math/tex&quot;&gt;h_1:\{\mathbf{x}\mid\mathbf{w}^T\mathbf{x}+b_1=0\}&lt;/script&gt; is &lt;script type=&quot;math/tex&quot;&gt;\frac{\vert b_1\vert}{\| \mathbf{w} \|}&lt;/script&gt;. &lt;br /&gt;This can be proved by simply solve the equation:
+&lt;script type=&quot;math/tex&quot;&gt;\mathbf{w}^T(\alpha \frac{\mathbf{w}}{\|\mathbf{w}\|})+b_1=0&lt;/script&gt;, where &lt;script type=&quot;math/tex&quot;&gt;\vert\alpha\vert&lt;/script&gt; is the distance&lt;/li&gt;
+    &lt;li&gt;the distance between two parallel hyperplanes &lt;script type=&quot;math/tex&quot;&gt;h_1:\{\mathbf{x}\vert\mathbf{w}^T\mathbf{x}+b_1=0\}&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;h_2:\{\mathbf{x}\vert\mathbf{w}^T\mathbf{x}+b_2=0\}&lt;/script&gt; is &lt;script type=&quot;math/tex&quot;&gt;\frac{\vert b_1-b_2\vert}{\|\mathbf{w}\|}&lt;/script&gt;&lt;/li&gt;
   &lt;/ul&gt;
 &lt;/blockquote&gt;
+
+&lt;p&gt;Therefore, the SVM optimization problem is:&lt;/p&gt;
+&lt;center&gt;$$\text{max} \frac{\gamma}{\|\mathbf{w}\|},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq\gamma$$&lt;/center&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;note that here we cannot just maximize &lt;script type=&quot;math/tex&quot;&gt;\gamma&lt;/script&gt;, since the definition of a hyperplane &lt;script type=&quot;math/tex&quot;&gt;h:\{\mathbf{x}\vert\mathbf{w}^T\mathbf{x}+b=\gamma\}&lt;/script&gt; is scale invariant. &lt;script type=&quot;math/tex&quot;&gt;\{\mathbf{x}\vert\mathbf{w}^T\mathbf{x}+b=\gamma\}&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\{\mathbf{x}\vert\alpha\mathbf{w}^T\mathbf{x}+\alpha b=\alpha\gamma\}&lt;/script&gt; represent the same hyperplane. Therefore, maximizing &lt;script type=&quot;math/tex&quot;&gt;\gamma&lt;/script&gt; may make the magnitude of &lt;script type=&quot;math/tex&quot;&gt;\mathbf{w}&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;b&lt;/script&gt; reach infinity, and has no contribution to maximizing the real margin.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;It is the geodesic margin &lt;script type=&quot;math/tex&quot;&gt;\frac{\gamma}{\|\mathbf{w}\|}&lt;/script&gt; that matters, not the functional margin &lt;script type=&quot;math/tex&quot;&gt;\gamma&lt;/script&gt;. Therefore, we can select an arbitrary positive value for &lt;script type=&quot;math/tex&quot;&gt;\gamma&lt;/script&gt;. This will only influence the scale of final optimal &lt;script type=&quot;math/tex&quot;&gt;\hat{\mathbf{w}}&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\hat{b}&lt;/script&gt;, but the optimal separating hyperplane remains the same. For simplicity, we can set &lt;script type=&quot;math/tex&quot;&gt;\gamma=1&lt;/script&gt;. Then the SVM optimization problem is:&lt;/p&gt;
+&lt;center&gt; $$\text{max} \frac{1}{\|\mathbf{w}\|},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1$$ &lt;/center&gt;
+&lt;p&gt;We can convert this problem into a convex optimization problem by reforming the objective function. The the final form of the SVM optimization problem is:&lt;/p&gt;
+&lt;center&gt; $$\text{min} \frac{1}{2}{\|\mathbf{w}\|^2},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1$$ &lt;/center&gt;
 </description>
         <pubDate>Thu, 23 May 2019 19:00:00 +0200</pubDate>
         <link>http://localhost:4000/2019/05/23/turtorial-on-SVM/</link>

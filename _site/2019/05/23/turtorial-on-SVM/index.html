@@ -318,7 +318,7 @@ SVM in Linearly Separable Case
 <h3 id="svm-in-linearly-separable-case">SVM in Linearly Separable Case</h3>
 <p>The linearly separable case means that in the training dataset, points with two different classes can be linearly separated by a hyperplane $H:\{\mathbf{x}|\mathbf{w}^{T}\mathbf{x}+b=0 \}$. The goal of SVM is to find the optimal parameters of $\hat{\mathbf{w}}$ and $\hat{b}$ which maximize the margin. See figure <a href="#linear-svm">Linear-SVM</a>.</p>
 
-<p>Given a training dataset $\{(\mathbf{x}_i,\ y_i)\}, i=1,\dots,n$, where $\mathbf{x}\in{R^p}$ and $y\in\{-1,+1\}$. If such a separating hyperplane exists as shown in figure <a href="#linear-svm">Linear-SVM</a>, there exists a positive value, $\gamma$, which satisfies that</p>
+<p>Given a training dataset $\{(\mathbf{x}_i,\ y_i)\}, i=1,\dots,n$, where $\mathbf{x}\in{R^p}$ and $y\in\{-1,+1\}$. If such a separating hyperplane exists as shown in figure <a href="#linear-svm">Linear-SVM</a>, there exists a positive value, $\gamma&gt;0$, which satisfies that</p>
 <ul>
   <li>for any $y_i=+1$, $\mathbf{w}^T\mathbf{x}_i+b\geq \gamma$</li>
   <li>for any $y_i=-1$, $\mathbf{w}^T\mathbf{x}_i+b\leq -\gamma$</li>
@@ -326,20 +326,34 @@ SVM in Linearly Separable Case
 
 <p>Those two conditions can be summarized into one condition by considering $y_i$ and $\mathbf{x}_ {i}$ jointly:</p>
 <ul>
-  <li>$y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq \gamma \ \ \ $ for any $i=1,\dots,n$,</li>
+  <li>$y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq \gamma \ \ \ $ for any $i=1,\dots,n$</li>
 </ul>
 
 <p>The equality holds for <strong>marginal points</strong> (like the blue square, and red circles in figure <a href="#linear-svm">Linear-SVM</a>). This condition ensures that the hyperplane can correctly classify two classes in the training dataset, yet we have another condition in SVM which is to maximize the margin.</p>
 
 <p><strong>How is the margin is defined?</strong> <br />
-The margin is defined by the Euclidean distance between the closest points (marginal points) to the hyperplane. Since for marginal points $(\mathbf{x}_ i, y_i)$ it holds $\mathbf{w}^T\mathbf{x}_ i+b = \gamma$ or $\mathbf{w}^T\mathbf{x}_ i+b = -\gamma$, and the hyperplane satisfies $\mathbf{w}^T\mathbf{x}_ i+b = 0$, computing the margin is equivalent to computing the distance between two parallel hyperplane $h_1:\{\mathbf{x}|\mathbf{w}^T\mathbf{x}_ i+b = \gamma\}$ and $h_2:\{\mathbf{w}^T\mathbf{x}_ i+b = 0\}$. Therefore, the margin is <script type="math/tex">\frac{\gamma}{\|\mathbf{w}\|}</script>.</p>
+The margin is defined by the Euclidean distance between the closest points (marginal points) to the hyperplane. Since for marginal points $(\mathbf{x}, y)$ it holds $\mathbf{w}^T\mathbf{x}+b = \gamma$ or $\mathbf{w}^T\mathbf{x}+b = -\gamma$, and the hyperplane satisfies $\mathbf{w}^T\mathbf{x}+b = 0$, computing the margin is equivalent to computing the distance between two parallel hyperplane $h_1:\{\mathbf{x}|\mathbf{w}^T\mathbf{x}+b = \gamma\}$ and $h_2:\{\mathbf{w}^T\mathbf{x}+b = 0\}$. Therefore, the margin is <script type="math/tex">\frac{\gamma}{\|\mathbf{w}\|}</script>. <script type="math/tex">\|\mathbf{w}\|</script> represent the norm of the vector <script type="math/tex">\mathbf{w}</script>.</p>
 <blockquote>
   <p>Recall of linear algebra:<br /></p>
   <ul>
     <li>the normal vector of hyperplane $h_1:\{\mathbf{x}|\mathbf{w}^T\mathbf{x}+b_1=0\}$ is <script type="math/tex">\frac{\mathbf{w}}{\|\mathbf{w}\|}</script></li>
-    <li>the distance from origin $\mathbf{0}$ to hyperplane $h_1:\{\mathbf{x}|\mathbf{w}^T\mathbf{x}+b_1=0\}$ is $\frac{b_1}{||\mathbf{w}||}$</li>
+    <li>the distance from origin $\mathbf{0}$ to hyperplane <script type="math/tex">h_1:\{\mathbf{x}\mid\mathbf{w}^T\mathbf{x}+b_1=0\}</script> is <script type="math/tex">\frac{\vert b_1\vert}{\| \mathbf{w} \|}</script>. <br />This can be proved by simply solve the equation:
+<script type="math/tex">\mathbf{w}^T(\alpha \frac{\mathbf{w}}{\|\mathbf{w}\|})+b_1=0</script>, where <script type="math/tex">\vert\alpha\vert</script> is the distance</li>
+    <li>the distance between two parallel hyperplanes <script type="math/tex">h_1:\{\mathbf{x}\vert\mathbf{w}^T\mathbf{x}+b_1=0\}</script> and <script type="math/tex">h_2:\{\mathbf{x}\vert\mathbf{w}^T\mathbf{x}+b_2=0\}</script> is <script type="math/tex">\frac{\vert b_1-b_2\vert}{\|\mathbf{w}\|}</script></li>
   </ul>
 </blockquote>
+
+<p>Therefore, the SVM optimization problem is:</p>
+<center>$$\text{max} \frac{\gamma}{\|\mathbf{w}\|},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq\gamma$$</center>
+
+<blockquote>
+  <p>note that here we cannot just maximize <script type="math/tex">\gamma</script>, since the definition of a hyperplane <script type="math/tex">h:\{\mathbf{x}\vert\mathbf{w}^T\mathbf{x}+b=\gamma\}</script> is scale invariant. <script type="math/tex">\{\mathbf{x}\vert\mathbf{w}^T\mathbf{x}+b=\gamma\}</script> and <script type="math/tex">\{\mathbf{x}\vert\alpha\mathbf{w}^T\mathbf{x}+\alpha b=\alpha\gamma\}</script> represent the same hyperplane. Therefore, maximizing <script type="math/tex">\gamma</script> may make the magnitude of <script type="math/tex">\mathbf{w}</script> and <script type="math/tex">b</script> reach infinity, and has no contribution to maximizing the real margin.</p>
+</blockquote>
+
+<p>It is the geodesic margin <script type="math/tex">\frac{\gamma}{\|\mathbf{w}\|}</script> that matters, not the functional margin <script type="math/tex">\gamma</script>. Therefore, we can select an arbitrary positive value for <script type="math/tex">\gamma</script>. This will only influence the scale of final optimal <script type="math/tex">\hat{\mathbf{w}}</script> and <script type="math/tex">\hat{b}</script>, but the optimal separating hyperplane remains the same. For simplicity, we can set <script type="math/tex">\gamma=1</script>. Then the SVM optimization problem is:</p>
+<center> $$\text{max} \frac{1}{\|\mathbf{w}\|},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1$$ </center>
+<p>We can convert this problem into a convex optimization problem by reforming the objective function. The the final form of the SVM optimization problem is:</p>
+<center> $$\text{min} \frac{1}{2}{\|\mathbf{w}\|^2},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1$$ </center>
 
 
                 <hr style="visibility: hidden;">
