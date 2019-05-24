@@ -11,7 +11,7 @@
     <meta name="theme-color" content="#000000">
     
     <!-- Open Graph -->
-    <meta property="og:title" content="An Introduction to Support Vector Machines (SVM): Solve the optimization problem - Gu Blog">
+    <meta property="og:title" content="An Introduction to Support Vector Machines (SVM): Gradient Descent Solution - Gu Blog">
     
     <meta property="og:type" content="article">
     <meta property="og:description" content="
@@ -37,7 +37,7 @@
     <meta property="og:url" content="http://localhost:4000/2019/05/24/turtorial-on-SVM/">
     <meta property="og:site_name" content="Gu Blog">
     
-    <title>An Introduction to Support Vector Machines (SVM): Solve the optimization problem - Gu Blog</title>
+    <title>An Introduction to Support Vector Machines (SVM): Gradient Descent Solution - Gu Blog</title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/pwa/manifest.json">
@@ -245,9 +245,9 @@
                         <a class="tag" href="/archive/?tag=Machine+Learning" title="Machine Learning">Machine Learning</a>
                         
                     </div>
-                    <h1>An Introduction to Support Vector Machines (SVM): Solve the optimization problem</h1>
+                    <h1>An Introduction to Support Vector Machines (SVM): Gradient Descent Solution</h1>
                     
-                    <h2 class="subheading"> 支持向量机(SVM)概述：原理与实现(二)</h2>
+                    <h2 class="subheading"> 支持向量机(SVM)概述：梯度下降法</h2>
                     <span class="meta">Posted by Gu on May 24, 2019</span>
                 </div>
             </div>
@@ -279,11 +279,47 @@
 <!-- ## Contents
 [Gradient Descent Algorithm](#GDS)<br>
 [Lagrangian Dual Problem](#Lagrangian-Dual) -->
-<p>In the last</p>
+<p>In the last article, we discussed that the SVM optimization problem is:<br /></p>
+<center>$$\text{min}\frac{1}{2}\|\mathbf{w}\|^2,\ \ \text{s.t.}\ \ \ y_i(\mathbf{w}^T\mathbf{x}_i+b)\geq 1, \ \ i=1,\dots,n$$</center>
+<p>To solve this optimization problem, there are multiple ways. One way is to treat this problem as a standard optimization problem and use gradient descent algorithm to compute the optimal parameters. Another way is to formulate the Lagrangian dual problem of the primal problem, transferring original optimization problem into an easier problem. Here we mainly discuss the first method.</p>
 
 <p id="GDS"></p>
 
 <h2 id="gradient-descent-algorithm">Gradient Descent Algorithm</h2>
+<p>To apply GDS, we need to design a new objective function which is differentiable. The new objective function is:</p>
+<center>$$\text{min}_{\mathbf{w},b}\ L=\frac{1}{2}\|\mathbf{w}\|^2+c\sum^{n}_{i=1}{\max\{1-y_i(\mathbf{w}^T\mathbf{x}_i+b) ,0\}}$$</center>
+<p>This objective function contains two terms. The first term is used to maximize the margin. The second term is a penalty term used to penalize the case where <script type="math/tex">% <![CDATA[
+y_i(\mathbf{w}^T\mathbf{x}_i+b)<1 %]]></script>, which represents incorrect/imperfect classification.</p>
+
+<p><script type="math/tex">c</script> is a weight parameter used to control the weight of the penalty term. If <script type="math/tex">c</script> is too large, the model (the learned hyperplane) will mainly focuses on correctly classify the training data, but the margin may not be maximized. If <script type="math/tex">c</script> is too small, the model will have have a large margin, while there may exist more miss-classified points in the training dataset.</p>
+
+<p><strong>Compute the gradient</strong><br />
+To apply GDS we also need get the exact expression of the gradient.</p>
+<center> $$\frac{\partial{L}}{\partial{\mathbf{w}}}=\mathbf{w}-c\sum_{i=1}^{n}{h(1-y_i(\mathbf{w}^T\mathbf{x}_i+b))y_i\mathbf{x}_i} $$ </center>
+<center>
+	$$
+	\frac{\partial{L}}{\partial{b}}=-c\sum_{i=1}^{n}{h(1-y_i(\mathbf{w}^T\mathbf{x}_i+b))y_i}
+	$$
+</center>
+<p>where</p>
+<center>$$h(z)=\begin{cases}
+    1, &amp; \text{if $z&gt;0$}.\\
+    0, &amp; \text{otherwise}.
+  \end{cases}$$
+</center>
+<p>The updating rules of the parameter <script type="math/tex">\mathbf{w}</script> and <script type="math/tex">b</script> are:</p>
+<center>
+	$$
+	\mathbf{w}\leftarrow \mathbf{w} - \alpha\frac{\partial{L}}{\partial{\mathbf{w}}}\\
+	b\leftarrow b - \alpha\frac{\partial{L}}{\partial{b}}\\
+	$$
+</center>
+<p>where <script type="math/tex">\alpha</script> is the learning rate.</p>
+
+<h2 id="code-implementation">Code Implementation</h2>
+<p>To test the GDS algorithm, we use toy data shown in figure 
+<a id="2d-toy-data"></a>
+<img src="https://nlgu.top/img/2019-05-24-SVM/gds-svm-raw-data.svg" alt="2d toy data" /></p>
 
 
                 <hr style="visibility: hidden;">

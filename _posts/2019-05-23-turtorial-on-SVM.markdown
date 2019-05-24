@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "An Introduction to Support Vector Machines (SVM): Basics"
-subtitle:   " 支持向量机(SVM)概述：原理与实现(一)"
+subtitle:   " 支持向量机(SVM)概述：线性支持向量机"
 date:       2019-05-23 17:00:00
 author:     "Gu"
 header-img: "img/post-bg-2019-05-23.jpg"

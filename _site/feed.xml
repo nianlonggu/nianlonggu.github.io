@@ -5,22 +5,58 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 24 May 2019 18:16:12 +0200</pubDate>
-    <lastBuildDate>Fri, 24 May 2019 18:16:12 +0200</lastBuildDate>
+    <pubDate>Fri, 24 May 2019 23:17:00 +0200</pubDate>
+    <lastBuildDate>Fri, 24 May 2019 23:17:00 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
-        <title>An Introduction to Support Vector Machines (SVM): Solve the optimization problem</title>
+        <title>An Introduction to Support Vector Machines (SVM): Gradient Descent Solution</title>
         <description>&lt;!-- &gt; “Hello, my first notebook.” --&gt;
 
 &lt;!-- ## Contents
 [Gradient Descent Algorithm](#GDS)&lt;br&gt;
 [Lagrangian Dual Problem](#Lagrangian-Dual) --&gt;
-&lt;p&gt;In the last&lt;/p&gt;
+&lt;p&gt;In the last article, we discussed that the SVM optimization problem is:&lt;br /&gt;&lt;/p&gt;
+&lt;center&gt;$$\text{min}\frac{1}{2}\|\mathbf{w}\|^2,\ \ \text{s.t.}\ \ \ y_i(\mathbf{w}^T\mathbf{x}_i+b)\geq 1, \ \ i=1,\dots,n$$&lt;/center&gt;
+&lt;p&gt;To solve this optimization problem, there are multiple ways. One way is to treat this problem as a standard optimization problem and use gradient descent algorithm to compute the optimal parameters. Another way is to formulate the Lagrangian dual problem of the primal problem, transferring original optimization problem into an easier problem. Here we mainly discuss the first method.&lt;/p&gt;
 
 &lt;p id=&quot;GDS&quot;&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;gradient-descent-algorithm&quot;&gt;Gradient Descent Algorithm&lt;/h2&gt;
+&lt;p&gt;To apply GDS, we need to design a new objective function which is differentiable. The new objective function is:&lt;/p&gt;
+&lt;center&gt;$$\text{min}_{\mathbf{w},b}\ L=\frac{1}{2}\|\mathbf{w}\|^2+c\sum^{n}_{i=1}{\max\{1-y_i(\mathbf{w}^T\mathbf{x}_i+b) ,0\}}$$&lt;/center&gt;
+&lt;p&gt;This objective function contains two terms. The first term is used to maximize the margin. The second term is a penalty term used to penalize the case where &lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+y_i(\mathbf{w}^T\mathbf{x}_i+b)&lt;1 %]]&gt;&lt;/script&gt;, which represents incorrect/imperfect classification.&lt;/p&gt;
+
+&lt;p&gt;&lt;script type=&quot;math/tex&quot;&gt;c&lt;/script&gt; is a weight parameter used to control the weight of the penalty term. If &lt;script type=&quot;math/tex&quot;&gt;c&lt;/script&gt; is too large, the model (the learned hyperplane) will mainly focuses on correctly classify the training data, but the margin may not be maximized. If &lt;script type=&quot;math/tex&quot;&gt;c&lt;/script&gt; is too small, the model will have have a large margin, while there may exist more miss-classified points in the training dataset.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Compute the gradient&lt;/strong&gt;&lt;br /&gt;
+To apply GDS we also need get the exact expression of the gradient.&lt;/p&gt;
+&lt;center&gt; $$\frac{\partial{L}}{\partial{\mathbf{w}}}=\mathbf{w}-c\sum_{i=1}^{n}{h(1-y_i(\mathbf{w}^T\mathbf{x}_i+b))y_i\mathbf{x}_i} $$ &lt;/center&gt;
+&lt;center&gt;
+	$$
+	\frac{\partial{L}}{\partial{b}}=-c\sum_{i=1}^{n}{h(1-y_i(\mathbf{w}^T\mathbf{x}_i+b))y_i}
+	$$
+&lt;/center&gt;
+&lt;p&gt;where&lt;/p&gt;
+&lt;center&gt;$$h(z)=\begin{cases}
+    1, &amp;amp; \text{if $z&amp;gt;0$}.\\
+    0, &amp;amp; \text{otherwise}.
+  \end{cases}$$
+&lt;/center&gt;
+&lt;p&gt;The updating rules of the parameter &lt;script type=&quot;math/tex&quot;&gt;\mathbf{w}&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;b&lt;/script&gt; are:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\mathbf{w}\leftarrow \mathbf{w} - \alpha\frac{\partial{L}}{\partial{\mathbf{w}}}\\
+	b\leftarrow b - \alpha\frac{\partial{L}}{\partial{b}}\\
+	$$
+&lt;/center&gt;
+&lt;p&gt;where &lt;script type=&quot;math/tex&quot;&gt;\alpha&lt;/script&gt; is the learning rate.&lt;/p&gt;
+
+&lt;h2 id=&quot;code-implementation&quot;&gt;Code Implementation&lt;/h2&gt;
+&lt;p&gt;To test the GDS algorithm, we use toy data shown in figure 
+&lt;a id=&quot;2d-toy-data&quot;&gt;&lt;/a&gt;
+&lt;img src=&quot;https://nlgu.top/img/2019-05-24-SVM/gds-svm-raw-data.svg&quot; alt=&quot;2d toy data&quot; /&gt;&lt;/p&gt;
 </description>
         <pubDate>Fri, 24 May 2019 20:00:00 +0200</pubDate>
         <link>http://localhost:4000/2019/05/24/turtorial-on-SVM/</link>
