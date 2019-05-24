@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 24 May 2019 13:56:38 +0200</pubDate>
-    <lastBuildDate>Fri, 24 May 2019 13:56:38 +0200</lastBuildDate>
+    <pubDate>Fri, 24 May 2019 15:06:41 +0200</pubDate>
+    <lastBuildDate>Fri, 24 May 2019 15:06:41 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -50,7 +50,21 @@
 &lt;h3 id=&quot;svm-in-linearly-separable-case&quot;&gt;SVM in Linearly Separable Case&lt;/h3&gt;
 &lt;p&gt;The linearly separable case means that in the training dataset, points with two different classes can be linearly separated by a hyperplane $H:\{\mathbf{x}|\mathbf{w}^{T}\mathbf{x}+b=0 \}$. The goal of SVM is to find the optimal parameters of $\hat{\mathbf{w}}$ and $\hat{b}$ which maximize the margin. See figure &lt;a href=&quot;#linear-svm&quot;&gt;Linear-SVM&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;Given a training dataset $\{(\mathbf{x}_i,\ y_i)\}, i=1,\dots,n$, where $\mathbf{x}\in{R^p}$ and $$&lt;/p&gt;
+&lt;p&gt;Given a training dataset $\{(\mathbf{x}_i,\ y_i)\}, i=1,\dots,n$, where $\mathbf{x}\in{R^p}$ and $y\in\{-1,+1\}$. If such a separating hyperplane exists as shown in figure &lt;a href=&quot;#linear-svm&quot;&gt;Linear-SVM&lt;/a&gt;, there exists a positive value, $\gamma$, which satisfies that&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;for any $y_i=+1$, $\mathbf{w}^T\mathbf{x}_i+b\geq \gamma$&lt;/li&gt;
+  &lt;li&gt;for any $y_i=-1$, $\mathbf{w}^T\mathbf{x}_i+b\leq -\gamma$&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Those two conditions can be summarized into one condition by considering $y_i$ and $\mathbf{x}_ {i}$ jointly:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;$y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq \gamma \ \ \ $ for any $i=1,\dots,n$,&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The equality holds for &lt;strong&gt;marginal points&lt;/strong&gt; ((like the blue square, and red circles in figure &lt;a href=&quot;#linear-svm&quot;&gt;Linear-SVM&lt;/a&gt;)). This condition ensures that the hyperplane can correctly classify two classes in the training dataset, yet we have another condition in SVM which is to maximize the margin.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;How is the margin is defined?&lt;/strong&gt; &lt;br /&gt;
+The margin is defined by the Euclidean distance between the closest points (marginal points) to the hyperplane.&lt;/p&gt;
 </description>
         <pubDate>Thu, 23 May 2019 19:00:00 +0200</pubDate>
         <link>http://localhost:4000/2019/05/23/turtorial-on-SVM/</link>

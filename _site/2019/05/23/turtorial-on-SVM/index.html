@@ -318,7 +318,21 @@ SVM in Linearly Separable Case
 <h3 id="svm-in-linearly-separable-case">SVM in Linearly Separable Case</h3>
 <p>The linearly separable case means that in the training dataset, points with two different classes can be linearly separated by a hyperplane $H:\{\mathbf{x}|\mathbf{w}^{T}\mathbf{x}+b=0 \}$. The goal of SVM is to find the optimal parameters of $\hat{\mathbf{w}}$ and $\hat{b}$ which maximize the margin. See figure <a href="#linear-svm">Linear-SVM</a>.</p>
 
-<p>Given a training dataset $\{(\mathbf{x}_i,\ y_i)\}, i=1,\dots,n$, where $\mathbf{x}\in{R^p}$ and $$</p>
+<p>Given a training dataset $\{(\mathbf{x}_i,\ y_i)\}, i=1,\dots,n$, where $\mathbf{x}\in{R^p}$ and $y\in\{-1,+1\}$. If such a separating hyperplane exists as shown in figure <a href="#linear-svm">Linear-SVM</a>, there exists a positive value, $\gamma$, which satisfies that</p>
+<ul>
+  <li>for any $y_i=+1$, $\mathbf{w}^T\mathbf{x}_i+b\geq \gamma$</li>
+  <li>for any $y_i=-1$, $\mathbf{w}^T\mathbf{x}_i+b\leq -\gamma$</li>
+</ul>
+
+<p>Those two conditions can be summarized into one condition by considering $y_i$ and $\mathbf{x}_ {i}$ jointly:</p>
+<ul>
+  <li>$y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq \gamma \ \ \ $ for any $i=1,\dots,n$,</li>
+</ul>
+
+<p>The equality holds for <strong>marginal points</strong> ((like the blue square, and red circles in figure <a href="#linear-svm">Linear-SVM</a>)). This condition ensures that the hyperplane can correctly classify two classes in the training dataset, yet we have another condition in SVM which is to maximize the margin.</p>
+
+<p><strong>How is the margin is defined?</strong> <br />
+The margin is defined by the Euclidean distance between the closest points (marginal points) to the hyperplane.</p>
 
 
                 <hr style="visibility: hidden;">
