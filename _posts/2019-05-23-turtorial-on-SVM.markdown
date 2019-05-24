@@ -28,12 +28,14 @@ Here the margin represents the minimum distance from points of both classes to t
  <br>
  <!-- <center><img src="https://nianlonggu.github.io/img/2019-05-23-SVM/what-is-svm.svg"> </center> -->
 <!-- <center>![what is svm](https://nianlonggu.github.io/img/2019-05-23-SVM/what-is-svm.svg) </center> center here will make it not work -->
+<center><a name="linear-svm"></a></center>
 ![what is svm](https://nlgu.top/img/2019-05-23-SVM/what-is-svm.svg)
+*<center>Linear SVM</center>*
 
 In the series of SVMs, following aspects will be discusses:<br>
 1. The optimization problem of SVM in linearly separable case
 2. Using gradient descent algorithm to solve the SVM optimization problem
-3. Lagrangian dual optimization and Karush-Kuhn-Tucker condition
+3. Lagrangian dual optimization and Karush-Kuhn-Tucker (KKT) condition
 4. Dual problem of SVM and analysis
 5. Solve the dual problem using Sequential Minimal Optimization (SMO)
 6. The optimization problem of SVM with penalty term 
@@ -42,8 +44,6 @@ In the series of SVMs, following aspects will be discusses:<br>
 <p id = "SVM-in-Linearly-Separable-Case"></p>
 
 ### SVM in Linearly Separable Case
-The linearly separable case means that in the training dataset, points with two different classes can be linearly separated by a hyperplane $H:\{\mathbf{x}|\mathbf{w}^{T}\mathbf{x}+b=0 \}$. The goal
+The linearly separable case means that in the training dataset, points with two different classes can be linearly separated by a hyperplane $H:\\{\mathbf{x}|\mathbf{w}^{T}\mathbf{x}+b=0 \\}$. The goal of SVM is to find the optimal parameters of $\hat{\mathbf{w}}$ and $\hat{b}$ which maximize the margin. See figure [Linear-SVM](#linear-svm).
 
-> Given a training dataset $\\{x_i\\}$
-
-wed
+Given a training dataset $\\{(\mathbf{x}_i,\ y_i)\\}, i=1,\dots,n$, where $\mathbf{x}\in{R^p}$ and $$
