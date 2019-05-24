@@ -15,9 +15,12 @@ tags:
 
 <!-- > “Hello, my first notebook.” -->
 
-## Contents
+<!-- ## Contents
 [Gradient Descent Algorithm](#GDS)<br>
-[Lagrangian Dual Problem](#Lagrangian-Dual)
+[Lagrangian Dual Problem](#Lagrangian-Dual) -->
+In the last
+
 
 <p id = "GDS"></p>
 
+## Gradient Descent Algorithm

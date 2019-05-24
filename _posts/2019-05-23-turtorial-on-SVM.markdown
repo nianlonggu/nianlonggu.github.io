@@ -15,9 +15,9 @@ tags:
 
 > “Hello, my first notebook.”
 
-## Contents
+<!-- ## Contents
 [What is SVM?](#what-is-SVM)<br>
-[SVM in Linearly Separable Case](#SVM-in-Linearly-Separable-Case)
+[SVM in Linearly Separable Case](#SVM-in-Linearly-Separable-Case) -->
 
 <p id = "what-is-SVM"></p>
 
