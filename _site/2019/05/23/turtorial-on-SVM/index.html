@@ -11,7 +11,7 @@
     <meta name="theme-color" content="#000000">
     
     <!-- Open Graph -->
-    <meta property="og:title" content="An Introduction to Support Vector Machines (SVM) - Gu Blog">
+    <meta property="og:title" content="An Introduction to Support Vector Machines (SVM): Basics - Gu Blog">
     
     <meta property="og:type" content="article">
     <meta property="og:description" content="
@@ -42,7 +42,7 @@ SVM in Linearly Separable Case
     <meta property="og:url" content="http://localhost:4000/2019/05/23/turtorial-on-SVM/">
     <meta property="og:site_name" content="Gu Blog">
     
-    <title>An Introduction to Support Vector Machines (SVM) - Gu Blog</title>
+    <title>An Introduction to Support Vector Machines (SVM): Basics - Gu Blog</title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/pwa/manifest.json">
@@ -250,9 +250,9 @@ SVM in Linearly Separable Case
                         <a class="tag" href="/archive/?tag=Machine+Learning" title="Machine Learning">Machine Learning</a>
                         
                     </div>
-                    <h1>An Introduction to Support Vector Machines (SVM)</h1>
+                    <h1>An Introduction to Support Vector Machines (SVM): Basics</h1>
                     
-                    <h2 class="subheading"> 支持向量机(SVM)概述：原理与实现</h2>
+                    <h2 class="subheading"> 支持向量机(SVM)概述：原理与实现(一)</h2>
                     <span class="meta">Posted by Gu on May 23, 2019</span>
                 </div>
             </div>
@@ -344,16 +344,18 @@ The margin is defined by the Euclidean distance between the closest points (marg
 </blockquote>
 
 <p>Therefore, the SVM optimization problem is:</p>
-<center>$$\text{max} \frac{\gamma}{\|\mathbf{w}\|},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq\gamma$$</center>
+<center>$$\text{max} \frac{\gamma}{\|\mathbf{w}\|},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq\gamma\ ,\ \ i=1,\dots,n$$</center>
 
 <blockquote>
   <p>note that here we cannot just maximize <script type="math/tex">\gamma</script>, since the definition of a hyperplane <script type="math/tex">h:\{\mathbf{x}\vert\mathbf{w}^T\mathbf{x}+b=\gamma\}</script> is scale invariant. <script type="math/tex">\{\mathbf{x}\vert\mathbf{w}^T\mathbf{x}+b=\gamma\}</script> and <script type="math/tex">\{\mathbf{x}\vert\alpha\mathbf{w}^T\mathbf{x}+\alpha b=\alpha\gamma\}</script> represent the same hyperplane. Therefore, maximizing <script type="math/tex">\gamma</script> may make the magnitude of <script type="math/tex">\mathbf{w}</script> and <script type="math/tex">b</script> reach infinity, and has no contribution to maximizing the real margin.</p>
 </blockquote>
 
 <p>It is the geodesic margin <script type="math/tex">\frac{\gamma}{\|\mathbf{w}\|}</script> that matters, not the functional margin <script type="math/tex">\gamma</script>. Therefore, we can select an arbitrary positive value for <script type="math/tex">\gamma</script>. This will only influence the scale of final optimal <script type="math/tex">\hat{\mathbf{w}}</script> and <script type="math/tex">\hat{b}</script>, but the optimal separating hyperplane remains the same. For simplicity, we can set <script type="math/tex">\gamma=1</script>. Then the SVM optimization problem is:</p>
-<center> $$\text{max} \frac{1}{\|\mathbf{w}\|},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1$$ </center>
+<center> $$\text{max} \frac{1}{\|\mathbf{w}\|},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1\ ,\ \ i=1,\dots,n$$ </center>
 <p>We can convert this problem into a convex optimization problem by reforming the objective function. The the final form of the SVM optimization problem is:</p>
-<center> $$\text{min} \frac{1}{2}{\|\mathbf{w}\|^2},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1$$ </center>
+<center> $$\text{min} \frac{1}{2}{\|\mathbf{w}\|^2},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1\ ,\ \ i=1,\dots,n$$ </center>
+
+<p>This is the standard expression of the linear SVM. In the next article I will introduce how to solve this optimization problem and get the optimal separating hyperplane <script type="math/tex">\{\mathbf{x}\vert\hat{\mathbf{w}}^T\mathbf{x}+\hat{b}=0\}</script>.</p>
 
 
                 <hr style="visibility: hidden;">

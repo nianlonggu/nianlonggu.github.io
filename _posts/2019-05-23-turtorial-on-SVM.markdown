@@ -1,7 +1,7 @@
 ---
 layout:     post
-title:      "An Introduction to Support Vector Machines (SVM)"
-subtitle:   " 支持向量机(SVM)概述：原理与实现"
+title:      "An Introduction to Support Vector Machines (SVM): Basics"
+subtitle:   " 支持向量机(SVM)概述：原理与实现(一)"
 date:       2019-05-23 17:00:00
 author:     "Gu"
 header-img: "img/post-bg-2019-05-23.jpg"
@@ -64,11 +64,13 @@ $$\mathbf{w}^T(\alpha \frac{\mathbf{w}}{\|\mathbf{w}\|})+b_1=0$$, where $$\vert\
 * the distance between two parallel hyperplanes $$h_1:\{\mathbf{x}\vert\mathbf{w}^T\mathbf{x}+b_1=0\}$$ and $$h_2:\{\mathbf{x}\vert\mathbf{w}^T\mathbf{x}+b_2=0\}$$ is $$\frac{\vert b_1-b_2\vert}{\|\mathbf{w}\|}$$
 
 Therefore, the SVM optimization problem is:
-<center>$$\text{max} \frac{\gamma}{\|\mathbf{w}\|},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq\gamma$$</center> 
+<center>$$\text{max} \frac{\gamma}{\|\mathbf{w}\|},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq\gamma\ ,\ \ i=1,\dots,n$$</center> 
 
 > note that here we cannot just maximize $$\gamma$$, since the definition of a hyperplane $$h:\{\mathbf{x}\vert\mathbf{w}^T\mathbf{x}+b=\gamma\}$$ is scale invariant. $$\{\mathbf{x}\vert\mathbf{w}^T\mathbf{x}+b=\gamma\}$$ and $$\{\mathbf{x}\vert\alpha\mathbf{w}^T\mathbf{x}+\alpha b=\alpha\gamma\}$$ represent the same hyperplane. Therefore, maximizing $$\gamma$$ may make the magnitude of $$\mathbf{w}$$ and $$b$$ reach infinity, and has no contribution to maximizing the real margin.
 
 It is the geodesic margin $$\frac{\gamma}{\|\mathbf{w}\|}$$ that matters, not the functional margin $$\gamma$$. Therefore, we can select an arbitrary positive value for $$\gamma$$. This will only influence the scale of final optimal $$\hat{\mathbf{w}}$$ and $$\hat{b}$$, but the optimal separating hyperplane remains the same. For simplicity, we can set $$\gamma=1$$. Then the SVM optimization problem is:
-<center> $$\text{max} \frac{1}{\|\mathbf{w}\|},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1$$ </center>
+<center> $$\text{max} \frac{1}{\|\mathbf{w}\|},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1\ ,\ \ i=1,\dots,n$$ </center>
 We can convert this problem into a convex optimization problem by reforming the objective function. The the final form of the SVM optimization problem is:
-<center> $$\text{min} \frac{1}{2}{\|\mathbf{w}\|^2},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1$$ </center>
+<center> $$\text{min} \frac{1}{2}{\|\mathbf{w}\|^2},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1\ ,\ \ i=1,\dots,n$$ </center>
+
+This is the standard expression of the linear SVM. In the next article I will introduce how to solve this optimization problem and get the optimal separating hyperplane $$\{\mathbf{x}\vert\hat{\mathbf{w}}^T\mathbf{x}+\hat{b}=0\}$$.

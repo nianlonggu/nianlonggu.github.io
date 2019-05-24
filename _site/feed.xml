@@ -5,12 +5,12 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 24 May 2019 17:33:30 +0200</pubDate>
-    <lastBuildDate>Fri, 24 May 2019 17:33:30 +0200</lastBuildDate>
+    <pubDate>Fri, 24 May 2019 17:51:43 +0200</pubDate>
+    <lastBuildDate>Fri, 24 May 2019 17:51:43 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
-        <title>An Introduction to Support Vector Machines (SVM)</title>
+        <title>An Introduction to Support Vector Machines (SVM): Basics</title>
         <description>&lt;blockquote&gt;
   &lt;p&gt;“Hello, my first notebook.”&lt;/p&gt;
   &lt;h2 id=&quot;contents&quot;&gt;Contents&lt;/h2&gt;
@@ -76,16 +76,18 @@ The margin is defined by the Euclidean distance between the closest points (marg
 &lt;/blockquote&gt;
 
 &lt;p&gt;Therefore, the SVM optimization problem is:&lt;/p&gt;
-&lt;center&gt;$$\text{max} \frac{\gamma}{\|\mathbf{w}\|},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq\gamma$$&lt;/center&gt;
+&lt;center&gt;$$\text{max} \frac{\gamma}{\|\mathbf{w}\|},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq\gamma\ ,\ \ i=1,\dots,n$$&lt;/center&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;note that here we cannot just maximize &lt;script type=&quot;math/tex&quot;&gt;\gamma&lt;/script&gt;, since the definition of a hyperplane &lt;script type=&quot;math/tex&quot;&gt;h:\{\mathbf{x}\vert\mathbf{w}^T\mathbf{x}+b=\gamma\}&lt;/script&gt; is scale invariant. &lt;script type=&quot;math/tex&quot;&gt;\{\mathbf{x}\vert\mathbf{w}^T\mathbf{x}+b=\gamma\}&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\{\mathbf{x}\vert\alpha\mathbf{w}^T\mathbf{x}+\alpha b=\alpha\gamma\}&lt;/script&gt; represent the same hyperplane. Therefore, maximizing &lt;script type=&quot;math/tex&quot;&gt;\gamma&lt;/script&gt; may make the magnitude of &lt;script type=&quot;math/tex&quot;&gt;\mathbf{w}&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;b&lt;/script&gt; reach infinity, and has no contribution to maximizing the real margin.&lt;/p&gt;
 &lt;/blockquote&gt;
 
 &lt;p&gt;It is the geodesic margin &lt;script type=&quot;math/tex&quot;&gt;\frac{\gamma}{\|\mathbf{w}\|}&lt;/script&gt; that matters, not the functional margin &lt;script type=&quot;math/tex&quot;&gt;\gamma&lt;/script&gt;. Therefore, we can select an arbitrary positive value for &lt;script type=&quot;math/tex&quot;&gt;\gamma&lt;/script&gt;. This will only influence the scale of final optimal &lt;script type=&quot;math/tex&quot;&gt;\hat{\mathbf{w}}&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\hat{b}&lt;/script&gt;, but the optimal separating hyperplane remains the same. For simplicity, we can set &lt;script type=&quot;math/tex&quot;&gt;\gamma=1&lt;/script&gt;. Then the SVM optimization problem is:&lt;/p&gt;
-&lt;center&gt; $$\text{max} \frac{1}{\|\mathbf{w}\|},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1$$ &lt;/center&gt;
+&lt;center&gt; $$\text{max} \frac{1}{\|\mathbf{w}\|},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1\ ,\ \ i=1,\dots,n$$ &lt;/center&gt;
 &lt;p&gt;We can convert this problem into a convex optimization problem by reforming the objective function. The the final form of the SVM optimization problem is:&lt;/p&gt;
-&lt;center&gt; $$\text{min} \frac{1}{2}{\|\mathbf{w}\|^2},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1$$ &lt;/center&gt;
+&lt;center&gt; $$\text{min} \frac{1}{2}{\|\mathbf{w}\|^2},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1\ ,\ \ i=1,\dots,n$$ &lt;/center&gt;
+
+&lt;p&gt;This is the standard expression of the linear SVM. In the next article I will introduce how to solve this optimization problem and get the optimal separating hyperplane &lt;script type=&quot;math/tex&quot;&gt;\{\mathbf{x}\vert\hat{\mathbf{w}}^T\mathbf{x}+\hat{b}=0\}&lt;/script&gt;.&lt;/p&gt;
 </description>
         <pubDate>Thu, 23 May 2019 19:00:00 +0200</pubDate>
         <link>http://localhost:4000/2019/05/23/turtorial-on-SVM/</link>
