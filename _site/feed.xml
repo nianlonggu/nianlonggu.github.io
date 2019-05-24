@@ -5,27 +5,35 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Thu, 23 May 2019 23:57:09 +0200</pubDate>
-    <lastBuildDate>Thu, 23 May 2019 23:57:09 +0200</lastBuildDate>
+    <pubDate>Fri, 24 May 2019 11:54:44 +0200</pubDate>
+    <lastBuildDate>Fri, 24 May 2019 11:54:44 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
         <title>An Introduction to Support Vector Machines (SVM)</title>
-        <description>&lt;!-- &gt; “Yeah It's on. ” --&gt;
-
-&lt;h2 id=&quot;contents&quot;&gt;Contents&lt;/h2&gt;
-&lt;p&gt;&lt;a href=&quot;#what-is-SVM&quot;&gt;What is SVM?&lt;/a&gt;&lt;/p&gt;
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;“Yeah It’s on. ”&lt;/p&gt;
+  &lt;h2 id=&quot;contents&quot;&gt;Contents&lt;/h2&gt;
+  &lt;p&gt;&lt;a href=&quot;#what-is-SVM&quot;&gt;What is SVM?&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
 
 &lt;p id=&quot;what-is-SVM&quot;&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;what-is-svm&quot;&gt;What is SVM?&lt;/h2&gt;
-&lt;p&gt;Support Vector Machine (SVM) is a method for classification (and possibly for regression). Here we mainly discuss the most common application: &lt;strong&gt;binary classification problem&lt;/strong&gt;.&lt;br /&gt;&lt;/p&gt;
+&lt;p&gt;Support Vector Machine (SVM) is a method for classification (and possibly for regression). Here we mainly discuss the most common application: &lt;strong&gt;binary classification problem&lt;/strong&gt;.&lt;/p&gt;
 &lt;blockquote&gt;
-  &lt;p&gt;Given a training dataset \({(x_i, y_i)}, i=1,2,…,n\)
-ss
-afe
-sfwe
-dq&lt;/p&gt;
+  &lt;p&gt;Given a training dataset with binary classes {+1, -1}, SVM means to find a separating hyperplane which can maximize the margin.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Here the margin represents the minimum distance from points of both classes to the hyperplane. &lt;strong&gt;Support vectors&lt;/strong&gt; represent the points which are closest to the hyperplane. These points determine the position and direction of the hyperplane, so they are called “support vectors”.
+ &lt;br /&gt;&lt;/p&gt;
+&lt;center&gt;&lt;img src=&quot;https://nianlonggu.github.io/img/2019-05-23-SVM/what-is-svm.svg&quot; /&gt; &lt;/center&gt;
+&lt;p&gt;&lt;img src=&quot;https://nianlonggu.github.io/img/2019-05-23-SVM/what-is-svm.svg&quot; alt=&quot;what is svm&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;linea&quot;&gt;Linea&lt;/h3&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Given a training dataset $x_i$&lt;/p&gt;
 &lt;/blockquote&gt;
 </description>
         <pubDate>Thu, 23 May 2019 19:00:00 +0200</pubDate>
