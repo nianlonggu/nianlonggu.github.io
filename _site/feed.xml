@@ -5,16 +5,17 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 24 May 2019 12:09:50 +0200</pubDate>
-    <lastBuildDate>Fri, 24 May 2019 12:09:50 +0200</lastBuildDate>
+    <pubDate>Fri, 24 May 2019 13:15:50 +0200</pubDate>
+    <lastBuildDate>Fri, 24 May 2019 13:15:50 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
         <title>An Introduction to Support Vector Machines (SVM)</title>
         <description>&lt;blockquote&gt;
-  &lt;p&gt;“Yeah It’s on. ”&lt;/p&gt;
+  &lt;p&gt;“Hello, my first notebook.”&lt;/p&gt;
   &lt;h2 id=&quot;contents&quot;&gt;Contents&lt;/h2&gt;
-  &lt;p&gt;&lt;a href=&quot;#what-is-SVM&quot;&gt;What is SVM?&lt;/a&gt;&lt;/p&gt;
+  &lt;p&gt;&lt;a href=&quot;#what-is-SVM&quot;&gt;What is SVM?&lt;/a&gt;&lt;br /&gt;
+&lt;a href=&quot;#SVM-in-Linearly-Separable-Case&quot;&gt;SVM in Linearly Separable Case&lt;/a&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
 
 &lt;p id=&quot;what-is-SVM&quot;&gt;&lt;/p&gt;
@@ -31,11 +32,27 @@
 &lt;!-- &lt;center&gt;![what is svm](https://nianlonggu.github.io/img/2019-05-23-SVM/what-is-svm.svg) &lt;/center&gt; center here will make it not work --&gt;
 &lt;img src=&quot;https://nlgu.top/img/2019-05-23-SVM/what-is-svm.svg&quot; alt=&quot;what is svm&quot; /&gt;&lt;/p&gt;
 
-&lt;h3 id=&quot;linea&quot;&gt;Linea&lt;/h3&gt;
+&lt;p&gt;In the series of SVMs, following aspects will be discusses:&lt;br /&gt;&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;The optimization problem of SVM in linearly separable case&lt;/li&gt;
+  &lt;li&gt;Using gradient descent algorithm to solve the SVM optimization problem&lt;/li&gt;
+  &lt;li&gt;Lagrangian dual optimization and Karush-Kuhn-Tucker condition&lt;/li&gt;
+  &lt;li&gt;Dual problem of SVM and analysis&lt;/li&gt;
+  &lt;li&gt;Solve the dual problem using Sequential Minimal Optimization (SMO)&lt;/li&gt;
+  &lt;li&gt;The optimization problem of SVM with penalty term&lt;/li&gt;
+  &lt;li&gt;Kernel SVM for nonlinear cases&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p id=&quot;SVM-in-Linearly-Separable-Case&quot;&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;svm-in-linearly-separable-case&quot;&gt;SVM in Linearly Separable Case&lt;/h3&gt;
+&lt;p&gt;The linearly separable case means that in the training dataset, points with two different classes can be linearly separated by a hyperplane $H:{\mathbf{x}|\mathbf{w}^{T}\mathbf{x}+b=0 }$. The goal&lt;/p&gt;
 
 &lt;blockquote&gt;
-  &lt;p&gt;Given a training dataset $x_i$&lt;/p&gt;
+  &lt;p&gt;Given a training dataset $\{x_i\}$&lt;/p&gt;
 &lt;/blockquote&gt;
+
+&lt;p&gt;wed&lt;/p&gt;
 </description>
         <pubDate>Thu, 23 May 2019 19:00:00 +0200</pubDate>
         <link>http://localhost:4000/2019/05/23/turtorial-on-SVM/</link>
