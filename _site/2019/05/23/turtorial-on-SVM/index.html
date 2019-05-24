@@ -329,10 +329,17 @@ SVM in Linearly Separable Case
   <li>$y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq \gamma \ \ \ $ for any $i=1,\dots,n$,</li>
 </ul>
 
-<p>The equality holds for <strong>marginal points</strong> ((like the blue square, and red circles in figure <a href="#linear-svm">Linear-SVM</a>)). This condition ensures that the hyperplane can correctly classify two classes in the training dataset, yet we have another condition in SVM which is to maximize the margin.</p>
+<p>The equality holds for <strong>marginal points</strong> (like the blue square, and red circles in figure <a href="#linear-svm">Linear-SVM</a>). This condition ensures that the hyperplane can correctly classify two classes in the training dataset, yet we have another condition in SVM which is to maximize the margin.</p>
 
 <p><strong>How is the margin is defined?</strong> <br />
-The margin is defined by the Euclidean distance between the closest points (marginal points) to the hyperplane.</p>
+The margin is defined by the Euclidean distance between the closest points (marginal points) to the hyperplane. Since for marginal points $(\mathbf{x}_ i, y_i)$ it holds $\mathbf{w}^T\mathbf{x}_ i+b = \gamma$ or $\mathbf{w}^T\mathbf{x}_ i+b = -\gamma$, and the hyperplane satisfies $\mathbf{w}^T\mathbf{x}_ i+b = 0$, computing the margin is equivalent to computing the distance between two parallel hyperplane $h_1:\{\mathbf{x}|\mathbf{w}^T\mathbf{x}_ i+b = \gamma\}$ and $h_2:\{\mathbf{w}^T\mathbf{x}_ i+b = 0\}$. Therefore, the margin is <script type="math/tex">\frac{\gamma}{\|\mathbf{w}\|}</script>.</p>
+<blockquote>
+  <p>Recall of linear algebra:<br /></p>
+  <ul>
+    <li>the normal vector of hyperplane $h_1:\{\mathbf{x}|\mathbf{w}^T\mathbf{x}+b_1=0\}$ is <script type="math/tex">\frac{\mathbf{w}}{\|\mathbf{w}\|}</script></li>
+    <li>the distance from origin $\mathbf{0}$ to hyperplane $h_1:\{\mathbf{x}|\mathbf{w}^T\mathbf{x}+b_1=0\}$ is $\frac{b_1}{||\mathbf{w}||}$</li>
+  </ul>
+</blockquote>
 
 
                 <hr style="visibility: hidden;">

@@ -53,7 +53,10 @@ Given a training dataset $\\{(\mathbf{x}_i,\ y_i)\\}, i=1,\dots,n$, where $\math
 Those two conditions can be summarized into one condition by considering $y_i$ and $\mathbf{x}_ {i}$ jointly:
 * $y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq \gamma \ \ \ $ for any $i=1,\dots,n$, 
 
-The equality holds for **marginal points** ((like the blue square, and red circles in figure [Linear-SVM](#linear-svm))). This condition ensures that the hyperplane can correctly classify two classes in the training dataset, yet we have another condition in SVM which is to maximize the margin.
+The equality holds for **marginal points** (like the blue square, and red circles in figure [Linear-SVM](#linear-svm)). This condition ensures that the hyperplane can correctly classify two classes in the training dataset, yet we have another condition in SVM which is to maximize the margin.
 
 **How is the margin is defined?** <br>
-The margin is defined by the Euclidean distance between the closest points (marginal points) to the hyperplane.
+The margin is defined by the Euclidean distance between the closest points (marginal points) to the hyperplane. Since for marginal points $(\mathbf{x}_ i, y_i)$ it holds $\mathbf{w}^T\mathbf{x}_ i+b = \gamma$ or $\mathbf{w}^T\mathbf{x}_ i+b = -\gamma$, and the hyperplane satisfies $\mathbf{w}^T\mathbf{x}_ i+b = 0$, computing the margin is equivalent to computing the distance between two parallel hyperplane $h_1:\\{\mathbf{x}|\mathbf{w}^T\mathbf{x}_ i+b = \gamma\\}$ and $h_2:\\{\mathbf{w}^T\mathbf{x}_ i+b = 0\\}$. Therefore, the margin is $$\frac{\gamma}{\|\mathbf{w}\|}$$.
+> Recall of linear algebra:<br>
+* the normal vector of hyperplane $h_1:\\{\mathbf{x}\|\mathbf{w}^T\mathbf{x}+b_1=0\\}$ is $$\frac{\mathbf{w}}{\|\mathbf{w}\|}$$ 
+* the distance from origin $\mathbf{0}$ to hyperplane $h_1:\\{\mathbf{x}\|\mathbf{w}^T\mathbf{x}+b_1=0\\}$ is $\frac{b_1}{\|\|\mathbf{w}\|\|}$
