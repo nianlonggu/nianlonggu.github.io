@@ -287,9 +287,16 @@
 
 <h2 id="gradient-descent-algorithm">Gradient Descent Algorithm</h2>
 <p>To apply GDS, we need to design a new objective function which is differentiable. The new objective function is:</p>
-<center>$$\text{min}_{\mathbf{w},b}\ L=\frac{1}{2}\|\mathbf{w}\|^2+c\sum^{n}_{i=1}{\max\{1-y_i(\mathbf{w}^T\mathbf{x}_i+b) ,0\}}$$</center>
-<p>This objective function contains two terms. The first term is used to maximize the margin. The second term is a penalty term used to penalize the case where <script type="math/tex">% <![CDATA[
-y_i(\mathbf{w}^T\mathbf{x}_i+b)<1 %]]></script>, which represents incorrect/imperfect classification.</p>
+<center>$$\text{min}_{\mathbf{w},b}\ L=\frac{\lambda}{2}\|\mathbf{w}\|^2+\frac{1}{n}\sum^{n}_{i=1}{\max\{1-y_i(\mathbf{w}^T\mathbf{x}_i+b) ,0\}}$$</center>
+<p>This objective function contains two terms. The first term is used to maximize the margin. This term is also called <strong>regularization term</strong>. The second term is a penalty term used to penalize the case where <script type="math/tex">% <![CDATA[
+y_i(\mathbf{w}^T\mathbf{x}_i+b)<1 %]]></script>, which represents incorrect/imperfect classification. Note that for the case <script type="math/tex">y_i(\mathbf{w}^T\mathbf{x}_i+b)\geq 1</script> we don’t need to penalize it, so we use a max function <script type="math/tex">\max\{1-y_i(\mathbf{w}^T\mathbf{x}_i+b) ,0\}</script>. This is also called <strong>hinge loss</strong>.</p>
+<center>
+	$$
+		h(z) = \max\{1-z, 0\}
+	$$
+</center>
+<p><img src="https://nianlonggu.github.io/img/2019-05-24-SVM/hinge-func.svg" alt="hinge function" />
+<strong><center>It looks like a hinge, isn't it?</center></strong></p>
 
 <p><script type="math/tex">c</script> is a weight parameter used to control the weight of the penalty term. If <script type="math/tex">c</script> is too large, the model (the learned hyperplane) will mainly focuses on correctly classify the training data, but the margin may not be maximized. If <script type="math/tex">c</script> is too small, the model will have have a large margin, while there may exist more miss-classified points in the training dataset.</p>
 
@@ -316,10 +323,27 @@ To apply GDS we also need get the exact expression of the gradient.</p>
 </center>
 <p>where <script type="math/tex">\alpha</script> is the learning rate.</p>
 
+<p>Note that in practice that in each update loop we may not use the whole training dataset, instead we may use a mini-batch. Suppose that the mini batch size is <script type="math/tex">m</script>, then the expression of the gradient is:</p>
+<center>
+	$$
+		\frac{\partial{L}}{\partial{\mathbf{w}}}=\mathbf{w}-c\frac{1}{m}\sum_{i=1}^{m}{h(1-y_i(\mathbf{w}^T\mathbf{x}_i+b))y_i\mathbf{x}_i}\\
+		\frac{\partial{L}}{\partial{b}}=-c\frac{1}{m}\sum_{i=1}^{m}{h(1-y_i(\mathbf{w}^T\mathbf{x}_i+b))y_i}
+	$$
+</center>
+<p>In this case the actually objective function is:</p>
+<center>
+	$$
+	\text{min}_{\mathbf{w},b}\ L=\frac{1}{2}\|\mathbf{w}\|^2+c\frac{1}{m}\sum^{m}_{i=1}{\max\{1-y_i(\mathbf{w}^T\mathbf{x}_i+b) ,0\}}
+	$$
+</center>
+<p>In the following we will use this mini-batch style expression.</p>
+
 <h2 id="code-implementation">Code Implementation</h2>
-<p>To test the GDS algorithm, we use toy data shown in figure 
-<a id="2d-toy-data"></a>
-<img src="https://nlgu.top/img/2019-05-24-SVM/gds-svm-raw-data.svg" alt="2d toy data" /></p>
+<p>To test the GDS algorithm, we use toy data shown in figure <a href="#2d-toy-data">2d toy data</a>
+<a name="2d-toy-data"></a>
+<img src="https://nianlonggu.github.io/img/2019-05-24-SVM/gds-svm-raw-data.svg" width="400" hegiht="203" />
+<em><center>2d toy data</center></em>
+In this dataset, each <script type="math/tex">\mathbf{x}_ i</script> is an 2 dimensional vector. We need to use GDS to find the optimal separating hyperplane, which is a line in this case.</p>
 
 
                 <hr style="visibility: hidden;">
