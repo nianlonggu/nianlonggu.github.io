@@ -353,8 +353,35 @@ After 100000 iterations the hyperplane looks accurate and the margin seems to be
 We can also test the influence of <script type="math/tex">\lambda</script> on the final results of the hyperplane, to check if our illustration on <script type="math/tex">\lambda</script> above is right or not. The results are shown in figure <a href="#influence-of-lambda">Influence Of Lambda</a>.
 <a name="influence-of-lambda"></a>
 <img src="https://nianlonggu.github.io/img/2019-05-24-SVM/gds-svm-lambda.svg" />
-<em><center>Influence Of Lambda</center></em></p>
+<em><center>Influence Of Lambda</center></em>
+The results are within our expectation. When <script type="math/tex">\lambda</script> is too large, like 0.1, the margin is very large, but there are actually some points inside the margin area, which means that the constraints <script type="math/tex">y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1</script> is not satisfied for some points. when <script type="math/tex">\lambda</script> is smaller, the margin becomes smaller, but all points satisfy the constraint.</p>
 
+<p>We also noticed that when <script type="math/tex">\lambda</script> is extremely small, like 1e-5, the margin doesn’t become further smaller. Actually we tested that even if <script type="math/tex">\lambda=0</script> we will still get the same ideal results, which implies that the regularization term in the loss function is useless in this toy example! This may be due to the fact that for such a simple dataset, it is very easy to find the optimal separating hyperplane and support vectors. Once the optimal separating hyperplane is found, the model will stick to it even if there is no regularization term in the loss function, since in this case the gradient is 0, and the training is actually stopped.</p>
+
+<h2 id="use-svm-for-classification">Use SVM for classification</h2>
+
+<p>Suppose that we have obtained the optimal <script type="math/tex">\mathbf{w}^{\star}</script> and <script type="math/tex">b^{\star}</script>, given a new input data <script type="math/tex">\mathbf{x}</script>, we can make a decision of the label <script type="math/tex">\hat{y}</script> in two ways:<br /></p>
+
+<p><strong>Hard Decision</strong><br />
+<script type="math/tex">% <![CDATA[
+\hat{y}=\begin{cases}
++1, & \text{if}\ {\mathbf{w}^{\star}}^T\mathbf{x} +b^{\star}\geq 0\\
+-1, & \text{if}\ {\mathbf{w}^{\star}}^T\mathbf{x} +b^{\star}  < 0\\
+\end{cases} %]]></script></p>
+
+<p><strong>Soft Decision</strong><br />
+<script type="math/tex">\hat{y} = d( {\mathbf{w}^{\star}}^T\mathbf{x} +b^{\star} )</script><br />
+where
+<script type="math/tex">% <![CDATA[
+d(z) = \begin{cases}
+1, & \text{if}\ z \geq 1 \\
+z, & \text{if}\ -1 \leq z < 1\\
+-1, & \text{if}\ z < -1\\
+\end{cases} %]]></script></p>
+
+<blockquote>
+  <p>So that’s it. Now we are able to use GDS to train a SVM model and used it for classification task. In the next article we will explore more possibilities of the solutions on SVM.</p>
+</blockquote>
 
 
                 <hr style="visibility: hidden;">

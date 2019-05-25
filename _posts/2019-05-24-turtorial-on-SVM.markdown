@@ -93,8 +93,33 @@ We can also test the influence of $$\lambda$$ on the final results of the hyperp
 <a name="influence-of-lambda"></a>
 <img src="https://nianlonggu.github.io/img/2019-05-24-SVM/gds-svm-lambda.svg"  />
 *<center>Influence Of Lambda</center>*
+The results are within our expectation. When $$\lambda$$ is too large, like 0.1, the margin is very large, but there are actually some points inside the margin area, which means that the constraints $$y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1$$ is not satisfied for some points. when $$\lambda$$ is smaller, the margin becomes smaller, but all points satisfy the constraint. 
+
+We also noticed that when $$\lambda$$ is extremely small, like 1e-5, the margin doesn't become further smaller. Actually we tested that even if $$\lambda=0$$ we will still get the same ideal results, which implies that the regularization term in the loss function is useless in this toy example! This may be due to the fact that for such a simple dataset, it is very easy to find the optimal separating hyperplane and support vectors. Once the optimal separating hyperplane is found, the model will stick to it even if there is no regularization term in the loss function, since in this case the gradient is 0, and the training is actually stopped.
+
+## Use SVM for classification
+
+Suppose that we have obtained the optimal $$\mathbf{w}^{\star}$$ and $$b^{\star}$$, given a new input data $$\mathbf{x}$$, we can make a decision of the label $$\hat{y}$$ in two ways:<br>
+
+**Hard Decision**<br>
+$$\hat{y}=\begin{cases}
++1, & \text{if}\ {\mathbf{w}^{\star}}^T\mathbf{x} +b^{\star}\geq 0\\
+-1, & \text{if}\ {\mathbf{w}^{\star}}^T\mathbf{x} +b^{\star}  < 0\\
+\end{cases}
+$$
+
+**Soft Decision**<br>
+$$
+\hat{y} = d( {\mathbf{w}^{\star}}^T\mathbf{x} +b^{\star} )
+$$\\
+where
+$$
+d(z) = \begin{cases}
+1, & \text{if}\ z \geq 1 \\
+z, & \text{if}\ -1 \leq z < 1\\
+-1, & \text{if}\ z < -1\\
+\end{cases}
+$$
 
 
-
-
-
+> So that's it. Now we are able to use GDS to train a SVM model and used it for classification task. In the next article we will explore more possibilities of the solutions on SVM.

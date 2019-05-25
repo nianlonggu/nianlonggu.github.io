@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sat, 25 May 2019 17:53:39 +0200</pubDate>
-    <lastBuildDate>Sat, 25 May 2019 17:53:39 +0200</lastBuildDate>
+    <pubDate>Sat, 25 May 2019 18:23:40 +0200</pubDate>
+    <lastBuildDate>Sat, 25 May 2019 18:23:40 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -90,8 +90,35 @@ After 100000 iterations the hyperplane looks accurate and the margin seems to be
 We can also test the influence of &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; on the final results of the hyperplane, to check if our illustration on &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; above is right or not. The results are shown in figure &lt;a href=&quot;#influence-of-lambda&quot;&gt;Influence Of Lambda&lt;/a&gt;.
 &lt;a name=&quot;influence-of-lambda&quot;&gt;&lt;/a&gt;
 &lt;img src=&quot;https://nianlonggu.github.io/img/2019-05-24-SVM/gds-svm-lambda.svg&quot; /&gt;
-&lt;em&gt;&lt;center&gt;Influence Of Lambda&lt;/center&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;em&gt;&lt;center&gt;Influence Of Lambda&lt;/center&gt;&lt;/em&gt;
+The results are within our expectation. When &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; is too large, like 0.1, the margin is very large, but there are actually some points inside the margin area, which means that the constraints &lt;script type=&quot;math/tex&quot;&gt;y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1&lt;/script&gt; is not satisfied for some points. when &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; is smaller, the margin becomes smaller, but all points satisfy the constraint.&lt;/p&gt;
 
+&lt;p&gt;We also noticed that when &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; is extremely small, like 1e-5, the margin doesn’t become further smaller. Actually we tested that even if &lt;script type=&quot;math/tex&quot;&gt;\lambda=0&lt;/script&gt; we will still get the same ideal results, which implies that the regularization term in the loss function is useless in this toy example! This may be due to the fact that for such a simple dataset, it is very easy to find the optimal separating hyperplane and support vectors. Once the optimal separating hyperplane is found, the model will stick to it even if there is no regularization term in the loss function, since in this case the gradient is 0, and the training is actually stopped.&lt;/p&gt;
+
+&lt;h2 id=&quot;use-svm-for-classification&quot;&gt;Use SVM for classification&lt;/h2&gt;
+
+&lt;p&gt;Suppose that we have obtained the optimal &lt;script type=&quot;math/tex&quot;&gt;\mathbf{w}^{\star}&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;b^{\star}&lt;/script&gt;, given a new input data &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}&lt;/script&gt;, we can make a decision of the label &lt;script type=&quot;math/tex&quot;&gt;\hat{y}&lt;/script&gt; in two ways:&lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Hard Decision&lt;/strong&gt;&lt;br /&gt;
+&lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+\hat{y}=\begin{cases}
++1, &amp; \text{if}\ {\mathbf{w}^{\star}}^T\mathbf{x} +b^{\star}\geq 0\\
+-1, &amp; \text{if}\ {\mathbf{w}^{\star}}^T\mathbf{x} +b^{\star}  &lt; 0\\
+\end{cases} %]]&gt;&lt;/script&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Soft Decision&lt;/strong&gt;&lt;br /&gt;
+&lt;script type=&quot;math/tex&quot;&gt;\hat{y} = d( {\mathbf{w}^{\star}}^T\mathbf{x} +b^{\star} )&lt;/script&gt;&lt;br /&gt;
+where
+&lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+d(z) = \begin{cases}
+1, &amp; \text{if}\ z \geq 1 \\
+z, &amp; \text{if}\ -1 \leq z &lt; 1\\
+-1, &amp; \text{if}\ z &lt; -1\\
+\end{cases} %]]&gt;&lt;/script&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;So that’s it. Now we are able to use GDS to train a SVM model and used it for classification task. In the next article we will explore more possibilities of the solutions on SVM.&lt;/p&gt;
+&lt;/blockquote&gt;
 </description>
         <pubDate>Fri, 24 May 2019 20:00:00 +0200</pubDate>
         <link>http://localhost:4000/2019/05/24/turtorial-on-SVM/</link>
