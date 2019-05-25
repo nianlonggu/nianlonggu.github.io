@@ -83,5 +83,13 @@ In this dataset, each $$\mathbf{x}_ i$$ is an 2 dimensional vector. In total the
 In this part, we set $$\lambda=1e-4, \text{learning_rate}=0.1, \text{batch_size}=100, \text{maximum_iteration}=100000$$. The change of the hyperplane over iterations is shown in figure [Hyperplane Over Iteration](#hyperplane-over-iteration)
 <a name="hyperplane-over-iteration"></a>
 <img src="https://nianlonggu.github.io/img/2019-05-24-SVM/hyperplane-over-iteration.gif" width="400" hegiht="203" />
+*<center>Hyperplane Over Iteration</center>*
+After 100000 iterations the hyperplane looks accurate and the margin seems to be maximized. If we compare the final result with the SVM illustration figure, we will find that they are very similar, which implies that the gradient descent algorithm does work!
+<a name="hyperplane-over-iteration"></a>
+<img src="https://nianlonggu.github.io/img/2019-05-24-SVM/compare-gds-svm.svg"  />
+*<center>Comparison between experiment results and model illustration</center>*
+
+
+
 
 

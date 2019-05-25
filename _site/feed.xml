@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sat, 25 May 2019 17:06:52 +0200</pubDate>
-    <lastBuildDate>Sat, 25 May 2019 17:06:52 +0200</lastBuildDate>
+    <pubDate>Sat, 25 May 2019 17:21:55 +0200</pubDate>
+    <lastBuildDate>Sat, 25 May 2019 17:21:55 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -80,7 +80,12 @@ In this dataset, each &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i&lt;/
 &lt;p&gt;&lt;strong&gt;Visualization of Hyperplane&lt;/strong&gt;&lt;br /&gt;
 In this part, we set &lt;script type=&quot;math/tex&quot;&gt;\lambda=1e-4, \text{learning_rate}=0.1, \text{batch_size}=100, \text{maximum_iteration}=100000&lt;/script&gt;. The change of the hyperplane over iterations is shown in figure &lt;a href=&quot;#hyperplane-over-iteration&quot;&gt;Hyperplane Over Iteration&lt;/a&gt;
 &lt;a name=&quot;hyperplane-over-iteration&quot;&gt;&lt;/a&gt;
-&lt;img src=&quot;https://nianlonggu.github.io/img/2019-05-24-SVM/hyperplane-over-iteration.gif&quot; width=&quot;400&quot; hegiht=&quot;203&quot; /&gt;&lt;/p&gt;
+&lt;img src=&quot;https://nianlonggu.github.io/img/2019-05-24-SVM/hyperplane-over-iteration.gif&quot; width=&quot;400&quot; hegiht=&quot;203&quot; /&gt;
+&lt;em&gt;&lt;center&gt;Hyperplane Over Iteration&lt;/center&gt;&lt;/em&gt;
+After 100000 iterations the hyperplane looks accurate and the margin seems to be maximized. If we compare the final result with the SVM illustration figure, we will find that they are very similar, which implies that the gradient descent algorithm does work!
+&lt;a name=&quot;hyperplane-over-iteration&quot;&gt;&lt;/a&gt;
+&lt;img src=&quot;https://nianlonggu.github.io/img/2019-05-24-SVM/compare-gds-svm.svg&quot; /&gt;
+&lt;em&gt;&lt;center&gt;Comparison between experiment results and model illustration&lt;/center&gt;&lt;/em&gt;&lt;/p&gt;
 
 </description>
         <pubDate>Fri, 24 May 2019 20:00:00 +0200</pubDate>
