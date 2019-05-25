@@ -88,6 +88,9 @@ After 100000 iterations the hyperplane looks accurate and the margin seems to be
 <a name="hyperplane-over-iteration"></a>
 <img src="https://nianlonggu.github.io/img/2019-05-24-SVM/compare-gds-svm.svg"  />
 *<center>Comparison between experiment results and model illustration</center>*
+**Influence of $$\lambda$$ on the final results**<br>
+
+
 
 
 
