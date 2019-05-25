@@ -11,12 +11,13 @@
     <meta name="theme-color" content="#000000">
     
     <!-- Open Graph -->
-    <meta property="og:title" content="An Introduction to Support Vector Machines (SVM): Convex Optimization and Lagrangian Duality - Gu Blog">
+    <meta property="og:title" content="An Introduction to Support Vector Machines (SVM): Convex Optimization and Lagrangian Duality Principle - Gu Blog">
     
     <meta property="og:type" content="article">
     <meta property="og:description" content="In the last article we have conquered how to use gradient descent algorithm to train a SVM. So,
 
   is this the end of the story?
+
 
 ">
     
@@ -39,7 +40,7 @@
     <meta property="og:url" content="http://localhost:4000/2019/05/25/turtorial-on-SVM/">
     <meta property="og:site_name" content="Gu Blog">
     
-    <title>An Introduction to Support Vector Machines (SVM): Convex Optimization and Lagrangian Duality - Gu Blog</title>
+    <title>An Introduction to Support Vector Machines (SVM): Convex Optimization and Lagrangian Duality Principle - Gu Blog</title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/pwa/manifest.json">
@@ -247,7 +248,7 @@
                         <a class="tag" href="/archive/?tag=Machine+Learning" title="Machine Learning">Machine Learning</a>
                         
                     </div>
-                    <h1>An Introduction to Support Vector Machines (SVM): Convex Optimization and Lagrangian Duality</h1>
+                    <h1>An Introduction to Support Vector Machines (SVM): Convex Optimization and Lagrangian Duality Principle</h1>
                     
                     <h2 class="subheading"> 支持向量机(SVM)概述：凸优化与拉格朗日对偶问题</h2>
                     <span class="meta">Posted by Gu on May 25, 2019</span>
@@ -280,6 +281,16 @@
 <blockquote>
   <p>is this the end of the story?</p>
 </blockquote>
+
+<p>Not really. Although using GDS can solve the SVM optimization, GDS has some shortcomings:</p>
+<ul>
+  <li>Gradient procedure is time consuming and the solution may be suboptimal.</li>
+  <li>GDS method cannot explicitly identify support vectors (points) which determine the hyperplane.</li>
+</ul>
+
+<p>To overcome these shortcomings, we can take advantage of the Lagrangian duality. First we convert original SVM optimization problem into a primal (convex) optimization problem, then we can get the Lagrangian dual problem. Luckily we can solve the dual problem based on KKT condition using more efficient methods.</p>
+
+<p>First of all, we need to briefly introduce Lagrangian duality and Karush-Kuhn-Tucker (KKT) condition.</p>
 
 
                 <hr style="visibility: hidden;">

@@ -5,16 +5,26 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sat, 25 May 2019 19:45:46 +0200</pubDate>
-    <lastBuildDate>Sat, 25 May 2019 19:45:46 +0200</lastBuildDate>
+    <pubDate>Sun, 26 May 2019 00:19:41 +0200</pubDate>
+    <lastBuildDate>Sun, 26 May 2019 00:19:41 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
-        <title>An Introduction to Support Vector Machines (SVM): Convex Optimization and Lagrangian Duality</title>
+        <title>An Introduction to Support Vector Machines (SVM): Convex Optimization and Lagrangian Duality Principle</title>
         <description>&lt;p&gt;In the last article we have conquered how to use gradient descent algorithm to train a SVM. So,&lt;/p&gt;
 &lt;blockquote&gt;
   &lt;p&gt;is this the end of the story?&lt;/p&gt;
 &lt;/blockquote&gt;
+
+&lt;p&gt;Not really. Although using GDS can solve the SVM optimization, GDS has some shortcomings:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Gradient procedure is time consuming and the solution may be suboptimal.&lt;/li&gt;
+  &lt;li&gt;GDS method cannot explicitly identify support vectors (points) which determine the hyperplane.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;To overcome these shortcomings, we can take advantage of the Lagrangian duality. First we convert original SVM optimization problem into a primal (convex) optimization problem, then we can get the Lagrangian dual problem. Luckily we can solve the dual problem based on KKT condition using more efficient methods.&lt;/p&gt;
+
+&lt;p&gt;First of all, we need to briefly introduce Lagrangian duality and Karush-Kuhn-Tucker (KKT) condition.&lt;/p&gt;
 </description>
         <pubDate>Sat, 25 May 2019 21:43:00 +0200</pubDate>
         <link>http://localhost:4000/2019/05/25/turtorial-on-SVM/</link>
