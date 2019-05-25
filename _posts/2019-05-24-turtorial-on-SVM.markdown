@@ -89,8 +89,10 @@ After 100000 iterations the hyperplane looks accurate and the margin seems to be
 <img src="https://nianlonggu.github.io/img/2019-05-24-SVM/compare-gds-svm.svg"  />
 *<center>Comparison between experiment results and model illustration</center>*
 **Influence of $$\lambda$$ on the final results**<br>
-
-
+We can also test the influence of $$\lambda$$ on the final results of the hyperplane, to check if our illustration on $$\lambda$$ above is right or not. The results are shown in figure [Influence Of Lambda](#influence-of-lambda).
+<a name="influence-of-lambda"></a>
+<img src="https://nianlonggu.github.io/img/2019-05-24-SVM/gds-svm-lambda.svg"  />
+*<center>Influence Of Lambda</center>*
 
 
 

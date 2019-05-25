@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sat, 25 May 2019 17:50:21 +0200</pubDate>
-    <lastBuildDate>Sat, 25 May 2019 17:50:21 +0200</lastBuildDate>
+    <pubDate>Sat, 25 May 2019 17:53:39 +0200</pubDate>
+    <lastBuildDate>Sat, 25 May 2019 17:53:39 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -86,7 +86,11 @@ After 100000 iterations the hyperplane looks accurate and the margin seems to be
 &lt;a name=&quot;hyperplane-over-iteration&quot;&gt;&lt;/a&gt;
 &lt;img src=&quot;https://nianlonggu.github.io/img/2019-05-24-SVM/compare-gds-svm.svg&quot; /&gt;
 &lt;em&gt;&lt;center&gt;Comparison between experiment results and model illustration&lt;/center&gt;&lt;/em&gt;
-&lt;strong&gt;Influence of &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; on the final results&lt;/strong&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;strong&gt;Influence of &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; on the final results&lt;/strong&gt;&lt;br /&gt;
+We can also test the influence of &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; on the final results of the hyperplane, to check if our illustration on &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; above is right or not. The results are shown in figure &lt;a href=&quot;#influence-of-lambda&quot;&gt;Influence Of Lambda&lt;/a&gt;.
+&lt;a name=&quot;influence-of-lambda&quot;&gt;&lt;/a&gt;
+&lt;img src=&quot;https://nianlonggu.github.io/img/2019-05-24-SVM/gds-svm-lambda.svg&quot; /&gt;
+&lt;em&gt;&lt;center&gt;Influence Of Lambda&lt;/center&gt;&lt;/em&gt;&lt;/p&gt;
 
 </description>
         <pubDate>Fri, 24 May 2019 20:00:00 +0200</pubDate>
