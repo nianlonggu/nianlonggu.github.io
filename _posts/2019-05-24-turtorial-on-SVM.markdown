@@ -34,10 +34,10 @@ This objective function contains two terms. The first term is used to maximize t
 		h(z) = \max\{1-z, 0\}
 	$$
 </center>
-![hinge function](https://nianlonggu.github.io/img/2019-05-24-SVM/hinge-func.svg)
-**<center>It looks like a hinge, isn't it?</center>**
+![hinge function](https://nlgu.top/img/2019-05-24-SVM/hinge-func.svg)
+*<center>It looks like a hinge, isn't it?</center>*
 
-$$c$$ is a weight parameter used to control the weight of the penalty term. If $$c$$ is too large, the model (the learned hyperplane) will mainly focuses on correctly classify the training data, but the margin may not be maximized. If $$c$$ is too small, the model will have have a large margin, while there may exist more miss-classified points in the training dataset.  
+$$\lambda$$ is a weight parameter used to control the weight of the regularization term. If $$\lambda$$ is too small, the model (the learned hyperplane) will mainly focuses on correctly classify the training data, but the margin may not be maximized. If $$\lambda$$ is too large, the model will have have a large margin, while there may exist more miss-classified points in the training dataset.  
 
 **Compute the gradient**<br>
 To apply GDS we also need get the exact expression of the gradient.

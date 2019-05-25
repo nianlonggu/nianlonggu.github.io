@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sat, 25 May 2019 15:43:34 +0200</pubDate>
-    <lastBuildDate>Sat, 25 May 2019 15:43:34 +0200</lastBuildDate>
+    <pubDate>Sat, 25 May 2019 15:48:11 +0200</pubDate>
+    <lastBuildDate>Sat, 25 May 2019 15:48:11 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -32,10 +32,10 @@ y_i(\mathbf{w}^T\mathbf{x}_i+b)&lt;1 %]]&gt;&lt;/script&gt;, which represents in
 		h(z) = \max\{1-z, 0\}
 	$$
 &lt;/center&gt;
-&lt;p&gt;&lt;img src=&quot;https://nianlonggu.github.io/img/2019-05-24-SVM/hinge-func.svg&quot; alt=&quot;hinge function&quot; /&gt;
-&lt;strong&gt;&lt;center&gt;It looks like a hinge, isn't it?&lt;/center&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://nlgu.top/img/2019-05-24-SVM/hinge-func.svg&quot; alt=&quot;hinge function&quot; /&gt;
+&lt;em&gt;&lt;center&gt;It looks like a hinge, isn't it?&lt;/center&gt;&lt;/em&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;script type=&quot;math/tex&quot;&gt;c&lt;/script&gt; is a weight parameter used to control the weight of the penalty term. If &lt;script type=&quot;math/tex&quot;&gt;c&lt;/script&gt; is too large, the model (the learned hyperplane) will mainly focuses on correctly classify the training data, but the margin may not be maximized. If &lt;script type=&quot;math/tex&quot;&gt;c&lt;/script&gt; is too small, the model will have have a large margin, while there may exist more miss-classified points in the training dataset.&lt;/p&gt;
+&lt;p&gt;&lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; is a weight parameter used to control the weight of the regularization term. If &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; is too small, the model (the learned hyperplane) will mainly focuses on correctly classify the training data, but the margin may not be maximized. If &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; is too large, the model will have have a large margin, while there may exist more miss-classified points in the training dataset.&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;Compute the gradient&lt;/strong&gt;&lt;br /&gt;
 To apply GDS we also need get the exact expression of the gradient.&lt;/p&gt;
