@@ -350,11 +350,44 @@ The difference <script type="math/tex">f_0^\star(x)-g^\star(\mathbf{\lambda},\ma
 
 <p>If Slater’s condition is satisfied, strong duality holds, and furthermore for the optimal value <script type="math/tex">\mathbf{x}^\star</script>, <script type="math/tex">\mathbf{\lambda}^\star</script> and <script type="math/tex">\mathbf{\mu}^\star</script>, the <strong>Karush-Kuhn-Tucker (KKT)</strong> conditions also holds.</p>
 
-<p><strong>Karush-Kuhn-Tucker (KKT) Conditions</strong>
-KKT conditions contain four conditions:</p>
-<ul>
-  <li></li>
-</ul>
+<p><strong>Karush-Kuhn-Tucker (KKT) Conditions</strong><br />
+KKT conditions contain four conditions:<br /></p>
+<ol>
+  <li><em>primal constraints</em> <center>$$f_i(\mathbf{x}^\star)\leq 0, \ i=1,\dots,m  \\ h_j(\mathbf{x}^\star)=0, \ j=1,\dots,p$$ </center></li>
+  <li><em>compute the infimum of <script type="math/tex">L</script> w.r.t <script type="math/tex">\mathbf{x}</script></em> <center>$$\Delta_{\mathbf{x}} L(\mathbf{x}^\star, \mathbf{\lambda}^\star, \mathbf{\mu}^\star) = 0$$</center></li>
+  <li><em>dual constraints</em> <center>
+ $$
+ \lambda_i^\star\geq 0, \ i=1,\dots,m
+ $$</center></li>
+  <li><strong><em>Complementary Slackness</em></strong> <center>
+ $$
+ \lambda_i^\star f_i(\mathbf{x}^\star) = 0, \ i=1,\dots,m
+ $$</center></li>
+</ol>
+
+<p>Therefore, if strong duality holds, we can first solve the dual problem and get the optimal <script type="math/tex">\mathbf{\lambda}^\star</script>, <script type="math/tex">\mathbf{\mu}^\star</script>. Then we can substitute the dual optimum into the KKT conditions (especially KKT condition 2) to get the primal optimum <script type="math/tex">\mathbf{x}^\star</script>. Then the primal convex optimization problem can be solved.</p>
+
+<h2 id="apply-lagrangian-duality-to-svm">Apply Lagrangian Duality to SVM</h2>
+<p>Now we are able to solve the SVM optimization problem using Lagrangian duality. 
+As introduced in the first article <a href="https://nlgu.top/2019/05/23/turtorial-on-SVM/">An Introduction to Support Vector Machines (SVM): Basics</a>, the SVM optimization problem is:</p>
+<center>
+	$$
+	\min_{\mathbf{w},b}\frac{1}{2}\|\mathbf{w}\|^2\\
+	s.t. \ \ y_i(\mathbf{w}^T\mathbf{x}_i+b) \geq 1
+	$$
+</center>
+<p>The Lagrangian dual function is</p>
+<center>
+	$$
+	L(\mathbf{w}, b , \mathbf{\lambda}) = \frac{1}{2}\|\mathbf{w}\|^2 + \sum_{i=1}^{m}\lambda_i(1-y_i(\mathbf{w}^T\mathbf{x}_i+b))
+	$$
+</center>
+<p>To compute the Lagrangian dual function, we can compute the partial derivative of $L$ w.r.t <script type="math/tex">\mathbf{w},b</script> and set them to 0 (see KKT condition 2)</p>
+<center>
+	$$
+	\frac{\partial{L}}{\partial{\mathbf{w}}} = \mathbf{w} - \sum_{i=1}^{m}\lambda_i y_i \mathbf{x}_i
+	$$
+</center>
 
 
                 <hr style="visibility: hidden;">

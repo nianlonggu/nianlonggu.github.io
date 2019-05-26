@@ -78,6 +78,39 @@ Under certain circumstances, the duality gap can be 0, which means the **strong 
 
 If Slater's condition is satisfied, strong duality holds, and furthermore for the optimal value $$\mathbf{x}^\star$$, $$\mathbf{\lambda}^\star$$ and $$\mathbf{\mu}^\star$$, the **Karush-Kuhn-Tucker (KKT)** conditions also holds.
 
-**Karush-Kuhn-Tucker (KKT) Conditions**
-KKT conditions contain four conditions:
-* 
+**Karush-Kuhn-Tucker (KKT) Conditions**<br>
+KKT conditions contain four conditions:<br>
+1. *primal constraints* <center>$$f_i(\mathbf{x}^\star)\leq 0, \ i=1,\dots,m  \\ h_j(\mathbf{x}^\star)=0, \ j=1,\dots,p$$ </center>
+2. *compute the infimum of $$L$$ w.r.t $$\mathbf{x}$$* <center>$$\Delta_{\mathbf{x}} L(\mathbf{x}^\star, \mathbf{\lambda}^\star, \mathbf{\mu}^\star) = 0$$</center>
+3. *dual constraints* <center>
+	$$
+	\lambda_i^\star\geq 0, \ i=1,\dots,m
+	$$</center>
+4. ***Complementary Slackness*** <center>
+	$$
+	\lambda_i^\star f_i(\mathbf{x}^\star) = 0, \ i=1,\dots,m
+	$$</center>
+
+Therefore, if strong duality holds, we can first solve the dual problem and get the optimal $$\mathbf{\lambda}^\star$$, $$\mathbf{\mu}^\star$$. Then we can substitute the dual optimum into the KKT conditions (especially KKT condition 2) to get the primal optimum $$\mathbf{x}^\star$$. Then the primal convex optimization problem can be solved.
+
+## Apply Lagrangian Duality to SVM
+Now we are able to solve the SVM optimization problem using Lagrangian duality. 
+As introduced in the first article [An Introduction to Support Vector Machines (SVM): Basics](https://nlgu.top/2019/05/23/turtorial-on-SVM/), the SVM optimization problem is:
+<center>
+	$$
+	\min_{\mathbf{w},b}\frac{1}{2}\|\mathbf{w}\|^2\\
+	s.t. \ \ y_i(\mathbf{w}^T\mathbf{x}_i+b) \geq 1
+	$$
+</center>
+The Lagrangian dual function is 
+<center>
+	$$
+	L(\mathbf{w}, b , \mathbf{\lambda}) = \frac{1}{2}\|\mathbf{w}\|^2 + \sum_{i=1}^{m}\lambda_i(1-y_i(\mathbf{w}^T\mathbf{x}_i+b))
+	$$
+</center>
+To compute the Lagrangian dual function, we can compute the partial derivative of $L$ w.r.t $$\mathbf{w},b$$ and set them to 0 (see KKT condition 2)
+<center>
+	$$
+	\frac{\partial{L}}{\partial{\mathbf{w}}} = \mathbf{w} - \sum_{i=1}^{m}\lambda_i y_i \mathbf{x}_i
+	$$
+</center>
