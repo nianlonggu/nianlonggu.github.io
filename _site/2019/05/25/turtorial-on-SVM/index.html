@@ -292,6 +292,70 @@
 
 <p>First of all, we need to briefly introduce Lagrangian duality and Karush-Kuhn-Tucker (KKT) condition.</p>
 
+<h2 id="lagrangian-duality-principle">Lagrangian Duality Principle</h2>
+<p><strong>Primal Problem</strong><br />
+A primal convex optimization problem has the following expression:</p>
+<center>
+	$$
+	\min_{\mathbf{x}}  f_0(\mathbf{x})\\
+	s.t. \ \ f_i(\mathbf{x}) \leq 0, \ i=1,\dots,m \\
+	\ \ \ \ \ \ \ h_j(\mathbf{x}) = 0, \ j=1,\dots,p
+	$$
+</center>
+<p>where $f_i(\mathbf{x}) _{(i=0,1,\dots,m)}$ are convex, and $h_j(\mathbf{x}) _{(j=1,\dots,p)}$ are linear (or affine).</p>
+
+<p>We can get the Lagrangian function:</p>
+<center>
+	$$
+	L(\mathbf{x}, \mathbf{\lambda}, \mathbf{\mu}) = f_0(\mathbf{x}) + \sum_{i=1}^{m}\lambda_{i}f_i(\mathbf{x}) + \sum_{j=1}^{p}\mu_jh_j(\mathbf{x})
+	$$
+</center>
+<p>Since $f_i(\mathbf{x})$ are convex, and $h_j(\mathbf{x})$ are linear, <script type="math/tex">L(\mathbf{x}, \mathbf{\lambda}, \mathbf{\mu})</script> is also convex w.r.t <script type="math/tex">\mathbf{x}</script>. Therefore, we can get the infimum of <script type="math/tex">L(\mathbf{x}, \mathbf{\lambda}, \mathbf{\mu})</script>, which is called the Lagrangian dual function:</p>
+<center>
+	$$
+	g(\mathbf{\lambda},\mathbf{\mu})= \inf_\mathbf{x} \ L(\mathbf{x},\mathbf{\lambda},\mathbf{\mu})
+	$$
+</center>
+
+<blockquote>
+  <p>The difference between minimum and infimum: <br /></p>
+  <ul>
+    <li><script type="math/tex">\min(S)</script> means the smallest element in set <script type="math/tex">S</script>;<br /></li>
+    <li><script type="math/tex">inf(S)</script> means the largest value which is less than or equal to any element in <script type="math/tex">S</script>.<br /></li>
+    <li>In the case where the minimum value is reachable, infimum = minimum. e.g. <script type="math/tex">S=\{\text{all natural number}\}</script>, then <script type="math/tex">\inf(S) = \min(S) = 0</script></li>
+    <li>In the case where the minimum is not reachable, infimum may still exist. e.g. <script type="math/tex">S=\{f(x)\vert f(x)=1/x, x>0\}</script>, <script type="math/tex">\inf(S)=0</script></li>
+  </ul>
+</blockquote>
+
+<p><strong>Dual Problem</strong>
+Based on the dual function we can get the dual optimization problem:</p>
+<center>
+	$$
+		\max_{\mathbf{\lambda},\mathbf{\mu}}\ g(\mathbf{\lambda},\mathbf{\mu})\\
+		s.t. \ \ \lambda_i \geq 0, \ \ i=1,\dots,m\\
+		\small\text{and other constraints introduced by computing the dual function}
+	$$
+</center>
+
+<p><strong>Strong Duality and Slater’s Condition</strong><br />
+Let $f_0^\star(x)$ and $g^\star(\mathbf{\lambda},\mathbf{\mu})$ be the primal optimum and dual optimum respectively. 
+<strong>Weak duality</strong> means that
+<script type="math/tex">g^\star(\mathbf{\lambda},\mathbf{\mu}) \leq f_0^\star(x)</script> 
+The difference <script type="math/tex">f_0^\star(x)-g^\star(\mathbf{\lambda},\mathbf{\mu})</script> is called <strong>duality gap</strong>.</p>
+
+<p>Under certain circumstances, the duality gap can be 0, which means the <strong>strong duality</strong> holds. This condition is called <strong>Slater’s condition</strong>:<br /></p>
+<ul>
+  <li>Apart from the constraints in primal problem, Slater’s condition requires that the constraints <script type="math/tex">f_i(\mathbf{x}) _ {(i=1,\dots,m)}</script> are linear (or affine).</li>
+</ul>
+
+<p>If Slater’s condition is satisfied, strong duality holds, and furthermore for the optimal value <script type="math/tex">\mathbf{x}^\star</script>, <script type="math/tex">\mathbf{\lambda}^\star</script> and <script type="math/tex">\mathbf{\mu}^\star</script>, the <strong>Karush-Kuhn-Tucker (KKT)</strong> conditions also holds.</p>
+
+<p><strong>Karush-Kuhn-Tucker (KKT) Conditions</strong>
+KKT conditions contain four conditions:</p>
+<ul>
+  <li></li>
+</ul>
+
 
                 <hr style="visibility: hidden;">
                 <ul class="pager">

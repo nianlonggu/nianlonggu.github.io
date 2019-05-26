@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 26 May 2019 00:19:41 +0200</pubDate>
-    <lastBuildDate>Sun, 26 May 2019 00:19:41 +0200</lastBuildDate>
+    <pubDate>Sun, 26 May 2019 11:13:08 +0200</pubDate>
+    <lastBuildDate>Sun, 26 May 2019 11:13:08 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -25,6 +25,70 @@
 &lt;p&gt;To overcome these shortcomings, we can take advantage of the Lagrangian duality. First we convert original SVM optimization problem into a primal (convex) optimization problem, then we can get the Lagrangian dual problem. Luckily we can solve the dual problem based on KKT condition using more efficient methods.&lt;/p&gt;
 
 &lt;p&gt;First of all, we need to briefly introduce Lagrangian duality and Karush-Kuhn-Tucker (KKT) condition.&lt;/p&gt;
+
+&lt;h2 id=&quot;lagrangian-duality-principle&quot;&gt;Lagrangian Duality Principle&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;Primal Problem&lt;/strong&gt;&lt;br /&gt;
+A primal convex optimization problem has the following expression:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\min_{\mathbf{x}}  f_0(\mathbf{x})\\
+	s.t. \ \ f_i(\mathbf{x}) \leq 0, \ i=1,\dots,m \\
+	\ \ \ \ \ \ \ h_j(\mathbf{x}) = 0, \ j=1,\dots,p
+	$$
+&lt;/center&gt;
+&lt;p&gt;where $f_i(\mathbf{x}) _{(i=0,1,\dots,m)}$ are convex, and $h_j(\mathbf{x}) _{(j=1,\dots,p)}$ are linear (or affine).&lt;/p&gt;
+
+&lt;p&gt;We can get the Lagrangian function:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	L(\mathbf{x}, \mathbf{\lambda}, \mathbf{\mu}) = f_0(\mathbf{x}) + \sum_{i=1}^{m}\lambda_{i}f_i(\mathbf{x}) + \sum_{j=1}^{p}\mu_jh_j(\mathbf{x})
+	$$
+&lt;/center&gt;
+&lt;p&gt;Since $f_i(\mathbf{x})$ are convex, and $h_j(\mathbf{x})$ are linear, &lt;script type=&quot;math/tex&quot;&gt;L(\mathbf{x}, \mathbf{\lambda}, \mathbf{\mu})&lt;/script&gt; is also convex w.r.t &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}&lt;/script&gt;. Therefore, we can get the infimum of &lt;script type=&quot;math/tex&quot;&gt;L(\mathbf{x}, \mathbf{\lambda}, \mathbf{\mu})&lt;/script&gt;, which is called the Lagrangian dual function:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	g(\mathbf{\lambda},\mathbf{\mu})= \inf_\mathbf{x} \ L(\mathbf{x},\mathbf{\lambda},\mathbf{\mu})
+	$$
+&lt;/center&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;The difference between minimum and infimum: &lt;br /&gt;&lt;/p&gt;
+  &lt;ul&gt;
+    &lt;li&gt;&lt;script type=&quot;math/tex&quot;&gt;\min(S)&lt;/script&gt; means the smallest element in set &lt;script type=&quot;math/tex&quot;&gt;S&lt;/script&gt;;&lt;br /&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;script type=&quot;math/tex&quot;&gt;inf(S)&lt;/script&gt; means the largest value which is less than or equal to any element in &lt;script type=&quot;math/tex&quot;&gt;S&lt;/script&gt;.&lt;br /&gt;&lt;/li&gt;
+    &lt;li&gt;In the case where the minimum value is reachable, infimum = minimum. e.g. &lt;script type=&quot;math/tex&quot;&gt;S=\{\text{all natural number}\}&lt;/script&gt;, then &lt;script type=&quot;math/tex&quot;&gt;\inf(S) = \min(S) = 0&lt;/script&gt;&lt;/li&gt;
+    &lt;li&gt;In the case where the minimum is not reachable, infimum may still exist. e.g. &lt;script type=&quot;math/tex&quot;&gt;S=\{f(x)\vert f(x)=1/x, x&gt;0\}&lt;/script&gt;, &lt;script type=&quot;math/tex&quot;&gt;\inf(S)=0&lt;/script&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;Dual Problem&lt;/strong&gt;
+Based on the dual function we can get the dual optimization problem:&lt;/p&gt;
+&lt;center&gt;
+	$$
+		\max_{\mathbf{\lambda},\mathbf{\mu}}\ g(\mathbf{\lambda},\mathbf{\mu})\\
+		s.t. \ \ \lambda_i \geq 0, \ \ i=1,\dots,m\\
+		\small\text{and other constraints introduced by computing the dual function}
+	$$
+&lt;/center&gt;
+
+&lt;p&gt;&lt;strong&gt;Strong Duality and Slater’s Condition&lt;/strong&gt;&lt;br /&gt;
+Let $f_0^\star(x)$ and $g^\star(\mathbf{\lambda},\mathbf{\mu})$ be the primal optimum and dual optimum respectively. 
+&lt;strong&gt;Weak duality&lt;/strong&gt; means that
+&lt;script type=&quot;math/tex&quot;&gt;g^\star(\mathbf{\lambda},\mathbf{\mu}) \leq f_0^\star(x)&lt;/script&gt; 
+The difference &lt;script type=&quot;math/tex&quot;&gt;f_0^\star(x)-g^\star(\mathbf{\lambda},\mathbf{\mu})&lt;/script&gt; is called &lt;strong&gt;duality gap&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Under certain circumstances, the duality gap can be 0, which means the &lt;strong&gt;strong duality&lt;/strong&gt; holds. This condition is called &lt;strong&gt;Slater’s condition&lt;/strong&gt;:&lt;br /&gt;&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Apart from the constraints in primal problem, Slater’s condition requires that the constraints &lt;script type=&quot;math/tex&quot;&gt;f_i(\mathbf{x}) _ {(i=1,\dots,m)}&lt;/script&gt; are linear (or affine).&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;If Slater’s condition is satisfied, strong duality holds, and furthermore for the optimal value &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^\star&lt;/script&gt;, &lt;script type=&quot;math/tex&quot;&gt;\mathbf{\lambda}^\star&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\mathbf{\mu}^\star&lt;/script&gt;, the &lt;strong&gt;Karush-Kuhn-Tucker (KKT)&lt;/strong&gt; conditions also holds.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Karush-Kuhn-Tucker (KKT) Conditions&lt;/strong&gt;
+KKT conditions contain four conditions:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;/li&gt;
+&lt;/ul&gt;
 </description>
         <pubDate>Sat, 25 May 2019 21:43:00 +0200</pubDate>
         <link>http://localhost:4000/2019/05/25/turtorial-on-SVM/</link>
