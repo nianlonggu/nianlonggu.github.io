@@ -132,3 +132,26 @@ Substitute these two constraint equations into $$L(\mathbf{w},b,\mathbf{\lambda}
 	\end{align}
 	$$
 </center>
+Then the dual problem is:
+<center>
+	$$
+	\max_{\lambda} \ \sum_{i=1}^{m}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i\lambda_j y_i y_j \mathbf{x}_i^T \mathbf{x}_j\\
+	\begin{align}
+	s.t. \ \ &\lambda_i \geq 0, \ \ i=1,\dots,m\\
+	&\sum_{i=1}^{m} \lambda_i y_i = 0
+	\end{align}
+	$$
+</center>
+We can solve this dual problem using Gradient descent algorithm or **Sequential Minimal Optimization (SMO)**. This will be discussed in the next article.
+
+Once we get the dual optimum $$\lambda^\star$$, we can get the primal optimum $$\mathbf{w}^\star=\sum_{i=1}^{m} \lambda_i^\star\mathbf{x}_ i $$. But wait, how to get the optimal $$b^\star$$? To further understand this, we need analyze the KKT conditions for SVM optimization problem.
+
+## KKT conditions for SVM
+Since the primal constraints $$1-y_i(\mathbf{w}^T\mathbf{x}_ i+b)\leq 0$$ is obviously linear, so the Slater's condition holds, strong duality holds, and the KKT conditions are satisfied for the primal optimum and dual optimum of the SVM. Therefore, we have the complementary slackness:
+<center>
+	$$
+	\lambda_i^\star (1-y_i({\mathbf{w}^\star}^T\mathbf{x}_i+b^\star))=0, \ \ i=1,\dots,m
+	$$
+</center>
+This looks interesting. From dual constraints we know that $$\lambda^\star\geq 0$$. Together with this complementary slackness, we will know that if $$\lambda_i>0$$, then it must hold $$y_i({\mathbf{w}^\star}^T\mathbf{x}_i+b^\star)=1$$. This means $$\mathbf{x}_i$$ is exactly one of the support vectors! Therefore, we find a way to identify support vectors using Lagrangian duality:
+* Compute the dual optimum,

@@ -406,6 +406,31 @@ As introduced in the first article <a href="https://nlgu.top/2019/05/23/turtoria
 	\end{align}
 	$$
 </center>
+<p>Then the dual problem is:</p>
+<center>
+	$$
+	\max_{\lambda} \ \sum_{i=1}^{m}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i\lambda_j y_i y_j \mathbf{x}_i^T \mathbf{x}_j\\
+	\begin{align}
+	s.t. \ \ &amp;\lambda_i \geq 0, \ \ i=1,\dots,m\\
+	&amp;\sum_{i=1}^{m} \lambda_i y_i = 0
+	\end{align}
+	$$
+</center>
+<p>We can solve this dual problem using Gradient descent algorithm or <strong>Sequential Minimal Optimization (SMO)</strong>. This will be discussed in the next article.</p>
+
+<p>Once we get the dual optimum <script type="math/tex">\lambda^\star</script>, we can get the primal optimum <script type="math/tex">\mathbf{w}^\star=\sum_{i=1}^{m} \lambda_i^\star\mathbf{x}_ i</script>. But wait, how to get the optimal <script type="math/tex">b^\star</script>? To further understand this, we need analyze the KKT conditions for SVM optimization problem.</p>
+
+<h2 id="kkt-conditions-for-svm">KKT conditions for SVM</h2>
+<p>Since the primal constraints <script type="math/tex">1-y_i(\mathbf{w}^T\mathbf{x}_ i+b)\leq 0</script> is obviously linear, so the Slater’s condition holds, strong duality holds, and the KKT conditions are satisfied for the primal optimum and dual optimum of the SVM. Therefore, we have the complementary slackness:</p>
+<center>
+	$$
+	\lambda_i^\star (1-y_i({\mathbf{w}^\star}^T\mathbf{x}_i+b^\star))=0, \ \ i=1,\dots,m
+	$$
+</center>
+<p>This looks interesting. From dual constraints we know that <script type="math/tex">\lambda^\star\geq 0</script>. Together with this complementary slackness, we will know that if <script type="math/tex">\lambda_i>0</script>, then it must hold <script type="math/tex">y_i({\mathbf{w}^\star}^T\mathbf{x}_i+b^\star)=1</script>. This means <script type="math/tex">\mathbf{x}_i</script> is exactly one of the support vectors! Therefore, we find a way to identify support vectors using Lagrangian duality:</p>
+<ul>
+  <li>Compute the dual optimum,</li>
+</ul>
 
 
                 <hr style="visibility: hidden;">
