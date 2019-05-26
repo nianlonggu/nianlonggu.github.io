@@ -111,6 +111,24 @@ The Lagrangian dual function is
 To compute the Lagrangian dual function, we can compute the partial derivative of $L$ w.r.t $$\mathbf{w},b$$ and set them to 0 (see KKT condition 2)
 <center>
 	$$
-	\frac{\partial{L}}{\partial{\mathbf{w}}} = \mathbf{w} - \sum_{i=1}^{m}\lambda_i y_i \mathbf{x}_i
+	\frac{\partial{L}}{\partial{\mathbf{w}}} = \mathbf{w} - \sum_{i=1}^{m}\lambda_i y_i \mathbf{x}_i = 0\\
+	\frac{\partial{L}}{\partial{b}} = -\sum_{i=1}^{m}\lambda_i y_i =0
+	$$
+</center>
+Then we get
+<center>
+	$$
+	\mathbf{w}^\star = \sum_{+i=1}^{m}\lambda_i y_i \mathbf{x}_i\\
+	\sum_{i=1}^{m}\lambda_i y_i = 0
+	$$
+</center>
+Substitute these two constraint equations into $$L(\mathbf{w},b,\mathbf{\lambda})$$, we get the Lagrangian dual function:
+<center>
+	$$
+	\begin{align}
+	g(\mathbf{\lambda}) & = \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j + \sum_{i=1}^{m}\lambda_i(1-y_i( \sum_{j=1}^{m}\lambda_j y_j \mathbf{x_j}^T\mathbf{x}_i +b  ))\\
+	& = \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j  - \sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j + \sum_{i=1}^{m}\lambda_i - (\sum_{i=1}^{m}\lambda_i y_i)b \\
+	&= \sum_{i=1}^{m}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j
+	\end{align}
 	$$
 </center>
