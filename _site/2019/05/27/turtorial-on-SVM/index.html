@@ -300,6 +300,52 @@ Primal Problem
 </center>
 <p>The the last post we introduced how to apply Lagrangian duality to SVM and how to get the primal optimum once we get the dual optimum. In this post we mainly discuss how to solve the dual problem and get the dual optimum.</p>
 
+<h2 id="gradient-descent-algorithm-for-dual-problem">Gradient Descent Algorithm for Dual Problem</h2>
+<p>To apply GDS to SVM, we need to reformulate the objective function of the dual problem. Our new objective function will be:</p>
+<center>
+	$$
+	\min_{\lambda}L(\lambda)=-\sum_{i=1}^{n}\lambda_i + \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j + \frac{c}{2}(\sum_{i=1}^{n}\lambda_i y_i)^2 \\
+	s.t. \ \ \lambda_i\geq 0
+	$$
+</center>
+<p>where <script type="math/tex">c>0</script> is the weighting factor for the constraint <script type="math/tex">\sum_{i=1}^{n}\lambda_i y_i = 0</script>. For the constraint <script type="math/tex">\lambda_i\geq 0</script>, we can satisfy this constraint by clipping <script type="math/tex">\lambda</script> into the region <script type="math/tex">[0,\infty)</script> after each back propagation during gradient descent. We can compute the gradient:</p>
+
+<center>
+$$
+\begin{align}
+\frac{\partial{L}}{\partial{\lambda_i}} &amp;= -1 + \sum_{j=1}^{n}\lambda_j y_j \mathbf{x}_j^T(y_i\mathbf{x}_i) + {c}\sum_{j=1}^{n}\lambda_j y_j y_i 
+\end{align}
+$$
+</center>
+<p>where
+<script type="math/tex">% <![CDATA[
+\mu(z)=\begin{cases}
+    1, & \text{if}\ z\geq0\\
+    0, & \text{otherwise}  
+\end{cases} %]]></script></p>
+
+<p>We can also use the <a href="https://en.wikipedia.org/wiki/Matrix_calculus">denominator layout</a> to express the gradient of <script type="math/tex">L</script> with respect to the vector of <script type="math/tex">\mathbf{\lambda}=(\lambda_1, \lambda_2,\dots,\lambda_n)^T</script>. Let <script type="math/tex">\mathbf{X}=(\mathbf{x}_ 1,\dots,\mathbf{x}_ n)^T\in R^{nxp}</script> and <script type="math/tex">\mathbf{y}=(y_1,\dots, y_n)^T\in R_n</script>. Then we have:</p>
+<center>
+	$$
+	\frac{\partial{L}}{\partial{\lambda}} = -  \mathbf{1}_n +( (\mathbf{y}\mathbf{1}_p^T)\circ\mathbf{X})\mathbf{X}^T(\mathbf{y}\circ\lambda)+ c(\lambda^T\mathbf{y})\mathbf{y}
+	$$
+</center>
+<p>where <script type="math/tex">\circ</script> stands for <strong>element-wise product</strong> and <script type="math/tex">\mu(-\lambda)=( \mu(-\lambda_1),\dots,\mu(-\lambda_n))^T</script></p>
+
+<p>The update rule of <script type="math/tex">\lambda</script> is:</p>
+<center>
+	$$
+	\lambda \leftarrow \lambda - \alpha \frac{\partial{L}}{\partial{\lambda}}
+	$$
+</center>
+<p>where <script type="math/tex">\alpha</script> is the learning rate.</p>
+
+<p><strong>Implementation and Experiments</strong></p>
+
+<p>I implement the GDS algorithm to compute the dual optimum and use it to solve the original SVM optimization problem. The code is available in my github <a href="https://github.com/nianlonggu/SupportVectorMachine/blob/master/gds-dual-svm.py">SupportVectorMachine/gds-dual-svm.py</a>. The change of the hyperplane over iterations is shown in figure <a href="#hyperplane-over-iteration">Hyperplane Over Iteration</a>
+<a name="hyperplane-over-iteration"></a>
+<img src="https://nianlonggu.github.io/img/2019-05-27-SVM/hyperplane-over-iteration.gif" width="400" hegiht="203" />
+<em><center>Hyperplane Over Iteration</center></em></p>
 
 
                 <hr style="visibility: hidden;">

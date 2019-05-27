@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Mon, 27 May 2019 12:10:06 +0200</pubDate>
-    <lastBuildDate>Mon, 27 May 2019 12:10:06 +0200</lastBuildDate>
+    <pubDate>Mon, 27 May 2019 22:35:20 +0200</pubDate>
+    <lastBuildDate>Mon, 27 May 2019 22:35:20 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -33,6 +33,52 @@
 &lt;/center&gt;
 &lt;p&gt;The the last post we introduced how to apply Lagrangian duality to SVM and how to get the primal optimum once we get the dual optimum. In this post we mainly discuss how to solve the dual problem and get the dual optimum.&lt;/p&gt;
 
+&lt;h2 id=&quot;gradient-descent-algorithm-for-dual-problem&quot;&gt;Gradient Descent Algorithm for Dual Problem&lt;/h2&gt;
+&lt;p&gt;To apply GDS to SVM, we need to reformulate the objective function of the dual problem. Our new objective function will be:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\min_{\lambda}L(\lambda)=-\sum_{i=1}^{n}\lambda_i + \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j + \frac{c}{2}(\sum_{i=1}^{n}\lambda_i y_i)^2 \\
+	s.t. \ \ \lambda_i\geq 0
+	$$
+&lt;/center&gt;
+&lt;p&gt;where &lt;script type=&quot;math/tex&quot;&gt;c&gt;0&lt;/script&gt; is the weighting factor for the constraint &lt;script type=&quot;math/tex&quot;&gt;\sum_{i=1}^{n}\lambda_i y_i = 0&lt;/script&gt;. For the constraint &lt;script type=&quot;math/tex&quot;&gt;\lambda_i\geq 0&lt;/script&gt;, we can satisfy this constraint by clipping &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; into the region &lt;script type=&quot;math/tex&quot;&gt;[0,\infty)&lt;/script&gt; after each back propagation during gradient descent. We can compute the gradient:&lt;/p&gt;
+
+&lt;center&gt;
+$$
+\begin{align}
+\frac{\partial{L}}{\partial{\lambda_i}} &amp;amp;= -1 + \sum_{j=1}^{n}\lambda_j y_j \mathbf{x}_j^T(y_i\mathbf{x}_i) + {c}\sum_{j=1}^{n}\lambda_j y_j y_i 
+\end{align}
+$$
+&lt;/center&gt;
+&lt;p&gt;where
+&lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+\mu(z)=\begin{cases}
+    1, &amp; \text{if}\ z\geq0\\
+    0, &amp; \text{otherwise}  
+\end{cases} %]]&gt;&lt;/script&gt;&lt;/p&gt;
+
+&lt;p&gt;We can also use the &lt;a href=&quot;https://en.wikipedia.org/wiki/Matrix_calculus&quot;&gt;denominator layout&lt;/a&gt; to express the gradient of &lt;script type=&quot;math/tex&quot;&gt;L&lt;/script&gt; with respect to the vector of &lt;script type=&quot;math/tex&quot;&gt;\mathbf{\lambda}=(\lambda_1, \lambda_2,\dots,\lambda_n)^T&lt;/script&gt;. Let &lt;script type=&quot;math/tex&quot;&gt;\mathbf{X}=(\mathbf{x}_ 1,\dots,\mathbf{x}_ n)^T\in R^{nxp}&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\mathbf{y}=(y_1,\dots, y_n)^T\in R_n&lt;/script&gt;. Then we have:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\frac{\partial{L}}{\partial{\lambda}} = -  \mathbf{1}_n +( (\mathbf{y}\mathbf{1}_p^T)\circ\mathbf{X})\mathbf{X}^T(\mathbf{y}\circ\lambda)+ c(\lambda^T\mathbf{y})\mathbf{y}
+	$$
+&lt;/center&gt;
+&lt;p&gt;where &lt;script type=&quot;math/tex&quot;&gt;\circ&lt;/script&gt; stands for &lt;strong&gt;element-wise product&lt;/strong&gt; and &lt;script type=&quot;math/tex&quot;&gt;\mu(-\lambda)=( \mu(-\lambda_1),\dots,\mu(-\lambda_n))^T&lt;/script&gt;&lt;/p&gt;
+
+&lt;p&gt;The update rule of &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; is:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\lambda \leftarrow \lambda - \alpha \frac{\partial{L}}{\partial{\lambda}}
+	$$
+&lt;/center&gt;
+&lt;p&gt;where &lt;script type=&quot;math/tex&quot;&gt;\alpha&lt;/script&gt; is the learning rate.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Implementation and Experiments&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;I implement the GDS algorithm to compute the dual optimum and use it to solve the original SVM optimization problem. The code is available in my github &lt;a href=&quot;https://github.com/nianlonggu/SupportVectorMachine/blob/master/gds-dual-svm.py&quot;&gt;SupportVectorMachine/gds-dual-svm.py&lt;/a&gt;. The change of the hyperplane over iterations is shown in figure &lt;a href=&quot;#hyperplane-over-iteration&quot;&gt;Hyperplane Over Iteration&lt;/a&gt;
+&lt;a name=&quot;hyperplane-over-iteration&quot;&gt;&lt;/a&gt;
+&lt;img src=&quot;https://nianlonggu.github.io/img/2019-05-27-SVM/hyperplane-over-iteration.gif&quot; width=&quot;400&quot; hegiht=&quot;203&quot; /&gt;
+&lt;em&gt;&lt;center&gt;Hyperplane Over Iteration&lt;/center&gt;&lt;/em&gt;&lt;/p&gt;
 </description>
         <pubDate>Mon, 27 May 2019 10:58:00 +0200</pubDate>
         <link>http://localhost:4000/2019/05/27/turtorial-on-SVM/</link>
@@ -166,7 +212,7 @@ As introduced in the first post &lt;a href=&quot;https://nlgu.top/2019/05/23/tur
 &lt;p&gt;Then we get&lt;/p&gt;
 &lt;center&gt;
 	$$
-	\mathbf{w}^\star = \sum_{+i=1}^{n}\lambda_i y_i \mathbf{x}_i\\
+	\mathbf{w}^\star = \sum_{i=1}^{n}\lambda_i y_i \mathbf{x}_i\\
 	\sum_{i=1}^{n}\lambda_i y_i = 0
 	$$
 &lt;/center&gt;
@@ -192,7 +238,7 @@ As introduced in the first post &lt;a href=&quot;https://nlgu.top/2019/05/23/tur
 &lt;/center&gt;
 &lt;p&gt;We can solve this dual problem using Gradient descent algorithm or &lt;strong&gt;Sequential Minimal Optimization (SMO)&lt;/strong&gt;. This will be discussed in the next post.&lt;/p&gt;
 
-&lt;p&gt;Once we get the dual optimum &lt;script type=&quot;math/tex&quot;&gt;\lambda^\star&lt;/script&gt;, we can get the primal optimum &lt;script type=&quot;math/tex&quot;&gt;\mathbf{w}^\star=\sum_{i=1}^{n} \lambda_i^\star\mathbf{x}_ i&lt;/script&gt;. But wait, how to get the optimal &lt;script type=&quot;math/tex&quot;&gt;b^\star&lt;/script&gt;? To further understand this, we need analyze the KKT conditions for SVM optimization problem.&lt;/p&gt;
+&lt;p&gt;Once we get the dual optimum &lt;script type=&quot;math/tex&quot;&gt;\lambda^\star&lt;/script&gt;, we can get the primal optimum &lt;script type=&quot;math/tex&quot;&gt;\mathbf{w}^\star=\sum_{i=1}^{n} \lambda_i^\star y_i\mathbf{x}_ i&lt;/script&gt;. But wait, how to get the optimal &lt;script type=&quot;math/tex&quot;&gt;b^\star&lt;/script&gt;? To further understand this, we need analyze the KKT conditions for SVM optimization problem.&lt;/p&gt;
 
 &lt;h2 id=&quot;kkt-conditions-for-svm&quot;&gt;KKT conditions for SVM&lt;/h2&gt;
 &lt;p&gt;Since the primal constraints &lt;script type=&quot;math/tex&quot;&gt;1-y_i(\mathbf{w}^T\mathbf{x}_ i+b)\leq 0&lt;/script&gt; is obviously linear, so the Slater’s condition holds, strong duality holds, and the KKT conditions are satisfied for the primal optimum and dual optimum of the SVM. Therefore, we have the complementary slackness:&lt;/p&gt;
@@ -212,7 +258,7 @@ As introduced in the first post &lt;a href=&quot;https://nlgu.top/2019/05/23/tur
 Then the primal optimum will be:&lt;/p&gt;
 &lt;center&gt;
 	$$
-	\mathbf{w}^\star = \sum_{i\in S} \lambda_i^\star \mathbf{x}_i\\
+	\mathbf{w}^\star = \sum_{i\in S} \lambda_i^\star y_i \mathbf{x}_i\\
 	$$
 &lt;/center&gt;
 &lt;p&gt;Since we know for support vectors &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i,\ i\in S&lt;/script&gt;, it holds &lt;script type=&quot;math/tex&quot;&gt;y_i({\mathbf{w}^\star}^T\mathbf{x}_i+b^\star)=1&lt;/script&gt;. &lt;script type=&quot;math/tex&quot;&gt;y_i \in \{-1,+1\}&lt;/script&gt;, so we get &lt;script type=&quot;math/tex&quot;&gt;{\mathbf{w}^\star}^T\mathbf{x}_i + b^\star= y_i&lt;/script&gt;. Therefore, the primal optimum of &lt;script type=&quot;math/tex&quot;&gt;b&lt;/script&gt; is:&lt;/p&gt;
@@ -227,13 +273,19 @@ Then the primal optimum will be:&lt;/p&gt;
 	b^\star = -\frac{1}{2}({\mathbf{w}^\star}^T\mathbf{x}_i + {\mathbf{w}^\star}^T\mathbf{x}_j ), \ \ i\in S_+,\ j \in S_-
 	$$
 &lt;/center&gt;
+&lt;p&gt;In practice, in order to avoid influence of noise, we may use a more stable way to compute &lt;script type=&quot;math/tex&quot;&gt;b^\star&lt;/script&gt;:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	b^\star = \frac{1}{\vert S\vert} \sum_{i} \{ y_i - {\mathbf{w}^\star}^T\mathbf{x}_i \}, \ \ i\in S
+	$$
+&lt;/center&gt;
 
 &lt;h2 id=&quot;use-svm-for-classification&quot;&gt;Use SVM for Classification&lt;/h2&gt;
 &lt;p&gt;Given a new point &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}&lt;/script&gt;, we can compute the value &lt;script type=&quot;math/tex&quot;&gt;{\mathbf{w}^\star}^T\mathbf{x}+b^\star&lt;/script&gt;, and predict the label &lt;script type=&quot;math/tex&quot;&gt;\hat{y}&lt;/script&gt; using hard decision or soft decision as shown in &lt;a href=&quot;https://nlgu.top/2019/05/24/turtorial-on-SVM/#use-svm-for-classification&quot;&gt;An Introduction to Support Vector Machines (SVM): Gradient Descent Solution&lt;/a&gt;. 
 Substitute the expression of &lt;script type=&quot;math/tex&quot;&gt;{\mathbf{w}^\star}&lt;/script&gt;, we have:&lt;/p&gt;
 &lt;center&gt;
 	$$
-	{\mathbf{w}^\star}^T\mathbf{x} + b^\star = \sum_{i\in S}\lambda_i^\star \mathbf{x}_i^T\mathbf{x} +b^\star
+	{\mathbf{w}^\star}^T\mathbf{x} + b^\star = \sum_{i\in S}\lambda_i^\star y_i \mathbf{x}_i^T\mathbf{x} +b^\star
 	$$
 &lt;/center&gt;
 &lt;p&gt;This implies that we only need the support vectors to determine the separating hyperplane and classify new points. Furthermore, we notice that either in the dual problem or in the classification, &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i^T\mathbf{x}_j&lt;/script&gt; always appears as a whole. This feature can be used for Kernel SVM, which will be discussed in the following posts.&lt;/p&gt;

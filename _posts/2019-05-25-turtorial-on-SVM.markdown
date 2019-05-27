@@ -118,7 +118,7 @@ To compute the Lagrangian dual function, we can compute the partial derivative o
 Then we get
 <center>
 	$$
-	\mathbf{w}^\star = \sum_{+i=1}^{n}\lambda_i y_i \mathbf{x}_i\\
+	\mathbf{w}^\star = \sum_{i=1}^{n}\lambda_i y_i \mathbf{x}_i\\
 	\sum_{i=1}^{n}\lambda_i y_i = 0
 	$$
 </center>
@@ -144,7 +144,7 @@ Then the dual problem is:
 </center>
 We can solve this dual problem using Gradient descent algorithm or **Sequential Minimal Optimization (SMO)**. This will be discussed in the next post.
 
-Once we get the dual optimum $$\lambda^\star$$, we can get the primal optimum $$\mathbf{w}^\star=\sum_{i=1}^{n} \lambda_i^\star\mathbf{x}_ i $$. But wait, how to get the optimal $$b^\star$$? To further understand this, we need analyze the KKT conditions for SVM optimization problem.
+Once we get the dual optimum $$\lambda^\star$$, we can get the primal optimum $$\mathbf{w}^\star=\sum_{i=1}^{n} \lambda_i^\star y_i\mathbf{x}_ i $$. But wait, how to get the optimal $$b^\star$$? To further understand this, we need analyze the KKT conditions for SVM optimization problem.
 
 ## KKT conditions for SVM
 Since the primal constraints $$1-y_i(\mathbf{w}^T\mathbf{x}_ i+b)\leq 0$$ is obviously linear, so the Slater's condition holds, strong duality holds, and the KKT conditions are satisfied for the primal optimum and dual optimum of the SVM. Therefore, we have the complementary slackness:
@@ -162,7 +162,7 @@ Let $$S=\{i\vert \lambda^\star_i > 0\}$$ represent the support vector set, $$S_+
 Then the primal optimum will be:
 <center>
 	$$
-	\mathbf{w}^\star = \sum_{i\in S} \lambda_i^\star \mathbf{x}_i\\
+	\mathbf{w}^\star = \sum_{i\in S} \lambda_i^\star y_i \mathbf{x}_i\\
 	$$
 </center>
 Since we know for support vectors $$\mathbf{x}_i,\ i\in S$$, it holds $$y_i({\mathbf{w}^\star}^T\mathbf{x}_i+b^\star)=1$$. $$y_i \in \{-1,+1\}$$, so we get $${\mathbf{w}^\star}^T\mathbf{x}_i + b^\star= y_i $$. Therefore, the primal optimum of $$b$$ is:
@@ -177,13 +177,19 @@ or
 	b^\star = -\frac{1}{2}({\mathbf{w}^\star}^T\mathbf{x}_i + {\mathbf{w}^\star}^T\mathbf{x}_j ), \ \ i\in S_+,\ j \in S_-
 	$$
 </center>
+In practice, in order to avoid influence of noise, we may use a more stable way to compute $$b^\star$$:
+<center>
+	$$
+	b^\star = \frac{1}{\vert S\vert} \sum_{i} \{ y_i - {\mathbf{w}^\star}^T\mathbf{x}_i \}, \ \ i\in S
+	$$
+</center>
 
 ## Use SVM for Classification
 Given a new point $$\mathbf{x}$$, we can compute the value $${\mathbf{w}^\star}^T\mathbf{x}+b^\star$$, and predict the label $$\hat{y}$$ using hard decision or soft decision as shown in [An Introduction to Support Vector Machines (SVM): Gradient Descent Solution](https://nlgu.top/2019/05/24/turtorial-on-SVM/#use-svm-for-classification). 
 Substitute the expression of $${\mathbf{w}^\star}$$, we have:
 <center>
 	$$
-	{\mathbf{w}^\star}^T\mathbf{x} + b^\star = \sum_{i\in S}\lambda_i^\star \mathbf{x}_i^T\mathbf{x} +b^\star
+	{\mathbf{w}^\star}^T\mathbf{x} + b^\star = \sum_{i\in S}\lambda_i^\star y_i \mathbf{x}_i^T\mathbf{x} +b^\star
 	$$
 </center>
 This implies that we only need the support vectors to determine the separating hyperplane and classify new points. Furthermore, we notice that either in the dual problem or in the classification, $$\mathbf{x}_i^T\mathbf{x}_j$$ always appears as a whole. This feature can be used for Kernel SVM, which will be discussed in the following posts.
