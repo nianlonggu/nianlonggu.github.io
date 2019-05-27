@@ -11,16 +11,37 @@
     <meta name="theme-color" content="#000000">
     
     <!-- Open Graph -->
-    <meta property="og:title" content="Gu Blog">
+    <meta property="og:title" content="An Introduction to Support Vector Machines (SVM): Dual problem solution using GDS and SMO - Gu Blog">
     
-    <meta property="og:type" content="website">
-    <meta property="og:description" content="In me the tiger sniffs the rose">
+    <meta property="og:type" content="article">
+    <meta property="og:description" content="Recall of the SVM primal problem and dual problem:
+Primal Problem
+
+	$$
+	\min_{\mathbf{w},b}\ \frac{1}{2}\|\mathbf{w}\|^2\\
+	\begin{align}
+	s.t.\ \ &amp; y_i(\mathbf{w}^T\mathbf{x}_i+b)\geq 1,\ i=1,...">
+    
+    <meta property="article:published_time" content="2019-05-27T10:58:00Z">
+    
+    
+    <meta property="article:author" content="Gu">
+    
+    
+    <meta property="article:tag" content="支持向量机">
+    
+    <meta property="article:tag" content="机器学习">
+    
+    <meta property="article:tag" content="SVM">
+    
+    <meta property="article:tag" content="Machine Learning">
+    
     
     <meta property="og:image" content="http://localhost:4000/img/avatar-gu.jpg">
-    <meta property="og:url" content="http://localhost:4000/">
+    <meta property="og:url" content="http://localhost:4000/2019/05/27/turtorial-on-SVM/">
     <meta property="og:site_name" content="Gu Blog">
     
-    <title>Gu Blog</title>
+    <title>An Introduction to Support Vector Machines (SVM): Dual problem solution using GDS and SMO - Gu Blog</title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/pwa/manifest.json">
@@ -29,7 +50,7 @@
     <link rel="shortcut icon" href="/img/favicon.ico">
     
     <!-- Canonical URL -->
-    <link rel="canonical" href="http://localhost:4000/">
+    <link rel="canonical" href="http://localhost:4000/2019/05/27/turtorial-on-SVM/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -191,176 +212,151 @@
 
 
 
-    <!-- Page Header -->
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-2019-05-23.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
 
 
 
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-2019-05-23.jpg');
+        background: ;
+    }
 
+    
+</style>
 
+<header class="intro-header" >
 
-
-<header class="intro-header" style="background-image: url('/img/home-bg.jpg')">
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-        
-        <div class="site-heading">
-        
-          <h1>Gu's Blog</h1>
-          <span class="subheading">In me the tiger sniffs the rose</span>
+    <div class="header-mask"></div>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/archive/?tag=%E6%94%AF%E6%8C%81%E5%90%91%E9%87%8F%E6%9C%BA" title="支持向量机">支持向量机</a>
+                        
+                        <a class="tag" href="/archive/?tag=%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0" title="机器学习">机器学习</a>
+                        
+                        <a class="tag" href="/archive/?tag=SVM" title="SVM">SVM</a>
+                        
+                        <a class="tag" href="/archive/?tag=Machine+Learning" title="Machine Learning">Machine Learning</a>
+                        
+                    </div>
+                    <h1>An Introduction to Support Vector Machines (SVM): Dual problem solution using GDS and SMO</h1>
+                    
+                    <h2 class="subheading"> 支持向量机(SVM)概述：使用梯度下降和SMO求解对偶问题</h2>
+                    <span class="meta">Posted by Gu on May 27, 2019</span>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </header>
 
 
-<!-- Main Content -->
-<div class="container">
-	<div class="row">
-        
 
-<!-- USE SIDEBAR -->
-    <!-- PostList Container -->
-    		<div class="
-                col-lg-8 col-lg-offset-1
-                col-md-8 col-md-offset-1
-                col-sm-12
-                col-xs-12
-                postlist-container
-            ">
-    			
-<div class="post-preview">
-    <a href="/2019/05/27/turtorial-on-SVM/">
-        <h2 class="post-title">
-            An Introduction to Support Vector Machines (SVM): Dual problem solution using GDS and SMO
-        </h2>
-        
-        <h3 class="post-subtitle">
-             支持向量机(SVM)概述：使用梯度下降和SMO求解对偶问题
-        </h3>
-        
-        <div class="post-content-preview">
-            
-                Recall of the SVM primal problem and dual problem:
-Primal Problem
 
+
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <!-- Multi-Lingual -->
+                
+
+				<p>Recall of the SVM primal problem and dual problem:<br />
+<strong>Primal Problem</strong></p>
+<center>
 	$$
 	\min_{\mathbf{w},b}\ \frac{1}{2}\|\mathbf{w}\|^2\\
 	\begin{align}
-	s.t.\ \ &amp; y_i(\mathbf{w}^T\mathbf{x}_i+b)\geq 1,\ i=1,...
-            
-        </div>
-    </a>
-    <p class="post-meta">
-        Posted by Gu on May 27, 2019
-    </p>
-</div>
-<hr>
-
-<div class="post-preview">
-    <a href="/2019/05/25/turtorial-on-SVM/">
-        <h2 class="post-title">
-            An Introduction to Support Vector Machines (SVM): Convex Optimization and Lagrangian Duality Principle
-        </h2>
-        
-        <h3 class="post-subtitle">
-             支持向量机(SVM)概述：凸优化与拉格朗日对偶问题
-        </h3>
-        
-        <div class="post-content-preview">
-            
-                In the last post we have conquered how to use gradient descent algorithm to train a SVM. So,
-
-  is this the end of the story?
+	s.t.\ \ &amp; y_i(\mathbf{w}^T\mathbf{x}_i+b)\geq 1,\ i=1,\dots,n
+	\end{align}
+	$$
+</center>
+<p><strong>Dual Problem</strong></p>
+<center>
+	$$
+	\max_{\lambda}\ \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j\\
+	\begin{align}
+	s.t.\ \ &amp; \lambda_i \geq 0,\ i=1,\dots,n\\
+	&amp; \sum_{i=1}^{n}\lambda_i y_i = 0
+	\end{align} 
+	$$
+</center>
+<p>The the last post we introduced how to apply Lagrangian duality to SVM and how to get the primal optimum once we get the dual optimum. In this post we mainly discuss how to solve the dual problem and get the dual optimum.</p>
 
 
-Not really. Although using GDS can solve the SVM optimization, GDS ha...
-            
-        </div>
-    </a>
-    <p class="post-meta">
-        Posted by Gu on May 25, 2019
-    </p>
-</div>
-<hr>
 
-<div class="post-preview">
-    <a href="/2019/05/24/turtorial-on-SVM/">
-        <h2 class="post-title">
-            An Introduction to Support Vector Machines (SVM): Gradient Descent Solution
-        </h2>
-        
-        <h3 class="post-subtitle">
-             支持向量机(SVM)概述：梯度下降法
-        </h3>
-        
-        <div class="post-content-preview">
-            
+                <hr style="visibility: hidden;">
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/05/25/turtorial-on-SVM/" data-toggle="tooltip" data-placement="top" title="An Introduction to Support Vector Machines (SVM): Convex Optimization and Lagrangian Duality Principle">
+                        Previous<br>
+                        <span>An Introduction to Support Vector Machines (SVM): Convex Optimization and Lagrangian Duality Principle</span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <hr style="visibility: hidden;">
+
+                
+                <!-- disqus 评论框 start -->
+                <div class="comment">
+                    <div id="disqus_thread" class="disqus-thread"></div>
+                </div>
+                <!-- disqus 评论框 end -->
                 
 
-
-In the last post, we discussed that the SVM optimization problem is:
-$$\text{min}\frac{1}{2}\|\mathbf{w}\|^2,\ \ \text{s.t.}\ \ \ y_i(\mathbf{w}^T\mathbf{x}_i+b)\geq 1, \ \ i=1,\dots,n$$
-To solv...
-            
-        </div>
-    </a>
-    <p class="post-meta">
-        Posted by Gu on May 24, 2019
-    </p>
-</div>
-<hr>
-
-<div class="post-preview">
-    <a href="/2019/05/23/turtorial-on-SVM/">
-        <h2 class="post-title">
-            An Introduction to Support Vector Machines (SVM): Basics
-        </h2>
-        
-        <h3 class="post-subtitle">
-             支持向量机(SVM)概述：线性支持向量机
-        </h3>
-        
-        <div class="post-content-preview">
-            
                 
-  “Hello, my first notebook.”
+            </div>  
 
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
 
-
-
-
-
-What is SVM?
-Support Vector Machine (SVM) is a method for classification (and possibly for regression). Here we mainly discuss the most common application: bina...
-            
-        </div>
-    </a>
-    <p class="post-meta">
-        Posted by Gu on May 23, 2019
-    </p>
-</div>
-<hr>
-
-
-<!-- Pager -->
-
-
-    		</div>
     <!-- Sidebar Container -->
             <div class="
-                col-lg-3 col-lg-offset-0
-                col-md-3 col-md-offset-0
-                col-sm-12
-                col-xs-12
-                sidebar-container
-            ">
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
                 <!-- Featured Tags -->
                 
 
 
 <section>
+    
+        <hr class="hidden-sm hidden-xs">
     
     <h5><a href="/archive/">FEATURED TAGS</a></h5>
     <div class="tags">
@@ -393,53 +389,6 @@ Support Vector Machine (SVM) is a method for classification (and possibly for re
 </section>
 
 
-                <!-- Short About -->
-                <section class="visible-md visible-lg">
-  <hr>
-  <h5><a href="/about/">ABOUT ME</a></h5>
-  <div class="short-about">
-    
-    <img src="/img/avatar-gu.jpg" />
-    
-    
-    <p>Master at RWTH Aachen.<br>Bachelor at Fudan Uinversity, Shanghai.<br>Research interest: deep learning, computer vision, NLP</p>
-    
-    <!-- SNS Link -->
-    
-
-
-<ul class="list-inline">
-
-
-  
-  
-  
-  
-  
-  <li>
-    <a target="_blank" href="https://www.facebook.com/nianlonggu">
-      <span class="fa-stack fa-lg">
-        <i class="fa fa-circle fa-stack-2x"></i>
-        <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
-      </span>
-    </a>
-  </li>
-  
-  
-  <li>
-    <a target="_blank" href="https://github.com/nianlonggu">
-      <span class="fa-stack fa-lg">
-        <i class="fa fa-circle fa-stack-2x"></i>
-        <i class="fa fa-github fa-stack-1x fa-inverse"></i>
-      </span>
-    </a>
-  </li>
-  
-  
-</ul>
-  </div>
-</section>
-
                 <!-- Friends Blog -->
                 
 <hr>
@@ -448,10 +397,69 @@ Support Vector Machine (SVM) is a method for classification (and possibly for re
   
 </ul>
 
-    		</div>
-        
-	</div>
-</div>
+            </div>
+        </div>
+    </div>
+</article>
+
+<!-- add support for mathjax by voleking-->
+
+
+
+
+
+
+<!-- disqus 公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "nlgu";
+    var disqus_identifier = "/2019/05/27/turtorial-on-SVM";
+    var disqus_url = "http://localhost:4000/2019/05/27/turtorial-on-SVM/";
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus 公共JS代码 end -->
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'always',
+          placement: 'right',
+          icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
 
 
 
@@ -579,6 +587,64 @@ Support Vector Machine (SVM) is a method for classification (and possibly for re
 
 
 <!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+
+        // interop with multilangual 
+        if ('' == 'true') {
+            _containerSelector = 'div.post-container.active'
+        } else {
+            _containerSelector = 'div.post-container'
+        }
+
+        // init
+        var P = $(_containerSelector),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+
+        // clean
+        $(selector).html('')
+
+        // appending
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
 
 
 

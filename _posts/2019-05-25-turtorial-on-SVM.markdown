@@ -30,16 +30,16 @@ A primal convex optimization problem has the following expression:
 <center>
 	$$
 	\min_{\mathbf{x}}  f_0(\mathbf{x})\\
-	s.t. \ \ f_i(\mathbf{x}) \leq 0, \ i=1,\dots,m \\
+	s.t. \ \ f_i(\mathbf{x}) \leq 0, \ i=1,\dots,n \\
 	\ \ \ \ \ \ \ h_j(\mathbf{x}) = 0, \ j=1,\dots,p
 	$$
 </center>
-where $f_i(\mathbf{x}) _{(i=0,1,\dots,m)}$ are convex, and $h_j(\mathbf{x}) _{(j=1,\dots,p)}$ are linear (or affine).
+where $f_i(\mathbf{x}) _{(i=0,1,\dots,n)}$ are convex, and $h_j(\mathbf{x}) _{(j=1,\dots,p)}$ are linear (or affine).
 
 We can get the Lagrangian function:
 <center>
 	$$
-	L(\mathbf{x}, \mathbf{\lambda}, \mathbf{\mu}) = f_0(\mathbf{x}) + \sum_{i=1}^{m}\lambda_{i}f_i(\mathbf{x}) + \sum_{j=1}^{p}\mu_jh_j(\mathbf{x})
+	L(\mathbf{x}, \mathbf{\lambda}, \mathbf{\mu}) = f_0(\mathbf{x}) + \sum_{i=1}^{n}\lambda_{i}f_i(\mathbf{x}) + \sum_{j=1}^{p}\mu_jh_j(\mathbf{x})
 	$$
 </center>
 Since $f_i(\mathbf{x})$ are convex, and $h_j(\mathbf{x})$ are linear, $$L(\mathbf{x}, \mathbf{\lambda}, \mathbf{\mu})$$ is also convex w.r.t $$\mathbf{x}$$. Therefore, we can get the infimum of $$L(\mathbf{x}, \mathbf{\lambda}, \mathbf{\mu})$$, which is called the Lagrangian dual function:
@@ -60,7 +60,7 @@ Based on the dual function we can get the dual optimization problem:
 <center>
 	$$
 		\max_{\mathbf{\lambda},\mathbf{\mu}}\ g(\mathbf{\lambda},\mathbf{\mu})\\
-		s.t. \ \ \lambda_i \geq 0, \ \ i=1,\dots,m\\
+		s.t. \ \ \lambda_i \geq 0, \ \ i=1,\dots,n\\
 		\small\text{and other constraints introduced by computing the dual function}
 	$$
 </center>
@@ -74,21 +74,21 @@ $$
 The difference $$f_0^\star(x)-g^\star(\mathbf{\lambda},\mathbf{\mu})$$ is called **duality gap**.
 
 Under certain circumstances, the duality gap can be 0, which means the **strong duality** holds. This condition is called **Slater's condition**:<br>
-* Apart from the constraints in primal problem, Slater's condition requires that the constraints $$f_i(\mathbf{x}) _ {(i=1,\dots,m)} $$ are linear (or affine).
+* Apart from the constraints in primal problem, Slater's condition requires that the constraints $$f_i(\mathbf{x}) _ {(i=1,\dots,n)} $$ are linear (or affine).
 
 If Slater's condition is satisfied, strong duality holds, and furthermore for the optimal value $$\mathbf{x}^\star$$, $$\mathbf{\lambda}^\star$$ and $$\mathbf{\mu}^\star$$, the **Karush-Kuhn-Tucker (KKT)** conditions also holds.
 
 **Karush-Kuhn-Tucker (KKT) Conditions**<br>
 KKT conditions contain four conditions:<br>
-1. *primal constraints* <center>$$f_i(\mathbf{x}^\star)\leq 0, \ i=1,\dots,m  \\ h_j(\mathbf{x}^\star)=0, \ j=1,\dots,p$$ </center>
+1. *primal constraints* <center>$$f_i(\mathbf{x}^\star)\leq 0, \ i=1,\dots,n  \\ h_j(\mathbf{x}^\star)=0, \ j=1,\dots,p$$ </center>
 2. *compute the infimum of $$L$$ w.r.t $$\mathbf{x}$$* <center>$$\Delta_{\mathbf{x}} L(\mathbf{x}^\star, \mathbf{\lambda}^\star, \mathbf{\mu}^\star) = 0$$</center>
 3. *dual constraints* <center>
 	$$
-	\lambda_i^\star\geq 0, \ i=1,\dots,m
+	\lambda_i^\star\geq 0, \ i=1,\dots,n
 	$$</center>
 4. ***Complementary Slackness*** <center>
 	$$
-	\lambda_i^\star f_i(\mathbf{x}^\star) = 0, \ i=1,\dots,m
+	\lambda_i^\star f_i(\mathbf{x}^\star) = 0, \ i=1,\dots,n
 	$$</center>
 
 Therefore, if strong duality holds, we can first solve the dual problem and get the optimal $$\mathbf{\lambda}^\star$$, $$\mathbf{\mu}^\star$$. Then we can substitute the dual optimum into the KKT conditions (especially KKT condition 2) to get the primal optimum $$\mathbf{x}^\star$$. Then the primal convex optimization problem can be solved.
@@ -105,52 +105,52 @@ As introduced in the first post [An Introduction to Support Vector Machines (SVM
 The Lagrangian dual function is 
 <center>
 	$$
-	L(\mathbf{w}, b , \mathbf{\lambda}) = \frac{1}{2}\|\mathbf{w}\|^2 + \sum_{i=1}^{m}\lambda_i(1-y_i(\mathbf{w}^T\mathbf{x}_i+b))
+	L(\mathbf{w}, b , \mathbf{\lambda}) = \frac{1}{2}\|\mathbf{w}\|^2 + \sum_{i=1}^{n}\lambda_i(1-y_i(\mathbf{w}^T\mathbf{x}_i+b))
 	$$
 </center>
 To compute the Lagrangian dual function, we can compute the partial derivative of $L$ w.r.t $$\mathbf{w},b$$ and set them to 0 (see KKT condition 2)
 <center>
 	$$
-	\frac{\partial{L}}{\partial{\mathbf{w}}} = \mathbf{w} - \sum_{i=1}^{m}\lambda_i y_i \mathbf{x}_i = 0\\
-	\frac{\partial{L}}{\partial{b}} = -\sum_{i=1}^{m}\lambda_i y_i =0
+	\frac{\partial{L}}{\partial{\mathbf{w}}} = \mathbf{w} - \sum_{i=1}^{n}\lambda_i y_i \mathbf{x}_i = 0\\
+	\frac{\partial{L}}{\partial{b}} = -\sum_{i=1}^{n}\lambda_i y_i =0
 	$$
 </center>
 Then we get
 <center>
 	$$
-	\mathbf{w}^\star = \sum_{+i=1}^{m}\lambda_i y_i \mathbf{x}_i\\
-	\sum_{i=1}^{m}\lambda_i y_i = 0
+	\mathbf{w}^\star = \sum_{+i=1}^{n}\lambda_i y_i \mathbf{x}_i\\
+	\sum_{i=1}^{n}\lambda_i y_i = 0
 	$$
 </center>
 Substitute these two constraint equations into $$L(\mathbf{w},b,\mathbf{\lambda})$$, we get the Lagrangian dual function:
 <center>
 	$$
 	\begin{align}
-	g(\mathbf{\lambda}) & = \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j + \sum_{i=1}^{m}\lambda_i(1-y_i( \sum_{j=1}^{m}\lambda_j y_j \mathbf{x_j}^T\mathbf{x}_i +b  ))\\
-	& = \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j  - \sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j + \sum_{i=1}^{m}\lambda_i - (\sum_{i=1}^{m}\lambda_i y_i)b \\
-	&= \sum_{i=1}^{m}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j
+	g(\mathbf{\lambda}) & = \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j + \sum_{i=1}^{n}\lambda_i(1-y_i( \sum_{j=1}^{n}\lambda_j y_j \mathbf{x_j}^T\mathbf{x}_i +b  ))\\
+	& = \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j  - \sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j + \sum_{i=1}^{n}\lambda_i - (\sum_{i=1}^{n}\lambda_i y_i)b \\
+	&= \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j
 	\end{align}
 	$$
 </center>
 Then the dual problem is:
 <center>
 	$$
-	\max_{\lambda} \ \sum_{i=1}^{m}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i\lambda_j y_i y_j \mathbf{x}_i^T \mathbf{x}_j\\
+	\max_{\lambda} \ \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i\lambda_j y_i y_j \mathbf{x}_i^T \mathbf{x}_j\\
 	\begin{align}
-	s.t. \ \ &\lambda_i \geq 0, \ \ i=1,\dots,m\\
-	&\sum_{i=1}^{m} \lambda_i y_i = 0
+	s.t. \ \ &\lambda_i \geq 0, \ \ i=1,\dots,n\\
+	&\sum_{i=1}^{n} \lambda_i y_i = 0
 	\end{align}
 	$$
 </center>
 We can solve this dual problem using Gradient descent algorithm or **Sequential Minimal Optimization (SMO)**. This will be discussed in the next post.
 
-Once we get the dual optimum $$\lambda^\star$$, we can get the primal optimum $$\mathbf{w}^\star=\sum_{i=1}^{m} \lambda_i^\star\mathbf{x}_ i $$. But wait, how to get the optimal $$b^\star$$? To further understand this, we need analyze the KKT conditions for SVM optimization problem.
+Once we get the dual optimum $$\lambda^\star$$, we can get the primal optimum $$\mathbf{w}^\star=\sum_{i=1}^{n} \lambda_i^\star\mathbf{x}_ i $$. But wait, how to get the optimal $$b^\star$$? To further understand this, we need analyze the KKT conditions for SVM optimization problem.
 
 ## KKT conditions for SVM
 Since the primal constraints $$1-y_i(\mathbf{w}^T\mathbf{x}_ i+b)\leq 0$$ is obviously linear, so the Slater's condition holds, strong duality holds, and the KKT conditions are satisfied for the primal optimum and dual optimum of the SVM. Therefore, we have the complementary slackness:
 <center>
 	$$
-	\lambda_i^\star (1-y_i({\mathbf{w}^\star}^T\mathbf{x}_i+b^\star))=0, \ \ i=1,\dots,m
+	\lambda_i^\star (1-y_i({\mathbf{w}^\star}^T\mathbf{x}_i+b^\star))=0, \ \ i=1,\dots,n
 	$$
 </center>
 This looks interesting. From dual constraints we know that $$\lambda^\star\geq 0$$. Together with this complementary slackness, we will know that if $$\lambda_i>0$$, then it must hold $$y_i({\mathbf{w}^\star}^T\mathbf{x}_i+b^\star)=1$$. This means $$\mathbf{x}_i$$ is exactly one of the support vectors (the points which have a margin distance to the separating hyperplane)! 
