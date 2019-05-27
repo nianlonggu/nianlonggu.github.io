@@ -74,4 +74,4 @@ It is the geodesic margin $$\frac{\gamma}{\|\mathbf{w}\|}$$ that matters, not th
 We can convert this problem into a convex optimization problem by reforming the objective function. The the final form of the SVM optimization problem is:
 <center> $$\text{min} \frac{1}{2}{\|\mathbf{w}\|^2},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1\ ,\ \ i=1,\dots,n$$ </center>
 
-This is the standard expression of the linear SVM. In the next article I will introduce how to solve this optimization problem and get the optimal separating hyperplane $$\{\mathbf{x}\vert\hat{\mathbf{w}}^T\mathbf{x}+\hat{b}=0\}$$.
+This is the standard expression of the linear SVM. In the next post I will introduce how to solve this optimization problem and get the optimal separating hyperplane $$\{\mathbf{x}\vert\hat{\mathbf{w}}^T\mathbf{x}+\hat{b}=0\}$$.

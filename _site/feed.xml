@@ -5,13 +5,13 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Mon, 27 May 2019 00:18:14 +0200</pubDate>
-    <lastBuildDate>Mon, 27 May 2019 00:18:14 +0200</lastBuildDate>
+    <pubDate>Mon, 27 May 2019 08:51:56 +0200</pubDate>
+    <lastBuildDate>Mon, 27 May 2019 08:51:56 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
         <title>An Introduction to Support Vector Machines (SVM): Convex Optimization and Lagrangian Duality Principle</title>
-        <description>&lt;p&gt;In the last article we have conquered how to use gradient descent algorithm to train a SVM. So,&lt;/p&gt;
+        <description>&lt;p&gt;In the last post we have conquered how to use gradient descent algorithm to train a SVM. So,&lt;/p&gt;
 &lt;blockquote&gt;
   &lt;p&gt;is this the end of the story?&lt;/p&gt;
 &lt;/blockquote&gt;
@@ -103,7 +103,7 @@ KKT conditions contain four conditions:&lt;br /&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;apply-lagrangian-duality-to-svm&quot;&gt;Apply Lagrangian Duality to SVM&lt;/h2&gt;
 &lt;p&gt;Now we are able to solve the SVM optimization problem using Lagrangian duality. 
-As introduced in the first article &lt;a href=&quot;https://nlgu.top/2019/05/23/turtorial-on-SVM/&quot;&gt;An Introduction to Support Vector Machines (SVM): Basics&lt;/a&gt;, the SVM optimization problem is:&lt;/p&gt;
+As introduced in the first post &lt;a href=&quot;https://nlgu.top/2019/05/23/turtorial-on-SVM/&quot;&gt;An Introduction to Support Vector Machines (SVM): Basics&lt;/a&gt;, the SVM optimization problem is:&lt;/p&gt;
 &lt;center&gt;
 	$$
 	\min_{\mathbf{w},b}\frac{1}{2}\|\mathbf{w}\|^2\\
@@ -150,7 +150,7 @@ As introduced in the first article &lt;a href=&quot;https://nlgu.top/2019/05/23/
 	\end{align}
 	$$
 &lt;/center&gt;
-&lt;p&gt;We can solve this dual problem using Gradient descent algorithm or &lt;strong&gt;Sequential Minimal Optimization (SMO)&lt;/strong&gt;. This will be discussed in the next article.&lt;/p&gt;
+&lt;p&gt;We can solve this dual problem using Gradient descent algorithm or &lt;strong&gt;Sequential Minimal Optimization (SMO)&lt;/strong&gt;. This will be discussed in the next post.&lt;/p&gt;
 
 &lt;p&gt;Once we get the dual optimum &lt;script type=&quot;math/tex&quot;&gt;\lambda^\star&lt;/script&gt;, we can get the primal optimum &lt;script type=&quot;math/tex&quot;&gt;\mathbf{w}^\star=\sum_{i=1}^{m} \lambda_i^\star\mathbf{x}_ i&lt;/script&gt;. But wait, how to get the optimal &lt;script type=&quot;math/tex&quot;&gt;b^\star&lt;/script&gt;? To further understand this, we need analyze the KKT conditions for SVM optimization problem.&lt;/p&gt;
 
@@ -161,10 +161,44 @@ As introduced in the first article &lt;a href=&quot;https://nlgu.top/2019/05/23/
 	\lambda_i^\star (1-y_i({\mathbf{w}^\star}^T\mathbf{x}_i+b^\star))=0, \ \ i=1,\dots,m
 	$$
 &lt;/center&gt;
-&lt;p&gt;This looks interesting. From dual constraints we know that &lt;script type=&quot;math/tex&quot;&gt;\lambda^\star\geq 0&lt;/script&gt;. Together with this complementary slackness, we will know that if &lt;script type=&quot;math/tex&quot;&gt;\lambda_i&gt;0&lt;/script&gt;, then it must hold &lt;script type=&quot;math/tex&quot;&gt;y_i({\mathbf{w}^\star}^T\mathbf{x}_i+b^\star)=1&lt;/script&gt;. This means &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i&lt;/script&gt; is exactly one of the support vectors! Therefore, we find a way to identify support vectors using Lagrangian duality:&lt;/p&gt;
+&lt;p&gt;This looks interesting. From dual constraints we know that &lt;script type=&quot;math/tex&quot;&gt;\lambda^\star\geq 0&lt;/script&gt;. Together with this complementary slackness, we will know that if &lt;script type=&quot;math/tex&quot;&gt;\lambda_i&gt;0&lt;/script&gt;, then it must hold &lt;script type=&quot;math/tex&quot;&gt;y_i({\mathbf{w}^\star}^T\mathbf{x}_i+b^\star)=1&lt;/script&gt;. This means &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i&lt;/script&gt; is exactly one of the support vectors (the points which have a margin distance to the separating hyperplane)!&lt;/p&gt;
+
+&lt;p&gt;Therefore, we find a way to &lt;strong&gt;identify support vectors&lt;/strong&gt; using Lagrangian duality:&lt;/p&gt;
 &lt;ul&gt;
-  &lt;li&gt;Compute the dual optimum,&lt;/li&gt;
+  &lt;li&gt;Compute the dual optimum, if &lt;script type=&quot;math/tex&quot;&gt;\lambda_i^\star&gt;0&lt;/script&gt;, then &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i&lt;/script&gt; is a support vector.&lt;/li&gt;
 &lt;/ul&gt;
+
+&lt;p&gt;Let &lt;script type=&quot;math/tex&quot;&gt;S=\{i\vert \lambda^\star_i &gt; 0\}&lt;/script&gt; represent the support vector set, &lt;script type=&quot;math/tex&quot;&gt;S_+=\{i\vert i\in S\ \text{and}\ y_i=+1\}&lt;/script&gt; represent the subset whose labels are &lt;script type=&quot;math/tex&quot;&gt;+1&lt;/script&gt;, and &lt;script type=&quot;math/tex&quot;&gt;S_-=\{i\vert i\in S\ \text{and}\ y_i=-1 \}&lt;/script&gt; represent the subset whose labels are -1.
+Then the primal optimum will be:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\mathbf{w}^\star = \sum_{i\in S} \lambda_i^\star \mathbf{x}_i\\
+	$$
+&lt;/center&gt;
+&lt;p&gt;Since we know for support vectors &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i,\ i\in S&lt;/script&gt;, it holds &lt;script type=&quot;math/tex&quot;&gt;y_i({\mathbf{w}^\star}^T\mathbf{x}_i+b^\star)=1&lt;/script&gt;. &lt;script type=&quot;math/tex&quot;&gt;y_i \in \{-1,+1\}&lt;/script&gt;, so we get &lt;script type=&quot;math/tex&quot;&gt;{\mathbf{w}^\star}^T\mathbf{x}_i + b^\star= y_i&lt;/script&gt;. Therefore, the primal optimum of &lt;script type=&quot;math/tex&quot;&gt;b&lt;/script&gt; is:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	b^\star = y_i - {\mathbf{w}^\star}^T\mathbf{x}_i, \ \ i\in S
+	$$
+&lt;/center&gt;
+&lt;p&gt;or&lt;/p&gt;
+&lt;center&gt;
+	$$
+	b^\star = -\frac{1}{2}({\mathbf{w}^\star}^T\mathbf{x}_i + {\mathbf{w}^\star}^T\mathbf{x}_j ), \ \ i\in S_+,\ j \in S_-
+	$$
+&lt;/center&gt;
+
+&lt;h2 id=&quot;use-svm-for-classification&quot;&gt;Use SVM for Classification&lt;/h2&gt;
+&lt;p&gt;Given a new point &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}&lt;/script&gt;, we can compute the value &lt;script type=&quot;math/tex&quot;&gt;{\mathbf{w}^\star}^T\mathbf{x}+b^\star&lt;/script&gt;, and predict the label &lt;script type=&quot;math/tex&quot;&gt;\hat{y}&lt;/script&gt; using hard decision or soft decision as shown in &lt;a href=&quot;https://nlgu.top/2019/05/24/turtorial-on-SVM/#use-svm-for-classification&quot;&gt;An Introduction to Support Vector Machines (SVM): Gradient Descent Solution&lt;/a&gt;. 
+Substitute the expression of &lt;script type=&quot;math/tex&quot;&gt;{\mathbf{w}^\star}&lt;/script&gt;, we have:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	{\mathbf{w}^\star}^T\mathbf{x} + b^\star = \sum_{i\in S}\lambda_i^\star \mathbf{x}_i^T\mathbf{x} +b^\star
+	$$
+&lt;/center&gt;
+&lt;p&gt;This implies that we only need the support vectors to determine the separating hyperplane and classify new points. Furthermore, we notice that either in the dual problem or in the classification, &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i^T\mathbf{x}_j&lt;/script&gt; always appears as a whole. This feature can be used for Kernel SVM, which will be discussed in the following posts.&lt;/p&gt;
+
+&lt;p&gt;In the next post I will introduce how to solve the dual problem.&lt;/p&gt;
 </description>
         <pubDate>Sat, 25 May 2019 21:43:00 +0200</pubDate>
         <link>http://localhost:4000/2019/05/25/turtorial-on-SVM/</link>
@@ -188,7 +222,7 @@ As introduced in the first article &lt;a href=&quot;https://nlgu.top/2019/05/23/
 &lt;!-- ## Contents
 [Gradient Descent Algorithm](#GDS)&lt;br&gt;
 [Lagrangian Dual Problem](#Lagrangian-Dual) --&gt;
-&lt;p&gt;In the last article, we discussed that the SVM optimization problem is:&lt;br /&gt;&lt;/p&gt;
+&lt;p&gt;In the last post, we discussed that the SVM optimization problem is:&lt;br /&gt;&lt;/p&gt;
 &lt;center&gt;$$\text{min}\frac{1}{2}\|\mathbf{w}\|^2,\ \ \text{s.t.}\ \ \ y_i(\mathbf{w}^T\mathbf{x}_i+b)\geq 1, \ \ i=1,\dots,n$$&lt;/center&gt;
 &lt;p&gt;To solve this optimization problem, there are multiple ways. One way is to treat this problem as a standard optimization problem and use gradient descent algorithm to compute the optimal parameters. Another way is to formulate the Lagrangian dual problem of the primal problem, transferring original optimization problem into an easier problem. Here we mainly discuss the first method.&lt;/p&gt;
 
@@ -289,7 +323,7 @@ z, &amp; \text{if}\ -1 \leq z &lt; 1\\
 \end{cases} %]]&gt;&lt;/script&gt;&lt;/p&gt;
 
 &lt;blockquote&gt;
-  &lt;p&gt;So that’s it. Now we are able to use GDS to train a SVM model and used it for classification task. In the next article we will explore more possibilities of the solutions on SVM.&lt;/p&gt;
+  &lt;p&gt;So that’s it. Now we are able to use GDS to train a SVM model and used it for classification task. In the next post we will explore more possibilities of the solutions on SVM.&lt;/p&gt;
 &lt;/blockquote&gt;
 </description>
         <pubDate>Fri, 24 May 2019 20:00:00 +0200</pubDate>
@@ -386,7 +420,7 @@ The margin is defined by the Euclidean distance between the closest points (marg
 &lt;p&gt;We can convert this problem into a convex optimization problem by reforming the objective function. The the final form of the SVM optimization problem is:&lt;/p&gt;
 &lt;center&gt; $$\text{min} \frac{1}{2}{\|\mathbf{w}\|^2},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1\ ,\ \ i=1,\dots,n$$ &lt;/center&gt;
 
-&lt;p&gt;This is the standard expression of the linear SVM. In the next article I will introduce how to solve this optimization problem and get the optimal separating hyperplane &lt;script type=&quot;math/tex&quot;&gt;\{\mathbf{x}\vert\hat{\mathbf{w}}^T\mathbf{x}+\hat{b}=0\}&lt;/script&gt;.&lt;/p&gt;
+&lt;p&gt;This is the standard expression of the linear SVM. In the next post I will introduce how to solve this optimization problem and get the optimal separating hyperplane &lt;script type=&quot;math/tex&quot;&gt;\{\mathbf{x}\vert\hat{\mathbf{w}}^T\mathbf{x}+\hat{b}=0\}&lt;/script&gt;.&lt;/p&gt;
 </description>
         <pubDate>Thu, 23 May 2019 19:00:00 +0200</pubDate>
         <link>http://localhost:4000/2019/05/23/turtorial-on-SVM/</link>

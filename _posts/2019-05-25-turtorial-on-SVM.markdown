@@ -13,7 +13,7 @@ tags:
     - Machine Learning
 ---
 
-In the last article we have conquered how to use gradient descent algorithm to train a SVM. So,
+In the last post we have conquered how to use gradient descent algorithm to train a SVM. So,
 > is this the end of the story? 
 
 Not really. Although using GDS can solve the SVM optimization, GDS has some shortcomings:
@@ -95,7 +95,7 @@ Therefore, if strong duality holds, we can first solve the dual problem and get 
 
 ## Apply Lagrangian Duality to SVM
 Now we are able to solve the SVM optimization problem using Lagrangian duality. 
-As introduced in the first article [An Introduction to Support Vector Machines (SVM): Basics](https://nlgu.top/2019/05/23/turtorial-on-SVM/), the SVM optimization problem is:
+As introduced in the first post [An Introduction to Support Vector Machines (SVM): Basics](https://nlgu.top/2019/05/23/turtorial-on-SVM/), the SVM optimization problem is:
 <center>
 	$$
 	\min_{\mathbf{w},b}\frac{1}{2}\|\mathbf{w}\|^2\\
@@ -142,7 +142,7 @@ Then the dual problem is:
 	\end{align}
 	$$
 </center>
-We can solve this dual problem using Gradient descent algorithm or **Sequential Minimal Optimization (SMO)**. This will be discussed in the next article.
+We can solve this dual problem using Gradient descent algorithm or **Sequential Minimal Optimization (SMO)**. This will be discussed in the next post.
 
 Once we get the dual optimum $$\lambda^\star$$, we can get the primal optimum $$\mathbf{w}^\star=\sum_{i=1}^{m} \lambda_i^\star\mathbf{x}_ i $$. But wait, how to get the optimal $$b^\star$$? To further understand this, we need analyze the KKT conditions for SVM optimization problem.
 
@@ -153,5 +153,39 @@ Since the primal constraints $$1-y_i(\mathbf{w}^T\mathbf{x}_ i+b)\leq 0$$ is obv
 	\lambda_i^\star (1-y_i({\mathbf{w}^\star}^T\mathbf{x}_i+b^\star))=0, \ \ i=1,\dots,m
 	$$
 </center>
-This looks interesting. From dual constraints we know that $$\lambda^\star\geq 0$$. Together with this complementary slackness, we will know that if $$\lambda_i>0$$, then it must hold $$y_i({\mathbf{w}^\star}^T\mathbf{x}_i+b^\star)=1$$. This means $$\mathbf{x}_i$$ is exactly one of the support vectors! Therefore, we find a way to identify support vectors using Lagrangian duality:
-* Compute the dual optimum,
+This looks interesting. From dual constraints we know that $$\lambda^\star\geq 0$$. Together with this complementary slackness, we will know that if $$\lambda_i>0$$, then it must hold $$y_i({\mathbf{w}^\star}^T\mathbf{x}_i+b^\star)=1$$. This means $$\mathbf{x}_i$$ is exactly one of the support vectors (the points which have a margin distance to the separating hyperplane)! 
+
+Therefore, we find a way to **identify support vectors** using Lagrangian duality:
+* Compute the dual optimum, if $$\lambda_i^\star>0$$, then $$\mathbf{x}_ i$$ is a support vector.
+
+Let $$S=\{i\vert \lambda^\star_i > 0\}$$ represent the support vector set, $$S_+=\{i\vert i\in S\ \text{and}\ y_i=+1\}$$ represent the subset whose labels are $$+1$$, and $$S_-=\{i\vert i\in S\ \text{and}\ y_i=-1 \}$$ represent the subset whose labels are -1.
+Then the primal optimum will be:
+<center>
+	$$
+	\mathbf{w}^\star = \sum_{i\in S} \lambda_i^\star \mathbf{x}_i\\
+	$$
+</center>
+Since we know for support vectors $$\mathbf{x}_i,\ i\in S$$, it holds $$y_i({\mathbf{w}^\star}^T\mathbf{x}_i+b^\star)=1$$. $$y_i \in \{-1,+1\}$$, so we get $${\mathbf{w}^\star}^T\mathbf{x}_i + b^\star= y_i $$. Therefore, the primal optimum of $$b$$ is:
+<center>
+	$$
+	b^\star = y_i - {\mathbf{w}^\star}^T\mathbf{x}_i, \ \ i\in S
+	$$
+</center>
+or
+<center>
+	$$
+	b^\star = -\frac{1}{2}({\mathbf{w}^\star}^T\mathbf{x}_i + {\mathbf{w}^\star}^T\mathbf{x}_j ), \ \ i\in S_+,\ j \in S_-
+	$$
+</center>
+
+## Use SVM for Classification
+Given a new point $$\mathbf{x}$$, we can compute the value $${\mathbf{w}^\star}^T\mathbf{x}+b^\star$$, and predict the label $$\hat{y}$$ using hard decision or soft decision as shown in [An Introduction to Support Vector Machines (SVM): Gradient Descent Solution](https://nlgu.top/2019/05/24/turtorial-on-SVM/#use-svm-for-classification). 
+Substitute the expression of $${\mathbf{w}^\star}$$, we have:
+<center>
+	$$
+	{\mathbf{w}^\star}^T\mathbf{x} + b^\star = \sum_{i\in S}\lambda_i^\star \mathbf{x}_i^T\mathbf{x} +b^\star
+	$$
+</center>
+This implies that we only need the support vectors to determine the separating hyperplane and classify new points. Furthermore, we notice that either in the dual problem or in the classification, $$\mathbf{x}_i^T\mathbf{x}_j$$ always appears as a whole. This feature can be used for Kernel SVM, which will be discussed in the following posts.
+
+In the next post I will introduce how to solve the dual problem.
