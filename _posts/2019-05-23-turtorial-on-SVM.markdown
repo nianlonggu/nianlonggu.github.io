@@ -13,13 +13,14 @@ tags:
     - Machine Learning
 ---
 
-> “Hello, my first notebook.”
+> Just to clarify, these contents are mainly summarized from the course I took: "Fundamental of Big Data Analytics", taught by Prof. Mathar Rudolf. For for information please visit: https://www.ti.rwth-aachen.de
 
 <!-- ## Contents
 [What is SVM?](#what-is-SVM)<br>
 [SVM in Linearly Separable Case](#SVM-in-Linearly-Separable-Case) -->
 
 <p id = "what-is-SVM"></p>
+
 
 ## What is SVM?
 Support Vector Machine (SVM) is a method for classification (and possibly for regression). Here we mainly discuss the most common application: **binary classification problem**. 
