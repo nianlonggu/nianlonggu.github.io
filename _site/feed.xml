@@ -5,13 +5,17 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Mon, 27 May 2019 22:35:20 +0200</pubDate>
-    <lastBuildDate>Mon, 27 May 2019 22:35:20 +0200</lastBuildDate>
+    <pubDate>Thu, 06 Jun 2019 23:53:32 +0200</pubDate>
+    <lastBuildDate>Thu, 06 Jun 2019 23:53:32 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
-        <title>An Introduction to Support Vector Machines (SVM): Dual problem solution using GDS and SMO</title>
-        <description>&lt;p&gt;Recall of the SVM primal problem and dual problem:&lt;br /&gt;
+        <title>An Introduction to Support Vector Machines (SVM): Dual problem solution using GD</title>
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;Just to clarify, these contents are mainly summarized from the course I took: “Fundamental of Big Data Analytics”, taught by Prof. Mathar Rudolf. For for information please visit: &lt;a href=&quot;https://www.ti.rwth-aachen.de&quot;&gt;https://www.ti.rwth-aachen.de&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Recall of the SVM primal problem and dual problem:&lt;br /&gt;
 &lt;strong&gt;Primal Problem&lt;/strong&gt;&lt;/p&gt;
 &lt;center&gt;
 	$$
@@ -34,7 +38,7 @@
 &lt;p&gt;The the last post we introduced how to apply Lagrangian duality to SVM and how to get the primal optimum once we get the dual optimum. In this post we mainly discuss how to solve the dual problem and get the dual optimum.&lt;/p&gt;
 
 &lt;h2 id=&quot;gradient-descent-algorithm-for-dual-problem&quot;&gt;Gradient Descent Algorithm for Dual Problem&lt;/h2&gt;
-&lt;p&gt;To apply GDS to SVM, we need to reformulate the objective function of the dual problem. Our new objective function will be:&lt;/p&gt;
+&lt;p&gt;To apply GD to SVM, we need to reformulate the objective function of the dual problem. Our new objective function will be:&lt;/p&gt;
 &lt;center&gt;
 	$$
 	\min_{\lambda}L(\lambda)=-\sum_{i=1}^{n}\lambda_i + \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j + \frac{c}{2}(\sum_{i=1}^{n}\lambda_i y_i)^2 \\
@@ -75,10 +79,11 @@ $$
 
 &lt;p&gt;&lt;strong&gt;Implementation and Experiments&lt;/strong&gt;&lt;/p&gt;
 
-&lt;p&gt;I implement the GDS algorithm to compute the dual optimum and use it to solve the original SVM optimization problem. The code is available in my github &lt;a href=&quot;https://github.com/nianlonggu/SupportVectorMachine/blob/master/gds-dual-svm.py&quot;&gt;SupportVectorMachine/gds-dual-svm.py&lt;/a&gt;. The change of the hyperplane over iterations is shown in figure &lt;a href=&quot;#hyperplane-over-iteration&quot;&gt;Hyperplane Over Iteration&lt;/a&gt;
+&lt;p&gt;I implement the Gradient Descent algorithm to compute the dual optimum and use it to solve the original SVM optimization problem. The code is available in my github &lt;a href=&quot;https://github.com/nianlonggu/SupportVectorMachine/blob/master/gd-dual-svm.py&quot;&gt;SupportVectorMachine/gd-dual-svm.py&lt;/a&gt;. The change of the hyperplane over iterations is shown in figure &lt;a href=&quot;#hyperplane-over-iteration&quot;&gt;Hyperplane Over Iteration&lt;/a&gt;
 &lt;a name=&quot;hyperplane-over-iteration&quot;&gt;&lt;/a&gt;
 &lt;img src=&quot;https://nianlonggu.github.io/img/2019-05-27-SVM/hyperplane-over-iteration.gif&quot; width=&quot;400&quot; hegiht=&quot;203&quot; /&gt;
 &lt;em&gt;&lt;center&gt;Hyperplane Over Iteration&lt;/center&gt;&lt;/em&gt;&lt;/p&gt;
+
 </description>
         <pubDate>Mon, 27 May 2019 10:58:00 +0200</pubDate>
         <link>http://localhost:4000/2019/05/27/turtorial-on-SVM/</link>
@@ -97,15 +102,19 @@ $$
     
       <item>
         <title>An Introduction to Support Vector Machines (SVM): Convex Optimization and Lagrangian Duality Principle</title>
-        <description>&lt;p&gt;In the last post we have conquered how to use gradient descent algorithm to train a SVM. So,&lt;/p&gt;
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;Just to clarify, these contents are mainly summarized from the course I took: “Fundamental of Big Data Analytics”, taught by Prof. Mathar Rudolf. For for information please visit: &lt;a href=&quot;https://www.ti.rwth-aachen.de&quot;&gt;https://www.ti.rwth-aachen.de&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;In the last post we have conquered how to use gradient descent algorithm to train a SVM. So,&lt;/p&gt;
 &lt;blockquote&gt;
   &lt;p&gt;is this the end of the story?&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;p&gt;Not really. Although using GDS can solve the SVM optimization, GDS has some shortcomings:&lt;/p&gt;
+&lt;p&gt;Not really. Although using GD can solve the SVM optimization, GD has some shortcomings:&lt;/p&gt;
 &lt;ul&gt;
   &lt;li&gt;Gradient procedure is time consuming and the solution may be suboptimal.&lt;/li&gt;
-  &lt;li&gt;GDS method cannot explicitly identify support vectors (points) which determine the hyperplane.&lt;/li&gt;
+  &lt;li&gt;GD method cannot explicitly identify support vectors (points) which determine the hyperplane.&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;To overcome these shortcomings, we can take advantage of the Lagrangian duality. First we convert original SVM optimization problem into a primal (convex) optimization problem, then we can get the Lagrangian dual problem. Luckily we can solve the dual problem based on KKT condition using more efficient methods.&lt;/p&gt;
@@ -310,18 +319,21 @@ Substitute the expression of &lt;script type=&quot;math/tex&quot;&gt;{\mathbf{w}
       <item>
         <title>An Introduction to Support Vector Machines (SVM): Gradient Descent Solution</title>
         <description>&lt;!-- &gt; “Hello, my first notebook.” --&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;Just to clarify, these contents are mainly summarized from the course I took: “Fundamental of Big Data Analytics”, taught by Prof. Mathar Rudolf. For for information please visit: &lt;a href=&quot;https://www.ti.rwth-aachen.de&quot;&gt;https://www.ti.rwth-aachen.de&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
 
 &lt;!-- ## Contents
-[Gradient Descent Algorithm](#GDS)&lt;br&gt;
+[Gradient Descent Algorithm](#GD)&lt;br&gt;
 [Lagrangian Dual Problem](#Lagrangian-Dual) --&gt;
 &lt;p&gt;In the last post, we discussed that the SVM optimization problem is:&lt;br /&gt;&lt;/p&gt;
 &lt;center&gt;$$\text{min}\frac{1}{2}\|\mathbf{w}\|^2,\ \ \text{s.t.}\ \ \ y_i(\mathbf{w}^T\mathbf{x}_i+b)\geq 1, \ \ i=1,\dots,n$$&lt;/center&gt;
 &lt;p&gt;To solve this optimization problem, there are multiple ways. One way is to treat this problem as a standard optimization problem and use gradient descent algorithm to compute the optimal parameters. Another way is to formulate the Lagrangian dual problem of the primal problem, transferring original optimization problem into an easier problem. Here we mainly discuss the first method.&lt;/p&gt;
 
-&lt;p id=&quot;GDS&quot;&gt;&lt;/p&gt;
+&lt;p id=&quot;GD&quot;&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;gradient-descent-algorithm&quot;&gt;Gradient Descent Algorithm&lt;/h2&gt;
-&lt;p&gt;To apply GDS, we need to design a new objective function which is differentiable. The new objective function is:&lt;/p&gt;
+&lt;p&gt;To apply GD, we need to design a new objective function which is differentiable. The new objective function is:&lt;/p&gt;
 &lt;center&gt;$$\text{min}_{\mathbf{w},b}\ L=\frac{\lambda}{2}\|\mathbf{w}\|^2+\frac{1}{n}\sum^{n}_{i=1}{\max\{1-y_i(\mathbf{w}^T\mathbf{x}_i+b) ,0\}}$$&lt;/center&gt;
 &lt;p&gt;This objective function contains two terms. The first term is used to maximize the margin. This term is also called &lt;strong&gt;regularization term&lt;/strong&gt;. The second term is a penalty term used to penalize the case where &lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
 y_i(\mathbf{w}^T\mathbf{x}_i+b)&lt;1 %]]&gt;&lt;/script&gt;, which represents incorrect/imperfect classification. Note that for the case &lt;script type=&quot;math/tex&quot;&gt;y_i(\mathbf{w}^T\mathbf{x}_i+b)\geq 1&lt;/script&gt; we don’t need to penalize it, so we use a max function &lt;script type=&quot;math/tex&quot;&gt;\max\{1-y_i(\mathbf{w}^T\mathbf{x}_i+b) ,0\}&lt;/script&gt;. This is also called &lt;strong&gt;hinge loss&lt;/strong&gt;.&lt;/p&gt;
@@ -336,7 +348,7 @@ y_i(\mathbf{w}^T\mathbf{x}_i+b)&lt;1 %]]&gt;&lt;/script&gt;, which represents in
 &lt;p&gt;&lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; is a weight parameter used to control the weight of the regularization term. If &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; is too small, the model (the learned hyperplane) will mainly focuses on correctly classify the training data, but the margin may not be maximized. If &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; is too large, the model will have have a large margin, while there may exist more miss-classified points in the training dataset.&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;Compute the gradient&lt;/strong&gt;&lt;br /&gt;
-To apply GDS we also need get the exact expression of the gradient.&lt;/p&gt;
+To apply GD we also need get the exact expression of the gradient.&lt;/p&gt;
 &lt;center&gt; $$\frac{\partial{L}}{\partial{\mathbf{w}}}=\lambda\mathbf{w}-\frac{1}{n}\sum_{i=1}^{n}{u(1-y_i(\mathbf{w}^T\mathbf{x}_i+b))y_i\mathbf{x}_i} $$ &lt;/center&gt;
 &lt;center&gt;
 	$$
@@ -368,11 +380,11 @@ To apply GDS we also need get the exact expression of the gradient.&lt;/p&gt;
 &lt;p&gt;In the following we will use this mini-batch style expression.&lt;/p&gt;
 
 &lt;h2 id=&quot;code-implementation&quot;&gt;Code Implementation&lt;/h2&gt;
-&lt;p&gt;To test the GDS algorithm, we use toy data shown in figure &lt;a href=&quot;#2d-toy-data&quot;&gt;2d toy data&lt;/a&gt;
+&lt;p&gt;To test the GD algorithm, we use toy data shown in figure &lt;a href=&quot;#2d-toy-data&quot;&gt;2d toy data&lt;/a&gt;
 &lt;a name=&quot;2d-toy-data&quot;&gt;&lt;/a&gt;
-&lt;img src=&quot;https://nianlonggu.github.io/img/2019-05-24-SVM/gds-svm-raw-data.svg&quot; width=&quot;400&quot; hegiht=&quot;203&quot; /&gt;
+&lt;img src=&quot;https://nianlonggu.github.io/img/2019-05-24-SVM/gd-svm-raw-data.svg&quot; width=&quot;400&quot; hegiht=&quot;203&quot; /&gt;
 &lt;em&gt;&lt;center&gt;2d toy data&lt;/center&gt;&lt;/em&gt;
-In this dataset, each &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i&lt;/script&gt; is an 2 dimensional vector. In total there are 2000 samples. We need to use GDS to find the optimal separating hyperplane, which is a line in this case. The code is available in my github: &lt;a href=&quot;https://github.com/nianlonggu/SupportVectorMachine&quot;&gt;SupportVectorMachine/gds-svm.py&lt;/a&gt;.&lt;/p&gt;
+In this dataset, each &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i&lt;/script&gt; is an 2 dimensional vector. In total there are 2000 samples. We need to use GD to find the optimal separating hyperplane, which is a line in this case. The code is available in my github: &lt;a href=&quot;https://github.com/nianlonggu/SupportVectorMachine&quot;&gt;SupportVectorMachine/gd-svm.py&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h2 id=&quot;experiment-and-analysis&quot;&gt;Experiment and Analysis&lt;/h2&gt;
 &lt;p&gt;&lt;strong&gt;Visualization of Hyperplane&lt;/strong&gt;&lt;br /&gt;
@@ -382,12 +394,12 @@ In this part, we set &lt;script type=&quot;math/tex&quot;&gt;\lambda=1e-4, \text
 &lt;em&gt;&lt;center&gt;Hyperplane Over Iteration&lt;/center&gt;&lt;/em&gt;
 After 100000 iterations the hyperplane looks accurate and the margin seems to be maximized. If we compare the final result with the SVM illustration figure, we will find that they are very similar, which implies that the gradient descent algorithm does work!
 &lt;a name=&quot;hyperplane-over-iteration&quot;&gt;&lt;/a&gt;
-&lt;img src=&quot;https://nianlonggu.github.io/img/2019-05-24-SVM/compare-gds-svm.svg&quot; /&gt;
+&lt;img src=&quot;https://nianlonggu.github.io/img/2019-05-24-SVM/compare-gd-svm.svg&quot; /&gt;
 &lt;em&gt;&lt;center&gt;Comparison between experiment results and model illustration&lt;/center&gt;&lt;/em&gt;
 &lt;strong&gt;Influence of &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; on the final results&lt;/strong&gt;&lt;br /&gt;
 We can also test the influence of &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; on the final results of the hyperplane, to check if our illustration on &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; above is right or not. The results are shown in figure &lt;a href=&quot;#influence-of-lambda&quot;&gt;Influence Of Lambda&lt;/a&gt;.
 &lt;a name=&quot;influence-of-lambda&quot;&gt;&lt;/a&gt;
-&lt;img src=&quot;https://nianlonggu.github.io/img/2019-05-24-SVM/gds-svm-lambda.svg&quot; /&gt;
+&lt;img src=&quot;https://nianlonggu.github.io/img/2019-05-24-SVM/gd-svm-lambda.svg&quot; /&gt;
 &lt;em&gt;&lt;center&gt;Influence Of Lambda&lt;/center&gt;&lt;/em&gt;
 The results are within our expectation. When &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; is too large, like 0.1, the margin is very large, but there are actually some points inside the margin area, which means that the constraints &lt;script type=&quot;math/tex&quot;&gt;y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1&lt;/script&gt; is not satisfied for some points. when &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; is smaller, the margin becomes smaller, but all points satisfy the constraint.&lt;/p&gt;
 
@@ -415,7 +427,7 @@ z, &amp; \text{if}\ -1 \leq z &lt; 1\\
 \end{cases} %]]&gt;&lt;/script&gt;&lt;/p&gt;
 
 &lt;blockquote&gt;
-  &lt;p&gt;So that’s it. Now we are able to use GDS to train a SVM model and used it for classification task. In the next post we will explore more possibilities of the solutions on SVM.&lt;/p&gt;
+  &lt;p&gt;So that’s it. Now we are able to use GD to train a SVM model and used it for classification task. In the next post we will explore more possibilities of the solutions on SVM.&lt;/p&gt;
 &lt;/blockquote&gt;
 </description>
         <pubDate>Fri, 24 May 2019 20:00:00 +0200</pubDate>
@@ -436,7 +448,7 @@ z, &amp; \text{if}\ -1 \leq z &lt; 1\\
       <item>
         <title>An Introduction to Support Vector Machines (SVM): Basics</title>
         <description>&lt;blockquote&gt;
-  &lt;p&gt;“Hello, my first notebook.”&lt;/p&gt;
+  &lt;p&gt;Just to clarify, these contents are mainly summarized from the course I took: “Fundamental of Big Data Analytics”, taught by Prof. Mathar Rudolf. For for information please visit: &lt;a href=&quot;https://www.ti.rwth-aachen.de&quot;&gt;https://www.ti.rwth-aachen.de&lt;/a&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
 
 &lt;!-- ## Contents

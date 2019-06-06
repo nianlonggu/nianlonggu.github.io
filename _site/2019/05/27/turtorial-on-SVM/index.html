@@ -11,16 +11,11 @@
     <meta name="theme-color" content="#000000">
     
     <!-- Open Graph -->
-    <meta property="og:title" content="An Introduction to Support Vector Machines (SVM): Dual problem solution using GDS and SMO - Gu Blog">
+    <meta property="og:title" content="An Introduction to Support Vector Machines (SVM): Dual problem solution using GD - Gu Blog">
     
     <meta property="og:type" content="article">
-    <meta property="og:description" content="Recall of the SVM primal problem and dual problem:
-Primal Problem
-
-	$$
-	\min_{\mathbf{w},b}\ \frac{1}{2}\|\mathbf{w}\|^2\\
-	\begin{align}
-	s.t.\ \ &amp; y_i(\mathbf{w}^T\mathbf{x}_i+b)\geq 1,\ i=1,...">
+    <meta property="og:description" content="
+  Just to clarify, these contents are mainly summarized from the course I took: “Fundamental of Big Data Analytics”, taught by Prof. Mathar Rudolf. For for information please visit: https://www.ti...">
     
     <meta property="article:published_time" content="2019-05-27T10:58:00Z">
     
@@ -41,7 +36,7 @@ Primal Problem
     <meta property="og:url" content="http://localhost:4000/2019/05/27/turtorial-on-SVM/">
     <meta property="og:site_name" content="Gu Blog">
     
-    <title>An Introduction to Support Vector Machines (SVM): Dual problem solution using GDS and SMO - Gu Blog</title>
+    <title>An Introduction to Support Vector Machines (SVM): Dual problem solution using GD - Gu Blog</title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/pwa/manifest.json">
@@ -249,9 +244,9 @@ Primal Problem
                         <a class="tag" href="/archive/?tag=Machine+Learning" title="Machine Learning">Machine Learning</a>
                         
                     </div>
-                    <h1>An Introduction to Support Vector Machines (SVM): Dual problem solution using GDS and SMO</h1>
+                    <h1>An Introduction to Support Vector Machines (SVM): Dual problem solution using GD</h1>
                     
-                    <h2 class="subheading"> 支持向量机(SVM)概述：使用梯度下降和SMO求解对偶问题</h2>
+                    <h2 class="subheading"> 支持向量机(SVM)概述：使用梯度下降求解对偶问题</h2>
                     <span class="meta">Posted by Gu on May 27, 2019</span>
                 </div>
             </div>
@@ -278,7 +273,11 @@ Primal Problem
                 <!-- Multi-Lingual -->
                 
 
-				<p>Recall of the SVM primal problem and dual problem:<br />
+				<blockquote>
+  <p>Just to clarify, these contents are mainly summarized from the course I took: “Fundamental of Big Data Analytics”, taught by Prof. Mathar Rudolf. For for information please visit: <a href="https://www.ti.rwth-aachen.de">https://www.ti.rwth-aachen.de</a></p>
+</blockquote>
+
+<p>Recall of the SVM primal problem and dual problem:<br />
 <strong>Primal Problem</strong></p>
 <center>
 	$$
@@ -301,7 +300,7 @@ Primal Problem
 <p>The the last post we introduced how to apply Lagrangian duality to SVM and how to get the primal optimum once we get the dual optimum. In this post we mainly discuss how to solve the dual problem and get the dual optimum.</p>
 
 <h2 id="gradient-descent-algorithm-for-dual-problem">Gradient Descent Algorithm for Dual Problem</h2>
-<p>To apply GDS to SVM, we need to reformulate the objective function of the dual problem. Our new objective function will be:</p>
+<p>To apply GD to SVM, we need to reformulate the objective function of the dual problem. Our new objective function will be:</p>
 <center>
 	$$
 	\min_{\lambda}L(\lambda)=-\sum_{i=1}^{n}\lambda_i + \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j + \frac{c}{2}(\sum_{i=1}^{n}\lambda_i y_i)^2 \\
@@ -342,10 +341,11 @@ $$
 
 <p><strong>Implementation and Experiments</strong></p>
 
-<p>I implement the GDS algorithm to compute the dual optimum and use it to solve the original SVM optimization problem. The code is available in my github <a href="https://github.com/nianlonggu/SupportVectorMachine/blob/master/gds-dual-svm.py">SupportVectorMachine/gds-dual-svm.py</a>. The change of the hyperplane over iterations is shown in figure <a href="#hyperplane-over-iteration">Hyperplane Over Iteration</a>
+<p>I implement the Gradient Descent algorithm to compute the dual optimum and use it to solve the original SVM optimization problem. The code is available in my github <a href="https://github.com/nianlonggu/SupportVectorMachine/blob/master/gd-dual-svm.py">SupportVectorMachine/gd-dual-svm.py</a>. The change of the hyperplane over iterations is shown in figure <a href="#hyperplane-over-iteration">Hyperplane Over Iteration</a>
 <a name="hyperplane-over-iteration"></a>
 <img src="https://nianlonggu.github.io/img/2019-05-27-SVM/hyperplane-over-iteration.gif" width="400" hegiht="203" />
 <em><center>Hyperplane Over Iteration</center></em></p>
+
 
 
                 <hr style="visibility: hidden;">

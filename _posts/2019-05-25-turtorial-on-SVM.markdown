@@ -18,9 +18,9 @@ tags:
 In the last post we have conquered how to use gradient descent algorithm to train a SVM. So,
 > is this the end of the story? 
 
-Not really. Although using GDA can solve the SVM optimization, GDA has some shortcomings:
+Not really. Although using GD can solve the SVM optimization, GD has some shortcomings:
 * Gradient procedure is time consuming and the solution may be suboptimal.
-* GDA method cannot explicitly identify support vectors (points) which determine the hyperplane.
+* GD method cannot explicitly identify support vectors (points) which determine the hyperplane.
 
 To overcome these shortcomings, we can take advantage of the Lagrangian duality. First we convert original SVM optimization problem into a primal (convex) optimization problem, then we can get the Lagrangian dual problem. Luckily we can solve the dual problem based on KKT condition using more efficient methods. 
 

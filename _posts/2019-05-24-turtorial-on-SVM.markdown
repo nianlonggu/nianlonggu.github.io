@@ -17,17 +17,17 @@ tags:
 > Just to clarify, these contents are mainly summarized from the course I took: "Fundamental of Big Data Analytics", taught by Prof. Mathar Rudolf. For for information please visit: [https://www.ti.rwth-aachen.de](https://www.ti.rwth-aachen.de)
 
 <!-- ## Contents
-[Gradient Descent Algorithm](#GDA)<br>
+[Gradient Descent Algorithm](#GD)<br>
 [Lagrangian Dual Problem](#Lagrangian-Dual) -->
 In the last post, we discussed that the SVM optimization problem is:<br>
 <center>$$\text{min}\frac{1}{2}\|\mathbf{w}\|^2,\ \ \text{s.t.}\ \ \ y_i(\mathbf{w}^T\mathbf{x}_i+b)\geq 1, \ \ i=1,\dots,n$$</center>
 To solve this optimization problem, there are multiple ways. One way is to treat this problem as a standard optimization problem and use gradient descent algorithm to compute the optimal parameters. Another way is to formulate the Lagrangian dual problem of the primal problem, transferring original optimization problem into an easier problem. Here we mainly discuss the first method.
 
 
-<p id = "GDA"></p>
+<p id = "GD"></p>
 
 ## Gradient Descent Algorithm
-To apply GDA, we need to design a new objective function which is differentiable. The new objective function is:
+To apply GD, we need to design a new objective function which is differentiable. The new objective function is:
 <center>$$\text{min}_{\mathbf{w},b}\ L=\frac{\lambda}{2}\|\mathbf{w}\|^2+\frac{1}{n}\sum^{n}_{i=1}{\max\{1-y_i(\mathbf{w}^T\mathbf{x}_i+b) ,0\}}$$</center>
 This objective function contains two terms. The first term is used to maximize the margin. This term is also called **regularization term**. The second term is a penalty term used to penalize the case where $$y_i(\mathbf{w}^T\mathbf{x}_i+b)<1$$, which represents incorrect/imperfect classification. Note that for the case $$y_i(\mathbf{w}^T\mathbf{x}_i+b)\geq 1$$ we don't need to penalize it, so we use a max function $$\max\{1-y_i(\mathbf{w}^T\mathbf{x}_i+b) ,0\}$$. This is also called **hinge loss**.
 <center>
@@ -41,7 +41,7 @@ This objective function contains two terms. The first term is used to maximize t
 $$\lambda$$ is a weight parameter used to control the weight of the regularization term. If $$\lambda$$ is too small, the model (the learned hyperplane) will mainly focuses on correctly classify the training data, but the margin may not be maximized. If $$\lambda$$ is too large, the model will have have a large margin, while there may exist more miss-classified points in the training dataset.  
 
 **Compute the gradient**<br>
-To apply GDA we also need get the exact expression of the gradient.
+To apply GD we also need get the exact expression of the gradient.
 <center> $$\frac{\partial{L}}{\partial{\mathbf{w}}}=\lambda\mathbf{w}-\frac{1}{n}\sum_{i=1}^{n}{u(1-y_i(\mathbf{w}^T\mathbf{x}_i+b))y_i\mathbf{x}_i} $$ </center>
 <center>
 	$$
@@ -73,11 +73,11 @@ Note that in practice that in each update loop we may not use the whole training
 In the following we will use this mini-batch style expression.
 
 ## Code Implementation
-To test the GDA algorithm, we use toy data shown in figure [2d toy data](#2d-toy-data)
+To test the GD algorithm, we use toy data shown in figure [2d toy data](#2d-toy-data)
 <a name="2d-toy-data"></a>
-<img src="https://nianlonggu.github.io/img/2019-05-24-SVM/gdA-svm-raw-data.svg" width="400" hegiht="203" />
+<img src="https://nianlonggu.github.io/img/2019-05-24-SVM/gd-svm-raw-data.svg" width="400" hegiht="203" />
 *<center>2d toy data</center>*
-In this dataset, each $$\mathbf{x}_ i$$ is an 2 dimensional vector. In total there are 2000 samples. We need to use GDA to find the optimal separating hyperplane, which is a line in this case. The code is available in my github: [SupportVectorMachine/gdA-svm.py](https://github.com/nianlonggu/SupportVectorMachine).
+In this dataset, each $$\mathbf{x}_ i$$ is an 2 dimensional vector. In total there are 2000 samples. We need to use GD to find the optimal separating hyperplane, which is a line in this case. The code is available in my github: [SupportVectorMachine/gd-svm.py](https://github.com/nianlonggu/SupportVectorMachine).
 
 ## Experiment and Analysis
 **Visualization of Hyperplane**<br>
@@ -87,12 +87,12 @@ In this part, we set $$\lambda=1e-4, \text{learning_rate}=0.1, \text{batch_size}
 *<center>Hyperplane Over Iteration</center>*
 After 100000 iterations the hyperplane looks accurate and the margin seems to be maximized. If we compare the final result with the SVM illustration figure, we will find that they are very similar, which implies that the gradient descent algorithm does work!
 <a name="hyperplane-over-iteration"></a>
-<img src="https://nianlonggu.github.io/img/2019-05-24-SVM/compare-gdA-svm.svg"  />
+<img src="https://nianlonggu.github.io/img/2019-05-24-SVM/compare-gd-svm.svg"  />
 *<center>Comparison between experiment results and model illustration</center>*
 **Influence of $$\lambda$$ on the final results**<br>
 We can also test the influence of $$\lambda$$ on the final results of the hyperplane, to check if our illustration on $$\lambda$$ above is right or not. The results are shown in figure [Influence Of Lambda](#influence-of-lambda).
 <a name="influence-of-lambda"></a>
-<img src="https://nianlonggu.github.io/img/2019-05-24-SVM/gdA-svm-lambda.svg"  />
+<img src="https://nianlonggu.github.io/img/2019-05-24-SVM/gd-svm-lambda.svg"  />
 *<center>Influence Of Lambda</center>*
 The results are within our expectation. When $$\lambda$$ is too large, like 0.1, the margin is very large, but there are actually some points inside the margin area, which means that the constraints $$y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1$$ is not satisfied for some points. when $$\lambda$$ is smaller, the margin becomes smaller, but all points satisfy the constraint. 
 
@@ -123,4 +123,4 @@ z, & \text{if}\ -1 \leq z < 1\\
 $$
 
 
-> So that's it. Now we are able to use GDA to train a SVM model and used it for classification task. In the next post we will explore more possibilities of the solutions on SVM.
+> So that's it. Now we are able to use GD to train a SVM model and used it for classification task. In the next post we will explore more possibilities of the solutions on SVM.

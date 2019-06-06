@@ -16,7 +16,7 @@
     <meta property="og:type" content="article">
     <meta property="og:description" content="
 
-">
+  Just to clarify, these contents are mainly summarized from the course I took: “Fundamental of Big Data Analytics”, taught by Prof. Mathar Rudolf. For for information please visit: https://www.t...">
     
     <meta property="article:published_time" content="2019-05-24T20:00:00Z">
     
@@ -275,18 +275,21 @@
                 
 
 				<!-- > “Hello, my first notebook.” -->
+<blockquote>
+  <p>Just to clarify, these contents are mainly summarized from the course I took: “Fundamental of Big Data Analytics”, taught by Prof. Mathar Rudolf. For for information please visit: <a href="https://www.ti.rwth-aachen.de">https://www.ti.rwth-aachen.de</a></p>
+</blockquote>
 
 <!-- ## Contents
-[Gradient Descent Algorithm](#GDS)<br>
+[Gradient Descent Algorithm](#GD)<br>
 [Lagrangian Dual Problem](#Lagrangian-Dual) -->
 <p>In the last post, we discussed that the SVM optimization problem is:<br /></p>
 <center>$$\text{min}\frac{1}{2}\|\mathbf{w}\|^2,\ \ \text{s.t.}\ \ \ y_i(\mathbf{w}^T\mathbf{x}_i+b)\geq 1, \ \ i=1,\dots,n$$</center>
 <p>To solve this optimization problem, there are multiple ways. One way is to treat this problem as a standard optimization problem and use gradient descent algorithm to compute the optimal parameters. Another way is to formulate the Lagrangian dual problem of the primal problem, transferring original optimization problem into an easier problem. Here we mainly discuss the first method.</p>
 
-<p id="GDS"></p>
+<p id="GD"></p>
 
 <h2 id="gradient-descent-algorithm">Gradient Descent Algorithm</h2>
-<p>To apply GDS, we need to design a new objective function which is differentiable. The new objective function is:</p>
+<p>To apply GD, we need to design a new objective function which is differentiable. The new objective function is:</p>
 <center>$$\text{min}_{\mathbf{w},b}\ L=\frac{\lambda}{2}\|\mathbf{w}\|^2+\frac{1}{n}\sum^{n}_{i=1}{\max\{1-y_i(\mathbf{w}^T\mathbf{x}_i+b) ,0\}}$$</center>
 <p>This objective function contains two terms. The first term is used to maximize the margin. This term is also called <strong>regularization term</strong>. The second term is a penalty term used to penalize the case where <script type="math/tex">% <![CDATA[
 y_i(\mathbf{w}^T\mathbf{x}_i+b)<1 %]]></script>, which represents incorrect/imperfect classification. Note that for the case <script type="math/tex">y_i(\mathbf{w}^T\mathbf{x}_i+b)\geq 1</script> we don’t need to penalize it, so we use a max function <script type="math/tex">\max\{1-y_i(\mathbf{w}^T\mathbf{x}_i+b) ,0\}</script>. This is also called <strong>hinge loss</strong>.</p>
@@ -301,7 +304,7 @@ y_i(\mathbf{w}^T\mathbf{x}_i+b)<1 %]]></script>, which represents incorrect/impe
 <p><script type="math/tex">\lambda</script> is a weight parameter used to control the weight of the regularization term. If <script type="math/tex">\lambda</script> is too small, the model (the learned hyperplane) will mainly focuses on correctly classify the training data, but the margin may not be maximized. If <script type="math/tex">\lambda</script> is too large, the model will have have a large margin, while there may exist more miss-classified points in the training dataset.</p>
 
 <p><strong>Compute the gradient</strong><br />
-To apply GDS we also need get the exact expression of the gradient.</p>
+To apply GD we also need get the exact expression of the gradient.</p>
 <center> $$\frac{\partial{L}}{\partial{\mathbf{w}}}=\lambda\mathbf{w}-\frac{1}{n}\sum_{i=1}^{n}{u(1-y_i(\mathbf{w}^T\mathbf{x}_i+b))y_i\mathbf{x}_i} $$ </center>
 <center>
 	$$
@@ -333,11 +336,11 @@ To apply GDS we also need get the exact expression of the gradient.</p>
 <p>In the following we will use this mini-batch style expression.</p>
 
 <h2 id="code-implementation">Code Implementation</h2>
-<p>To test the GDS algorithm, we use toy data shown in figure <a href="#2d-toy-data">2d toy data</a>
+<p>To test the GD algorithm, we use toy data shown in figure <a href="#2d-toy-data">2d toy data</a>
 <a name="2d-toy-data"></a>
-<img src="https://nianlonggu.github.io/img/2019-05-24-SVM/gds-svm-raw-data.svg" width="400" hegiht="203" />
+<img src="https://nianlonggu.github.io/img/2019-05-24-SVM/gd-svm-raw-data.svg" width="400" hegiht="203" />
 <em><center>2d toy data</center></em>
-In this dataset, each <script type="math/tex">\mathbf{x}_ i</script> is an 2 dimensional vector. In total there are 2000 samples. We need to use GDS to find the optimal separating hyperplane, which is a line in this case. The code is available in my github: <a href="https://github.com/nianlonggu/SupportVectorMachine">SupportVectorMachine/gds-svm.py</a>.</p>
+In this dataset, each <script type="math/tex">\mathbf{x}_ i</script> is an 2 dimensional vector. In total there are 2000 samples. We need to use GD to find the optimal separating hyperplane, which is a line in this case. The code is available in my github: <a href="https://github.com/nianlonggu/SupportVectorMachine">SupportVectorMachine/gd-svm.py</a>.</p>
 
 <h2 id="experiment-and-analysis">Experiment and Analysis</h2>
 <p><strong>Visualization of Hyperplane</strong><br />
@@ -347,12 +350,12 @@ In this part, we set <script type="math/tex">\lambda=1e-4, \text{learning_rate}=
 <em><center>Hyperplane Over Iteration</center></em>
 After 100000 iterations the hyperplane looks accurate and the margin seems to be maximized. If we compare the final result with the SVM illustration figure, we will find that they are very similar, which implies that the gradient descent algorithm does work!
 <a name="hyperplane-over-iteration"></a>
-<img src="https://nianlonggu.github.io/img/2019-05-24-SVM/compare-gds-svm.svg" />
+<img src="https://nianlonggu.github.io/img/2019-05-24-SVM/compare-gd-svm.svg" />
 <em><center>Comparison between experiment results and model illustration</center></em>
 <strong>Influence of <script type="math/tex">\lambda</script> on the final results</strong><br />
 We can also test the influence of <script type="math/tex">\lambda</script> on the final results of the hyperplane, to check if our illustration on <script type="math/tex">\lambda</script> above is right or not. The results are shown in figure <a href="#influence-of-lambda">Influence Of Lambda</a>.
 <a name="influence-of-lambda"></a>
-<img src="https://nianlonggu.github.io/img/2019-05-24-SVM/gds-svm-lambda.svg" />
+<img src="https://nianlonggu.github.io/img/2019-05-24-SVM/gd-svm-lambda.svg" />
 <em><center>Influence Of Lambda</center></em>
 The results are within our expectation. When <script type="math/tex">\lambda</script> is too large, like 0.1, the margin is very large, but there are actually some points inside the margin area, which means that the constraints <script type="math/tex">y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1</script> is not satisfied for some points. when <script type="math/tex">\lambda</script> is smaller, the margin becomes smaller, but all points satisfy the constraint.</p>
 
@@ -380,7 +383,7 @@ z, & \text{if}\ -1 \leq z < 1\\
 \end{cases} %]]></script></p>
 
 <blockquote>
-  <p>So that’s it. Now we are able to use GDS to train a SVM model and used it for classification task. In the next post we will explore more possibilities of the solutions on SVM.</p>
+  <p>So that’s it. Now we are able to use GD to train a SVM model and used it for classification task. In the next post we will explore more possibilities of the solutions on SVM.</p>
 </blockquote>
 
 
