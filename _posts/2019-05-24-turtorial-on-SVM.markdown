@@ -14,6 +14,7 @@ tags:
 ---
 
 <!-- > “Hello, my first notebook.” -->
+> Just to clarify, these contents are mainly summarized from the course I took: "Fundamental of Big Data Analytics", taught by Prof. Mathar Rudolf. For for information please visit: [https://www.ti.rwth-aachen.de](https://www.ti.rwth-aachen.de)
 
 <!-- ## Contents
 [Gradient Descent Algorithm](#GDS)<br>
