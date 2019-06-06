@@ -1,7 +1,7 @@
 ---
 layout:     post
-title:      "An Introduction to Support Vector Machines (SVM): Dual problem solution using GDS and SMO"
-subtitle:   " 支持向量机(SVM)概述：使用梯度下降和SMO求解对偶问题"
+title:      "An Introduction to Support Vector Machines (SVM): Dual problem solution using GDA"
+subtitle:   " 支持向量机(SVM)概述：使用梯度下降求解对偶问题"
 date:       2019-05-27 08:58:00
 author:     "Gu"
 header-img: "img/post-bg-2019-05-23.jpg"
@@ -38,7 +38,7 @@ Recall of the SVM primal problem and dual problem:<br>
 The the last post we introduced how to apply Lagrangian duality to SVM and how to get the primal optimum once we get the dual optimum. In this post we mainly discuss how to solve the dual problem and get the dual optimum.
 
 ## Gradient Descent Algorithm for Dual Problem
-To apply GDS to SVM, we need to reformulate the objective function of the dual problem. Our new objective function will be:
+To apply GDA to SVM, we need to reformulate the objective function of the dual problem. Our new objective function will be:
 <center>
 	$$
 	\min_{\lambda}L(\lambda)=-\sum_{i=1}^{n}\lambda_i + \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j + \frac{c}{2}(\sum_{i=1}^{n}\lambda_i y_i)^2 \\
@@ -80,7 +80,7 @@ where $$\alpha$$ is the learning rate.
 
 **Implementation and Experiments**
 
-I implement the GDS algorithm to compute the dual optimum and use it to solve the original SVM optimization problem. The code is available in my github [SupportVectorMachine/gds-dual-svm.py](https://github.com/nianlonggu/SupportVectorMachine/blob/master/gds-dual-svm.py). The change of the hyperplane over iterations is shown in figure [Hyperplane Over Iteration](#hyperplane-over-iteration)
+I implement the GDA algorithm to compute the dual optimum and use it to solve the original SVM optimization problem. The code is available in my github [SupportVectorMachine/gdA-dual-svm.py](https://github.com/nianlonggu/SupportVectorMachine/blob/master/gdA-dual-svm.py). The change of the hyperplane over iterations is shown in figure [Hyperplane Over Iteration](#hyperplane-over-iteration)
 <a name="hyperplane-over-iteration"></a>
 <img src="https://nianlonggu.github.io/img/2019-05-27-SVM/hyperplane-over-iteration.gif" width="400" hegiht="203" />
 *<center>Hyperplane Over Iteration</center>*
