@@ -31,3 +31,8 @@ This is the primal problem of the SVM in the case where points of two classes ar
 * Not suitable for the case where points of two classes are not linearly separable.
 
 1. **The separating plane is sensitive to (easily influenced by) outliers.**
+<a name="hyperplane-influenced-by-outliers"></a>
+<img src="https://nianlonggu.github.io/img/2019-06-07-SVM/svm-outlier.svg"/> 
+<!-- width="400" hegiht="203" /> -->
+*<center>Hyperplane Influenced by Outliers</center>*
+Figure [Hyperplane Influenced by Outliers](#hyperplane-influenced-by-outliers) shows how a single outlier greatly influences the final results of the hyperplane. This is due to the constraints $$y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1$$ in the primal problem will make sure that the minimum geodesic distance between points and the separating hyperplane is $$\frac{1}{\|\mathbf{w}\|}$$. When there is an outlier, in order to satisfy the constraints, the model will choose a smaller $$\|\mathbf{w}\|$$ and also greatly change the rotation/position of the separating hyperplane. However, using the separating hyperplane in Figure (b) is not a good choice, since compared with (a), in (b) the points have a much smaller average geodesic distance to the separating hyperplane. Therefore, it is more likely that the SVM makes wrong decisions when classifying new points.

@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 07 Jun 2019 17:16:58 +0200</pubDate>
-    <lastBuildDate>Fri, 07 Jun 2019 17:16:58 +0200</lastBuildDate>
+    <pubDate>Fri, 07 Jun 2019 18:08:00 +0200</pubDate>
+    <lastBuildDate>Fri, 07 Jun 2019 18:08:00 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -33,7 +33,12 @@
 &lt;/ul&gt;
 
 &lt;ol&gt;
-  &lt;li&gt;&lt;strong&gt;The separating plane is sensitive to (easily influenced by) outliers.&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;The separating plane is sensitive to (easily influenced by) outliers.&lt;/strong&gt;
+&lt;a name=&quot;hyperplane-influenced-by-outliers&quot;&gt;&lt;/a&gt;
+&lt;img src=&quot;https://nianlonggu.github.io/img/2019-06-07-SVM/svm-outlier.svg&quot; /&gt; 
+&lt;!-- width=&quot;400&quot; hegiht=&quot;203&quot; /&gt; --&gt;
+&lt;em&gt;&lt;center&gt;Hyperplane Influenced by Outliers&lt;/center&gt;&lt;/em&gt;
+Figure &lt;a href=&quot;#hyperplane-influenced-by-outliers&quot;&gt;Hyperplane Influenced by Outliers&lt;/a&gt; shows how a single outlier greatly influences the final results of the hyperplane. This is due to the constraints &lt;script type=&quot;math/tex&quot;&gt;y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1&lt;/script&gt; in the primal problem will make sure that the minimum geodesic distance between points and the separating hyperplane is &lt;script type=&quot;math/tex&quot;&gt;\frac{1}{\|\mathbf{w}\|}&lt;/script&gt;. When there is an outlier, in order to satisfy the constraints, the model will choose a smaller &lt;script type=&quot;math/tex&quot;&gt;\|\mathbf{w}\|&lt;/script&gt; and also greatly change the rotation/position of the separating hyperplane. However, using the separating hyperplane in Figure (b) is not a good choice, since compared with (a), in (b) the points have a much smaller average geodesic distance to the separating hyperplane. Therefore, it is more likely that the SVM makes wrong decisions when classifying new points.&lt;/li&gt;
 &lt;/ol&gt;
 </description>
         <pubDate>Fri, 07 Jun 2019 18:06:00 +0200</pubDate>

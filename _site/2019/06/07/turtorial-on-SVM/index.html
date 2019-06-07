@@ -295,7 +295,12 @@
 </ul>
 
 <ol>
-  <li><strong>The separating plane is sensitive to (easily influenced by) outliers.</strong></li>
+  <li><strong>The separating plane is sensitive to (easily influenced by) outliers.</strong>
+<a name="hyperplane-influenced-by-outliers"></a>
+<img src="https://nianlonggu.github.io/img/2019-06-07-SVM/svm-outlier.svg" /> 
+<!-- width="400" hegiht="203" /> -->
+<em><center>Hyperplane Influenced by Outliers</center></em>
+Figure <a href="#hyperplane-influenced-by-outliers">Hyperplane Influenced by Outliers</a> shows how a single outlier greatly influences the final results of the hyperplane. This is due to the constraints <script type="math/tex">y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1</script> in the primal problem will make sure that the minimum geodesic distance between points and the separating hyperplane is <script type="math/tex">\frac{1}{\|\mathbf{w}\|}</script>. When there is an outlier, in order to satisfy the constraints, the model will choose a smaller <script type="math/tex">\|\mathbf{w}\|</script> and also greatly change the rotation/position of the separating hyperplane. However, using the separating hyperplane in Figure (b) is not a good choice, since compared with (a), in (b) the points have a much smaller average geodesic distance to the separating hyperplane. Therefore, it is more likely that the SVM makes wrong decisions when classifying new points.</li>
 </ol>
 
 
