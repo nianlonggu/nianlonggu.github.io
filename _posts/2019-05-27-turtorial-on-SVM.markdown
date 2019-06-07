@@ -114,3 +114,10 @@ I implement the Gradient Descent algorithm to compute the dual optimum and use i
 <img src="https://nianlonggu.github.io/img/2019-05-27-SVM/hyperplane-over-iteration.gif" width="400" hegiht="203" />
 *<center>Hyperplane Over Iteration</center>*
 
+In the above figure, the points with solid color are the support vectors. As the training goes on, more and more points are excluded from the support vector set. Finally there are only 3 support vectors. The finally separating hyperplane is obviously the optimal separating hyperplane with maximized margin.
+
+## Other Solutions?
+One important feature of the Gradient Descent Algorithm is that in each iteration there is a matrix vector multiplication $$\mathbf{K}(\lambda \circ \mathbf{y})$$, with a time complexity $$O(n^2)$$. This might be computationally challenging if $$n$$ is large.
+
+
+Apart from the gradient descent method, there is another method called **Sequential Minimal Optimization (SMO)**, which is a more efficient and specialized solution. We will discuss that in the following posts. Before we go further, I would like to introduce the SVM in more general cases.

@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 07 Jun 2019 15:10:33 +0200</pubDate>
-    <lastBuildDate>Fri, 07 Jun 2019 15:10:33 +0200</lastBuildDate>
+    <pubDate>Fri, 07 Jun 2019 15:52:54 +0200</pubDate>
+    <lastBuildDate>Fri, 07 Jun 2019 15:52:54 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -112,6 +112,12 @@ where $$\alpha$$ is the learning rate.
 &lt;img src=&quot;https://nianlonggu.github.io/img/2019-05-27-SVM/hyperplane-over-iteration.gif&quot; width=&quot;400&quot; hegiht=&quot;203&quot; /&gt;
 &lt;em&gt;&lt;center&gt;Hyperplane Over Iteration&lt;/center&gt;&lt;/em&gt;&lt;/p&gt;
 
+&lt;p&gt;In the above figure, the points with solid color are the support vectors. As the training goes on, more and more points are excluded from the support vector set. Finally there are only 3 support vectors. The finally separating hyperplane is obviously the optimal separating hyperplane with maximized margin.&lt;/p&gt;
+
+&lt;h2 id=&quot;other-solutions&quot;&gt;Other Solutions?&lt;/h2&gt;
+&lt;p&gt;One important feature of the Gradient Descent Algorithm is that in each iteration there is a matrix vector multiplication &lt;script type=&quot;math/tex&quot;&gt;\mathbf{K}(\lambda \circ \mathbf{y})&lt;/script&gt;, with a time complexity &lt;script type=&quot;math/tex&quot;&gt;O(n^2)&lt;/script&gt;. This might be computationally challenging if &lt;script type=&quot;math/tex&quot;&gt;n&lt;/script&gt; is large.&lt;/p&gt;
+
+&lt;p&gt;Apart from the gradient descent method, there is another method called &lt;strong&gt;Sequential Minimal Optimization (SMO)&lt;/strong&gt;, which is a more efficient and specialized solution. We will discuss that in the following posts. Before we go further, I would like to introduce the SVM in more general cases.&lt;/p&gt;
 </description>
         <pubDate>Mon, 27 May 2019 10:58:00 +0200</pubDate>
         <link>http://localhost:4000/2019/05/27/turtorial-on-SVM/</link>

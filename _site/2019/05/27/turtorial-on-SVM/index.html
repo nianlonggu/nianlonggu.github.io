@@ -374,6 +374,12 @@ where $$\alpha$$ is the learning rate.
 <img src="https://nianlonggu.github.io/img/2019-05-27-SVM/hyperplane-over-iteration.gif" width="400" hegiht="203" />
 <em><center>Hyperplane Over Iteration</center></em></p>
 
+<p>In the above figure, the points with solid color are the support vectors. As the training goes on, more and more points are excluded from the support vector set. Finally there are only 3 support vectors. The finally separating hyperplane is obviously the optimal separating hyperplane with maximized margin.</p>
+
+<h2 id="other-solutions">Other Solutions?</h2>
+<p>One important feature of the Gradient Descent Algorithm is that in each iteration there is a matrix vector multiplication <script type="math/tex">\mathbf{K}(\lambda \circ \mathbf{y})</script>, with a time complexity <script type="math/tex">O(n^2)</script>. This might be computationally challenging if <script type="math/tex">n</script> is large.</p>
+
+<p>Apart from the gradient descent method, there is another method called <strong>Sequential Minimal Optimization (SMO)</strong>, which is a more efficient and specialized solution. We will discuss that in the following posts. Before we go further, I would like to introduce the SVM in more general cases.</p>
 
 
                 <hr style="visibility: hidden;">
