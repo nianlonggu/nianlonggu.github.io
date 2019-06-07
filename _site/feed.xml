@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 07 Jun 2019 00:39:17 +0200</pubDate>
-    <lastBuildDate>Fri, 07 Jun 2019 00:39:17 +0200</lastBuildDate>
+    <pubDate>Fri, 07 Jun 2019 12:30:17 +0200</pubDate>
+    <lastBuildDate>Fri, 07 Jun 2019 12:30:17 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -45,7 +45,16 @@
 	s.t. \ \ \lambda_i\geq 0
 	$$
 &lt;/center&gt;
-&lt;p&gt;where &lt;script type=&quot;math/tex&quot;&gt;c&gt;0&lt;/script&gt; is the weighting factor for the constraint &lt;script type=&quot;math/tex&quot;&gt;\sum_{i=1}^{n}\lambda_i y_i = 0&lt;/script&gt;. For the constraint &lt;script type=&quot;math/tex&quot;&gt;\lambda_i\geq 0&lt;/script&gt;, we can satisfy this constraint by clipping &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; into the region &lt;script type=&quot;math/tex&quot;&gt;[0,\infty)&lt;/script&gt; after each back propagation during gradient descent. We can compute the gradient:&lt;/p&gt;
+&lt;p&gt;where &lt;script type=&quot;math/tex&quot;&gt;c&gt;0&lt;/script&gt; is the weighting factor for the constraint &lt;script type=&quot;math/tex&quot;&gt;\sum_{i=1}^{n}\lambda_i y_i = 0&lt;/script&gt;. For the constraint &lt;script type=&quot;math/tex&quot;&gt;\lambda_i\geq 0&lt;/script&gt;, we can satisfy this constraint by clipping &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; into the region &lt;script type=&quot;math/tex&quot;&gt;[0,\infty)&lt;/script&gt; after each back propagation during gradient descent.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Discussion: why not also put the constraints &lt;script type=&quot;math/tex&quot;&gt;\lambda_i\geq 0&lt;/script&gt; also into the loss function by introducing an extra hinge loss term? Then the final loss function will be:
+&lt;script type=&quot;math/tex&quot;&gt;\min_{\lambda}L(\lambda)=-\sum_{i=1}^{n}\lambda_i + \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j + \frac{c}{2}(\sum_{i=1}^{n}\lambda_i y_i)^2  + d \sum_{i=1}^{n}\text{max}\{-\lambda_i,0\}&lt;/script&gt;&lt;br /&gt;
+&lt;br /&gt;
+This is reasonable in theory but not so feasible in practice. This will introduce one extra hyper parameter &lt;script type=&quot;math/tex&quot;&gt;d&lt;/script&gt;, and we will be lost in endlessly fine tuning and balancing the hyper parameters &lt;script type=&quot;math/tex&quot;&gt;c&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;d&lt;/script&gt;. Test results also show that achieving the constraint &lt;script type=&quot;math/tex&quot;&gt;\lambda_i\geq 0&lt;/script&gt; using clipping is efficient and this method also easily support more general cases of &lt;strong&gt;SVM with penalty terms&lt;/strong&gt;. This will be discussed later.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Based on the loss function, We can compute the gradient:&lt;/p&gt;
 
 &lt;center&gt;
 $$
@@ -60,7 +69,24 @@ $$
 	\mathbf{K} = \begin{bmatrix}K_{1,1}\dots K_{1,n}\\ \dots \\ K_{n,1}\dots   {K_{n,n}} \end{bmatrix}
 	$$
 &lt;/center&gt;
-&lt;p&gt;where &lt;script type=&quot;math/tex&quot;&gt;&lt;/script&gt;&lt;/p&gt;
+&lt;p&gt;where &lt;script type=&quot;math/tex&quot;&gt;K_{i,j}=K(\mathbf{x}_i, \mathbf{x}_j)&lt;/script&gt;.&lt;br /&gt;
+Then the gradient &lt;script type=&quot;math/tex&quot;&gt;\frac{\partial{L}}{\partial{\lambda_i}}&lt;/script&gt; can be expressed by the kernel matrix:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\frac{\partial{L}}{\partial{\lambda_i}} = -1 + y_i \mathbf{e}_i^T \mathbf{K}  ( \lambda \circ \mathbf{y} ) + c y_i \lambda ^T \mathbf{y}
+	$$
+&lt;/center&gt;
+&lt;p&gt;where &lt;script type=&quot;math/tex&quot;&gt;\mathbf{e}_i=[0,\dots,0,1,0,\dots,0]&lt;/script&gt;, with the &lt;script type=&quot;math/tex&quot;&gt;i^{th}&lt;/script&gt; element being 1 and other elements being 0. The sign &lt;script type=&quot;math/tex&quot;&gt;\lambda \circ \mathbf{y}&lt;/script&gt; represents the element-wise multiplication two vectors &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\mathbf{y}&lt;/script&gt;.&lt;/p&gt;
+
+&lt;p&gt;We can also write the expression of the gradient of &lt;script type=&quot;math/tex&quot;&gt;L&lt;/script&gt; with respect to the whole vector &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt;:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\frac{\partial{L}}{\partial{\lambda}} = -\mathbf{1}_n + (\mathbf{K}(\lambda \circ \mathbf{y}))\circ \mathbf{y} + c(\lambda^T\mathbf{y})\mathbf{y}
+	$$
+&lt;/center&gt;
+&lt;p&gt;In practice, when we implement the gradient descent algorithm, we don’t need to compute &lt;script type=&quot;math/tex&quot;&gt;\mathbf{K}&lt;/script&gt; in each iteration, since &lt;script type=&quot;math/tex&quot;&gt;\mathbf{K}&lt;/script&gt; does not rely on &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt;. Instead, we can simply compute &lt;script type=&quot;math/tex&quot;&gt;\mathbf{K}&lt;/script&gt; before applying gradient descent and store it in the memory, and call it each time when computing the gradient.&lt;/p&gt;
+
+&lt;p&gt;Another implicit advantage of using such a kernel matrix expression is that such a definition can be extended into a broader definition of SVM – &lt;strong&gt;SVM with kernels&lt;/strong&gt;, where we can give a more sophisticated definition to the kernel function &lt;script type=&quot;math/tex&quot;&gt;K(\mathbf{x}_ i, \mathbf{x}_ j)&lt;/script&gt;, instead of just vector dot product. But even in that case, the expression of the gradient still remains the same. We just simply pre-calculate the kernel matrix &lt;script type=&quot;math/tex&quot;&gt;\mathbf{K}&lt;/script&gt; based on the new definition of kernel function, and then apply gradient descent algorithm to find the optimal solution. We will discuss &lt;strong&gt;kernel SVM&lt;/strong&gt; in the future posts.&lt;/p&gt;
 
 &lt;!-- We can also use the [denominator layout](https://en.wikipedia.org/wiki/Matrix_calculus) to express the gradient of $$L$$ with respect to the vector of $$\mathbf{\lambda}=(\lambda_1, \lambda_2,\dots,\lambda_n)^T$$. Let $$\mathbf{X}=(\mathbf{x}_ 1,\dots,\mathbf{x}_ n)^T\in R^{nxp}$$ and $$\mathbf{y}=(y_1,\dots, y_n)^T\in R_n$$. Then we have:
 &lt;center&gt;

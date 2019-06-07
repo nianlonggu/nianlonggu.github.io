@@ -307,7 +307,16 @@
 	s.t. \ \ \lambda_i\geq 0
 	$$
 </center>
-<p>where <script type="math/tex">c>0</script> is the weighting factor for the constraint <script type="math/tex">\sum_{i=1}^{n}\lambda_i y_i = 0</script>. For the constraint <script type="math/tex">\lambda_i\geq 0</script>, we can satisfy this constraint by clipping <script type="math/tex">\lambda</script> into the region <script type="math/tex">[0,\infty)</script> after each back propagation during gradient descent. We can compute the gradient:</p>
+<p>where <script type="math/tex">c>0</script> is the weighting factor for the constraint <script type="math/tex">\sum_{i=1}^{n}\lambda_i y_i = 0</script>. For the constraint <script type="math/tex">\lambda_i\geq 0</script>, we can satisfy this constraint by clipping <script type="math/tex">\lambda</script> into the region <script type="math/tex">[0,\infty)</script> after each back propagation during gradient descent.</p>
+
+<blockquote>
+  <p>Discussion: why not also put the constraints <script type="math/tex">\lambda_i\geq 0</script> also into the loss function by introducing an extra hinge loss term? Then the final loss function will be:
+<script type="math/tex">\min_{\lambda}L(\lambda)=-\sum_{i=1}^{n}\lambda_i + \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j + \frac{c}{2}(\sum_{i=1}^{n}\lambda_i y_i)^2  + d \sum_{i=1}^{n}\text{max}\{-\lambda_i,0\}</script><br />
+<br />
+This is reasonable in theory but not so feasible in practice. This will introduce one extra hyper parameter <script type="math/tex">d</script>, and we will be lost in endlessly fine tuning and balancing the hyper parameters <script type="math/tex">c</script> and <script type="math/tex">d</script>. Test results also show that achieving the constraint <script type="math/tex">\lambda_i\geq 0</script> using clipping is efficient and this method also easily support more general cases of <strong>SVM with penalty terms</strong>. This will be discussed later.</p>
+</blockquote>
+
+<p>Based on the loss function, We can compute the gradient:</p>
 
 <center>
 $$
@@ -322,7 +331,24 @@ $$
 	\mathbf{K} = \begin{bmatrix}K_{1,1}\dots K_{1,n}\\ \dots \\ K_{n,1}\dots   {K_{n,n}} \end{bmatrix}
 	$$
 </center>
-<p>where <script type="math/tex"></script></p>
+<p>where <script type="math/tex">K_{i,j}=K(\mathbf{x}_i, \mathbf{x}_j)</script>.<br />
+Then the gradient <script type="math/tex">\frac{\partial{L}}{\partial{\lambda_i}}</script> can be expressed by the kernel matrix:</p>
+<center>
+	$$
+	\frac{\partial{L}}{\partial{\lambda_i}} = -1 + y_i \mathbf{e}_i^T \mathbf{K}  ( \lambda \circ \mathbf{y} ) + c y_i \lambda ^T \mathbf{y}
+	$$
+</center>
+<p>where <script type="math/tex">\mathbf{e}_i=[0,\dots,0,1,0,\dots,0]</script>, with the <script type="math/tex">i^{th}</script> element being 1 and other elements being 0. The sign <script type="math/tex">\lambda \circ \mathbf{y}</script> represents the element-wise multiplication two vectors <script type="math/tex">\lambda</script> and <script type="math/tex">\mathbf{y}</script>.</p>
+
+<p>We can also write the expression of the gradient of <script type="math/tex">L</script> with respect to the whole vector <script type="math/tex">\lambda</script>:</p>
+<center>
+	$$
+	\frac{\partial{L}}{\partial{\lambda}} = -\mathbf{1}_n + (\mathbf{K}(\lambda \circ \mathbf{y}))\circ \mathbf{y} + c(\lambda^T\mathbf{y})\mathbf{y}
+	$$
+</center>
+<p>In practice, when we implement the gradient descent algorithm, we don’t need to compute <script type="math/tex">\mathbf{K}</script> in each iteration, since <script type="math/tex">\mathbf{K}</script> does not rely on <script type="math/tex">\lambda</script>. Instead, we can simply compute <script type="math/tex">\mathbf{K}</script> before applying gradient descent and store it in the memory, and call it each time when computing the gradient.</p>
+
+<p>Another implicit advantage of using such a kernel matrix expression is that such a definition can be extended into a broader definition of SVM – <strong>SVM with kernels</strong>, where we can give a more sophisticated definition to the kernel function <script type="math/tex">K(\mathbf{x}_ i, \mathbf{x}_ j)</script>, instead of just vector dot product. But even in that case, the expression of the gradient still remains the same. We just simply pre-calculate the kernel matrix <script type="math/tex">\mathbf{K}</script> based on the new definition of kernel function, and then apply gradient descent algorithm to find the optimal solution. We will discuss <strong>kernel SVM</strong> in the future posts.</p>
 
 <!-- We can also use the [denominator layout](https://en.wikipedia.org/wiki/Matrix_calculus) to express the gradient of $$L$$ with respect to the vector of $$\mathbf{\lambda}=(\lambda_1, \lambda_2,\dots,\lambda_n)^T$$. Let $$\mathbf{X}=(\mathbf{x}_ 1,\dots,\mathbf{x}_ n)^T\in R^{nxp}$$ and $$\mathbf{y}=(y_1,\dots, y_n)^T\in R_n$$. Then we have:
 <center>

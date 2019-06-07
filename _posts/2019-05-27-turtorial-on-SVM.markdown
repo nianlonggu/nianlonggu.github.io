@@ -45,7 +45,17 @@ To apply GD to SVM, we need to reformulate the objective function of the dual pr
 	s.t. \ \ \lambda_i\geq 0
 	$$
 </center>
-where $$c>0$$ is the weighting factor for the constraint $$\sum_{i=1}^{n}\lambda_i y_i = 0$$. For the constraint $$\lambda_i\geq 0$$, we can satisfy this constraint by clipping $$\lambda$$ into the region $$[0,\infty)$$ after each back propagation during gradient descent. We can compute the gradient:
+where $$c>0$$ is the weighting factor for the constraint $$\sum_{i=1}^{n}\lambda_i y_i = 0$$. For the constraint $$\lambda_i\geq 0$$, we can satisfy this constraint by clipping $$\lambda$$ into the region $$[0,\infty)$$ after each back propagation during gradient descent. 
+
+> Discussion: why not also put the constraints $$\lambda_i\geq 0$$ also into the loss function by introducing an extra hinge loss term? Then the final loss function will be:
+$$
+\min_{\lambda}L(\lambda)=-\sum_{i=1}^{n}\lambda_i + \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j + \frac{c}{2}(\sum_{i=1}^{n}\lambda_i y_i)^2  + d \sum_{i=1}^{n}\text{max}\{-\lambda_i,0\}
+$$\\
+\\
+This is reasonable in theory but not so feasible in practice. This will introduce one extra hyper parameter $$d$$, and we will be lost in endlessly fine tuning and balancing the hyper parameters $$c$$ and $$d$$. Test results also show that achieving the constraint $$\lambda_i\geq 0$$ using clipping is efficient and this method also easily support more general cases of **SVM with penalty terms**. This will be discussed later.
+
+
+Based on the loss function, We can compute the gradient:
 
 <center>
 $$
@@ -60,8 +70,24 @@ We define a function $$K(\mathbf{x}_i, \mathbf{x}_j)= \mathbf{x}_i^T\mathbf{x}_j
 	\mathbf{K} = \begin{bmatrix}K_{1,1}\dots K_{1,n}\\ \dots \\ K_{n,1}\dots   {K_{n,n}} \end{bmatrix}
 	$$
 </center> 
-where $$$$
+where $$K_{i,j}=K(\mathbf{x}_i, \mathbf{x}_j)$$.\\
+Then the gradient $$\frac{\partial{L}}{\partial{\lambda_i}}$$ can be expressed by the kernel matrix:
+<center>
+	$$
+	\frac{\partial{L}}{\partial{\lambda_i}} = -1 + y_i \mathbf{e}_i^T \mathbf{K}  ( \lambda \circ \mathbf{y} ) + c y_i \lambda ^T \mathbf{y}
+	$$
+</center>
+where $$\mathbf{e}_i=[0,\dots,0,1,0,\dots,0]$$, with the $$i^{th}$$ element being 1 and other elements being 0. The sign $$\lambda \circ \mathbf{y}$$ represents the element-wise multiplication two vectors $$\lambda$$ and $$\mathbf{y}$$.
 
+We can also write the expression of the gradient of $$L$$ with respect to the whole vector $$\lambda$$:
+<center>
+	$$
+	\frac{\partial{L}}{\partial{\lambda}} = -\mathbf{1}_n + (\mathbf{K}(\lambda \circ \mathbf{y}))\circ \mathbf{y} + c(\lambda^T\mathbf{y})\mathbf{y}
+	$$
+</center>
+In practice, when we implement the gradient descent algorithm, we don't need to compute $$\mathbf{K}$$ in each iteration, since $$\mathbf{K}$$ does not rely on $$\lambda$$. Instead, we can simply compute $$\mathbf{K}$$ before applying gradient descent and store it in the memory, and call it each time when computing the gradient.
+
+Another implicit advantage of using such a kernel matrix expression is that such a definition can be extended into a broader definition of SVM -- **SVM with kernels**, where we can give a more sophisticated definition to the kernel function $$K(\mathbf{x}_ i, \mathbf{x}_ j)$$, instead of just vector dot product. But even in that case, the expression of the gradient still remains the same. We just simply pre-calculate the kernel matrix $$\mathbf{K}$$ based on the new definition of kernel function, and then apply gradient descent algorithm to find the optimal solution. We will discuss **kernel SVM** in the future posts.
 
 <!-- We can also use the [denominator layout](https://en.wikipedia.org/wiki/Matrix_calculus) to express the gradient of $$L$$ with respect to the vector of $$\mathbf{\lambda}=(\lambda_1, \lambda_2,\dots,\lambda_n)^T$$. Let $$\mathbf{X}=(\mathbf{x}_ 1,\dots,\mathbf{x}_ n)^T\in R^{nxp}$$ and $$\mathbf{y}=(y_1,\dots, y_n)^T\in R_n$$. Then we have:
 <center>
