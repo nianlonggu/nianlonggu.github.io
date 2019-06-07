@@ -50,17 +50,20 @@ where $$c>0$$ is the weighting factor for the constraint $$\sum_{i=1}^{n}\lambda
 <center>
 $$
 \begin{align}
-\frac{\partial{L}}{\partial{\lambda_i}} &= -1 + \sum_{j=1}^{n}\lambda_j y_j \mathbf{x}_j^T(y_i\mathbf{x}_i) + {c}\sum_{j=1}^{n}\lambda_j y_j y_i 
+\frac{\partial{L}}{\partial{\lambda_i}} &= -1 +   y_i \sum_{j=1}^{n}\lambda_j y_j \mathbf{x}_i^T\mathbf{x}_j + {c}\sum_{j=1}^{n}\lambda_j y_j y_i 
 \end{align}
 $$
 </center>
-where
-$$\mu(z)=\begin{cases}
-    1, & \text{if}\ z\geq0\\
-    0, & \text{otherwise}  
-\end{cases}$$
+We define a function $$K(\mathbf{x}_i, \mathbf{x}_j)= \mathbf{x}_i^T\mathbf{x}_j$$. To maintain the consistence with future posts, we can this function as **kernel function**. Given a training dataset $$\{\mathbf{x}_i\}, i=1,\dots,n$$, we can get a **kernel matrix**:
+<center>
+	$$
+	\mathbf{K} = \begin{bmatrix}K_{1,1}\dots K_{1,n}\\ \dots \\ K_{n,1}\dots   {K_{n,n}} \end{bmatrix}
+	$$
+</center> 
+where $$$$
 
-We can also use the [denominator layout](https://en.wikipedia.org/wiki/Matrix_calculus) to express the gradient of $$L$$ with respect to the vector of $$\mathbf{\lambda}=(\lambda_1, \lambda_2,\dots,\lambda_n)^T$$. Let $$\mathbf{X}=(\mathbf{x}_ 1,\dots,\mathbf{x}_ n)^T\in R^{nxp}$$ and $$\mathbf{y}=(y_1,\dots, y_n)^T\in R_n$$. Then we have:
+
+<!-- We can also use the [denominator layout](https://en.wikipedia.org/wiki/Matrix_calculus) to express the gradient of $$L$$ with respect to the vector of $$\mathbf{\lambda}=(\lambda_1, \lambda_2,\dots,\lambda_n)^T$$. Let $$\mathbf{X}=(\mathbf{x}_ 1,\dots,\mathbf{x}_ n)^T\in R^{nxp}$$ and $$\mathbf{y}=(y_1,\dots, y_n)^T\in R_n$$. Then we have:
 <center>
 	$$
 	\frac{\partial{L}}{\partial{\lambda}} = -  \mathbf{1}_n +( (\mathbf{y}\mathbf{1}_p^T)\circ\mathbf{X})\mathbf{X}^T(\mathbf{y}\circ\lambda)+ c(\lambda^T\mathbf{y})\mathbf{y}
@@ -75,7 +78,7 @@ The update rule of $$\lambda$$ is:
 	$$
 </center>
 where $$\alpha$$ is the learning rate.
-
+ -->
 
 
 **Implementation and Experiments**

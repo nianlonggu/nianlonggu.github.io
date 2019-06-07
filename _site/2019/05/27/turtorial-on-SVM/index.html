@@ -312,32 +312,34 @@
 <center>
 $$
 \begin{align}
-\frac{\partial{L}}{\partial{\lambda_i}} &amp;= -1 + \sum_{j=1}^{n}\lambda_j y_j \mathbf{x}_j^T(y_i\mathbf{x}_i) + {c}\sum_{j=1}^{n}\lambda_j y_j y_i 
+\frac{\partial{L}}{\partial{\lambda_i}} &amp;= -1 +   y_i \sum_{j=1}^{n}\lambda_j y_j \mathbf{x}_i^T\mathbf{x}_j + {c}\sum_{j=1}^{n}\lambda_j y_j y_i 
 \end{align}
 $$
 </center>
-<p>where
-<script type="math/tex">% <![CDATA[
-\mu(z)=\begin{cases}
-    1, & \text{if}\ z\geq0\\
-    0, & \text{otherwise}  
-\end{cases} %]]></script></p>
+<p>We define a function <script type="math/tex">K(\mathbf{x}_i, \mathbf{x}_j)= \mathbf{x}_i^T\mathbf{x}_j</script>. To maintain the consistence with future posts, we can this function as <strong>kernel function</strong>. Given a training dataset <script type="math/tex">\{\mathbf{x}_i\}, i=1,\dots,n</script>, we can get a <strong>kernel matrix</strong>:</p>
+<center>
+	$$
+	\mathbf{K} = \begin{bmatrix}K_{1,1}\dots K_{1,n}\\ \dots \\ K_{n,1}\dots   {K_{n,n}} \end{bmatrix}
+	$$
+</center>
+<p>where <script type="math/tex"></script></p>
 
-<p>We can also use the <a href="https://en.wikipedia.org/wiki/Matrix_calculus">denominator layout</a> to express the gradient of <script type="math/tex">L</script> with respect to the vector of <script type="math/tex">\mathbf{\lambda}=(\lambda_1, \lambda_2,\dots,\lambda_n)^T</script>. Let <script type="math/tex">\mathbf{X}=(\mathbf{x}_ 1,\dots,\mathbf{x}_ n)^T\in R^{nxp}</script> and <script type="math/tex">\mathbf{y}=(y_1,\dots, y_n)^T\in R_n</script>. Then we have:</p>
+<!-- We can also use the [denominator layout](https://en.wikipedia.org/wiki/Matrix_calculus) to express the gradient of $$L$$ with respect to the vector of $$\mathbf{\lambda}=(\lambda_1, \lambda_2,\dots,\lambda_n)^T$$. Let $$\mathbf{X}=(\mathbf{x}_ 1,\dots,\mathbf{x}_ n)^T\in R^{nxp}$$ and $$\mathbf{y}=(y_1,\dots, y_n)^T\in R_n$$. Then we have:
 <center>
 	$$
 	\frac{\partial{L}}{\partial{\lambda}} = -  \mathbf{1}_n +( (\mathbf{y}\mathbf{1}_p^T)\circ\mathbf{X})\mathbf{X}^T(\mathbf{y}\circ\lambda)+ c(\lambda^T\mathbf{y})\mathbf{y}
 	$$
 </center>
-<p>where <script type="math/tex">\circ</script> stands for <strong>element-wise product</strong> and <script type="math/tex">\mu(-\lambda)=( \mu(-\lambda_1),\dots,\mu(-\lambda_n))^T</script></p>
+where $$\circ$$ stands for **element-wise product** and $$\mu(-\lambda)=( \mu(-\lambda_1),\dots,\mu(-\lambda_n))^T$$
 
-<p>The update rule of <script type="math/tex">\lambda</script> is:</p>
+The update rule of $$\lambda$$ is:
 <center>
 	$$
 	\lambda \leftarrow \lambda - \alpha \frac{\partial{L}}{\partial{\lambda}}
 	$$
 </center>
-<p>where <script type="math/tex">\alpha</script> is the learning rate.</p>
+where $$\alpha$$ is the learning rate.
+ -->
 
 <p><strong>Implementation and Experiments</strong></p>
 

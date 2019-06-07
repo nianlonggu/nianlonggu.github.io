@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Thu, 06 Jun 2019 23:53:32 +0200</pubDate>
-    <lastBuildDate>Thu, 06 Jun 2019 23:53:32 +0200</lastBuildDate>
+    <pubDate>Fri, 07 Jun 2019 00:39:17 +0200</pubDate>
+    <lastBuildDate>Fri, 07 Jun 2019 00:39:17 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -50,32 +50,34 @@
 &lt;center&gt;
 $$
 \begin{align}
-\frac{\partial{L}}{\partial{\lambda_i}} &amp;amp;= -1 + \sum_{j=1}^{n}\lambda_j y_j \mathbf{x}_j^T(y_i\mathbf{x}_i) + {c}\sum_{j=1}^{n}\lambda_j y_j y_i 
+\frac{\partial{L}}{\partial{\lambda_i}} &amp;amp;= -1 +   y_i \sum_{j=1}^{n}\lambda_j y_j \mathbf{x}_i^T\mathbf{x}_j + {c}\sum_{j=1}^{n}\lambda_j y_j y_i 
 \end{align}
 $$
 &lt;/center&gt;
-&lt;p&gt;where
-&lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
-\mu(z)=\begin{cases}
-    1, &amp; \text{if}\ z\geq0\\
-    0, &amp; \text{otherwise}  
-\end{cases} %]]&gt;&lt;/script&gt;&lt;/p&gt;
+&lt;p&gt;We define a function &lt;script type=&quot;math/tex&quot;&gt;K(\mathbf{x}_i, \mathbf{x}_j)= \mathbf{x}_i^T\mathbf{x}_j&lt;/script&gt;. To maintain the consistence with future posts, we can this function as &lt;strong&gt;kernel function&lt;/strong&gt;. Given a training dataset &lt;script type=&quot;math/tex&quot;&gt;\{\mathbf{x}_i\}, i=1,\dots,n&lt;/script&gt;, we can get a &lt;strong&gt;kernel matrix&lt;/strong&gt;:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\mathbf{K} = \begin{bmatrix}K_{1,1}\dots K_{1,n}\\ \dots \\ K_{n,1}\dots   {K_{n,n}} \end{bmatrix}
+	$$
+&lt;/center&gt;
+&lt;p&gt;where &lt;script type=&quot;math/tex&quot;&gt;&lt;/script&gt;&lt;/p&gt;
 
-&lt;p&gt;We can also use the &lt;a href=&quot;https://en.wikipedia.org/wiki/Matrix_calculus&quot;&gt;denominator layout&lt;/a&gt; to express the gradient of &lt;script type=&quot;math/tex&quot;&gt;L&lt;/script&gt; with respect to the vector of &lt;script type=&quot;math/tex&quot;&gt;\mathbf{\lambda}=(\lambda_1, \lambda_2,\dots,\lambda_n)^T&lt;/script&gt;. Let &lt;script type=&quot;math/tex&quot;&gt;\mathbf{X}=(\mathbf{x}_ 1,\dots,\mathbf{x}_ n)^T\in R^{nxp}&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\mathbf{y}=(y_1,\dots, y_n)^T\in R_n&lt;/script&gt;. Then we have:&lt;/p&gt;
+&lt;!-- We can also use the [denominator layout](https://en.wikipedia.org/wiki/Matrix_calculus) to express the gradient of $$L$$ with respect to the vector of $$\mathbf{\lambda}=(\lambda_1, \lambda_2,\dots,\lambda_n)^T$$. Let $$\mathbf{X}=(\mathbf{x}_ 1,\dots,\mathbf{x}_ n)^T\in R^{nxp}$$ and $$\mathbf{y}=(y_1,\dots, y_n)^T\in R_n$$. Then we have:
 &lt;center&gt;
 	$$
 	\frac{\partial{L}}{\partial{\lambda}} = -  \mathbf{1}_n +( (\mathbf{y}\mathbf{1}_p^T)\circ\mathbf{X})\mathbf{X}^T(\mathbf{y}\circ\lambda)+ c(\lambda^T\mathbf{y})\mathbf{y}
 	$$
 &lt;/center&gt;
-&lt;p&gt;where &lt;script type=&quot;math/tex&quot;&gt;\circ&lt;/script&gt; stands for &lt;strong&gt;element-wise product&lt;/strong&gt; and &lt;script type=&quot;math/tex&quot;&gt;\mu(-\lambda)=( \mu(-\lambda_1),\dots,\mu(-\lambda_n))^T&lt;/script&gt;&lt;/p&gt;
+where $$\circ$$ stands for **element-wise product** and $$\mu(-\lambda)=( \mu(-\lambda_1),\dots,\mu(-\lambda_n))^T$$
 
-&lt;p&gt;The update rule of &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; is:&lt;/p&gt;
+The update rule of $$\lambda$$ is:
 &lt;center&gt;
 	$$
 	\lambda \leftarrow \lambda - \alpha \frac{\partial{L}}{\partial{\lambda}}
 	$$
 &lt;/center&gt;
-&lt;p&gt;where &lt;script type=&quot;math/tex&quot;&gt;\alpha&lt;/script&gt; is the learning rate.&lt;/p&gt;
+where $$\alpha$$ is the learning rate.
+ --&gt;
 
 &lt;p&gt;&lt;strong&gt;Implementation and Experiments&lt;/strong&gt;&lt;/p&gt;
 
