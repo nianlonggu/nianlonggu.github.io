@@ -56,3 +56,7 @@ Here $$\xi_i$$ is the slack variable. Suppose that for some point $$\mathbf{x}_i
 * if $$\xi_i=0$$, then $$\mathbf{x}_i$$ is exactly at the marginal hyperplane (the margin for short).
 * if $$0<\xi_i\leq 1$$, then $$\mathbf{x}_i$$ is located within the margin, but the label of $$\mathbf{x}_i$$ is correctly classified.
 * if $$\xi > 1$$, then $$\mathbf{x}_i$$ is located at the other side of the separating hyperplane, which means a miss-classification.
+<a name="Different xi and Point Locations"></a>
+<img src="https://nianlonggu.github.io/img/2019-06-07-SVM/svm-slack-variable.svg"/> 
+<!-- width="400" hegiht="203" /> -->
+*<center>Different $\xi$ and Point Locations</center>*

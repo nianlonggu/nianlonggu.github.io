@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 07 Jun 2019 21:37:41 +0200</pubDate>
-    <lastBuildDate>Fri, 07 Jun 2019 21:37:41 +0200</lastBuildDate>
+    <pubDate>Fri, 07 Jun 2019 21:45:55 +0200</pubDate>
+    <lastBuildDate>Fri, 07 Jun 2019 21:45:55 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -61,7 +61,11 @@ If the points are not linearly separable, then the SVM primal problem doesn’t 
   &lt;li&gt;if &lt;script type=&quot;math/tex&quot;&gt;\xi_i=0&lt;/script&gt;, then &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i&lt;/script&gt; is exactly at the marginal hyperplane (the margin for short).&lt;/li&gt;
   &lt;li&gt;if &lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
 0&lt;\xi_i\leq 1 %]]&gt;&lt;/script&gt;, then &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i&lt;/script&gt; is located within the margin, but the label of &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i&lt;/script&gt; is correctly classified.&lt;/li&gt;
-  &lt;li&gt;if &lt;script type=&quot;math/tex&quot;&gt;\xi &gt; 1&lt;/script&gt;, then &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i&lt;/script&gt; is located at the other side of the separating hyperplane, which means a miss-classification.&lt;/li&gt;
+  &lt;li&gt;if &lt;script type=&quot;math/tex&quot;&gt;\xi &gt; 1&lt;/script&gt;, then &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i&lt;/script&gt; is located at the other side of the separating hyperplane, which means a miss-classification.
+&lt;a name=&quot;Different xi and Point Locations&quot;&gt;&lt;/a&gt;
+&lt;img src=&quot;https://nianlonggu.github.io/img/2019-06-07-SVM/svm-slack-variable.svg&quot; /&gt; 
+&lt;!-- width=&quot;400&quot; hegiht=&quot;203&quot; /&gt; --&gt;
+&lt;em&gt;&lt;center&gt;Different $\xi$ and Point Locations&lt;/center&gt;&lt;/em&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
         <pubDate>Fri, 07 Jun 2019 18:06:00 +0200</pubDate>
