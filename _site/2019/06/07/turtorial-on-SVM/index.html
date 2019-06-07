@@ -301,7 +301,30 @@
 <!-- width="400" hegiht="203" /> -->
 <em><center>Hyperplane Influenced by Outliers</center></em>
 Figure <a href="#hyperplane-influenced-by-outliers">Hyperplane Influenced by Outliers</a> shows how a single outlier greatly influences the final results of the hyperplane. This is due to the constraints <script type="math/tex">y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1</script> in the primal problem will make sure that the minimum geodesic distance between points and the separating hyperplane is <script type="math/tex">\frac{1}{\|\mathbf{w}\|}</script>. When there is an outlier, in order to satisfy the constraints, the model will choose a smaller <script type="math/tex">\|\mathbf{w}\|</script> and also greatly change the rotation/position of the separating hyperplane. However, using the separating hyperplane in Figure (b) is not a good choice, since compared with (a), in (b) the points have a much smaller average geodesic distance to the separating hyperplane. Therefore, it is more likely that the SVM makes wrong decisions when classifying new points.</li>
+  <li><strong>Not suitable for the case where points of two classes are not linearly separable.</strong><br />
+If the points are not linearly separable, then the SVM primal problem doesn’t have a optimal solution, since there doesn’t exist a certain <script type="math/tex">\mathbf{w}</script> and <script type="math/tex">b</script> which satisfies the constraints <script type="math/tex">y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1</script>.</li>
 </ol>
+
+<h2 id="svm-with-slack-variables">SVM with Slack Variables</h2>
+<p>To solve the problems above, we need to introduce a slack variable to the original SVM primal problem. This means that we allow certain (outlier) points to be within the margin or even cross the separating hyperplane, but such cases would be penalized. Now the primal problem of the “Slack-SVM” will be:</p>
+
+<p><strong>Primal Problem</strong></p>
+<center>
+	$$
+	\min_{\mathbf{w},b}\ \frac{1}{2}\|\mathbf{w}\|^2 + C \sum_{i=1}^{n}\xi _i \\
+	\begin{align}
+	s.t.\ \  y_i(\mathbf{w}^T\mathbf{x}_i+b) &amp;\geq 1-\xi_i ,\ &amp;i=1,\dots,n \\
+	  \xi_i  &amp;\geq 0,\ &amp;i=1,\dots,n
+	\end{align}
+	$$
+</center>
+<p>Here <script type="math/tex">\xi_i</script> is the slack variable. Suppose that for some point <script type="math/tex">\mathbf{x}_i</script>, it holds <script type="math/tex">y_i(\mathbf{w}^T\mathbf{x}_i+b) = 1-\xi_i</script>:</p>
+<ul>
+  <li>if <script type="math/tex">\xi_i=0</script>, then <script type="math/tex">\mathbf{x}_i</script> is exactly at the marginal hyperplane (the margin for short).</li>
+  <li>if <script type="math/tex">% <![CDATA[
+0<\xi_i\leq 1 %]]></script>, then <script type="math/tex">\mathbf{x}_i</script> is located within the margin, but the label of <script type="math/tex">\mathbf{x}_i</script> is correctly classified.</li>
+  <li>if <script type="math/tex">\xi > 1</script>, then <script type="math/tex">\mathbf{x}_i</script> is located at the other side of the separating hyperplane, which means a miss-classification.</li>
+</ul>
 
 
                 <hr style="visibility: hidden;">

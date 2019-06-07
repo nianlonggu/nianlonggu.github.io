@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 07 Jun 2019 18:08:00 +0200</pubDate>
-    <lastBuildDate>Fri, 07 Jun 2019 18:08:00 +0200</lastBuildDate>
+    <pubDate>Fri, 07 Jun 2019 21:37:41 +0200</pubDate>
+    <lastBuildDate>Fri, 07 Jun 2019 21:37:41 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -39,7 +39,30 @@
 &lt;!-- width=&quot;400&quot; hegiht=&quot;203&quot; /&gt; --&gt;
 &lt;em&gt;&lt;center&gt;Hyperplane Influenced by Outliers&lt;/center&gt;&lt;/em&gt;
 Figure &lt;a href=&quot;#hyperplane-influenced-by-outliers&quot;&gt;Hyperplane Influenced by Outliers&lt;/a&gt; shows how a single outlier greatly influences the final results of the hyperplane. This is due to the constraints &lt;script type=&quot;math/tex&quot;&gt;y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1&lt;/script&gt; in the primal problem will make sure that the minimum geodesic distance between points and the separating hyperplane is &lt;script type=&quot;math/tex&quot;&gt;\frac{1}{\|\mathbf{w}\|}&lt;/script&gt;. When there is an outlier, in order to satisfy the constraints, the model will choose a smaller &lt;script type=&quot;math/tex&quot;&gt;\|\mathbf{w}\|&lt;/script&gt; and also greatly change the rotation/position of the separating hyperplane. However, using the separating hyperplane in Figure (b) is not a good choice, since compared with (a), in (b) the points have a much smaller average geodesic distance to the separating hyperplane. Therefore, it is more likely that the SVM makes wrong decisions when classifying new points.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Not suitable for the case where points of two classes are not linearly separable.&lt;/strong&gt;&lt;br /&gt;
+If the points are not linearly separable, then the SVM primal problem doesn’t have a optimal solution, since there doesn’t exist a certain &lt;script type=&quot;math/tex&quot;&gt;\mathbf{w}&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;b&lt;/script&gt; which satisfies the constraints &lt;script type=&quot;math/tex&quot;&gt;y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1&lt;/script&gt;.&lt;/li&gt;
 &lt;/ol&gt;
+
+&lt;h2 id=&quot;svm-with-slack-variables&quot;&gt;SVM with Slack Variables&lt;/h2&gt;
+&lt;p&gt;To solve the problems above, we need to introduce a slack variable to the original SVM primal problem. This means that we allow certain (outlier) points to be within the margin or even cross the separating hyperplane, but such cases would be penalized. Now the primal problem of the “Slack-SVM” will be:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Primal Problem&lt;/strong&gt;&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\min_{\mathbf{w},b}\ \frac{1}{2}\|\mathbf{w}\|^2 + C \sum_{i=1}^{n}\xi _i \\
+	\begin{align}
+	s.t.\ \  y_i(\mathbf{w}^T\mathbf{x}_i+b) &amp;amp;\geq 1-\xi_i ,\ &amp;amp;i=1,\dots,n \\
+	  \xi_i  &amp;amp;\geq 0,\ &amp;amp;i=1,\dots,n
+	\end{align}
+	$$
+&lt;/center&gt;
+&lt;p&gt;Here &lt;script type=&quot;math/tex&quot;&gt;\xi_i&lt;/script&gt; is the slack variable. Suppose that for some point &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i&lt;/script&gt;, it holds &lt;script type=&quot;math/tex&quot;&gt;y_i(\mathbf{w}^T\mathbf{x}_i+b) = 1-\xi_i&lt;/script&gt;:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;if &lt;script type=&quot;math/tex&quot;&gt;\xi_i=0&lt;/script&gt;, then &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i&lt;/script&gt; is exactly at the marginal hyperplane (the margin for short).&lt;/li&gt;
+  &lt;li&gt;if &lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+0&lt;\xi_i\leq 1 %]]&gt;&lt;/script&gt;, then &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i&lt;/script&gt; is located within the margin, but the label of &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i&lt;/script&gt; is correctly classified.&lt;/li&gt;
+  &lt;li&gt;if &lt;script type=&quot;math/tex&quot;&gt;\xi &gt; 1&lt;/script&gt;, then &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i&lt;/script&gt; is located at the other side of the separating hyperplane, which means a miss-classification.&lt;/li&gt;
+&lt;/ul&gt;
 </description>
         <pubDate>Fri, 07 Jun 2019 18:06:00 +0200</pubDate>
         <link>http://localhost:4000/2019/06/07/turtorial-on-SVM/</link>
