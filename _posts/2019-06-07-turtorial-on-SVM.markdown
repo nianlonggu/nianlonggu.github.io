@@ -171,6 +171,14 @@ The complementary slackness is interesting. Suppose that we have already find th
 Suppose that we have solved the dual problem and get the dual optimum. Let $$S_w=\{ i \vert 0<\lambda_i^\star \leq C \}$$ represent the support set related with $$\mathbf{w}$$; $$S_b=\{ i \vert 0<\lambda_i^\star < C \}$$ represent the support set related with $$b$$. Meanwhile, we define $$S_b^+ =\{ i \vert i\in S_b \  \text{and}\ y_i = +1 \}$$ and $$S_b^-=\{ i \vert i\in S_b\ \text{and}\ y_i = -1 \}$$. Then we can compute the primal optimum:
 <center>
 	$$
-	\mathbf{w}^\star = 
+	\mathbf{w}^\star = \sum_{i\in S_w}\lambda_i^\star y_i \mathbf{x}_i
+	$$
+</center>
+Multiple ways can be used to compute $$b^\star$$:
+<center>
+	$$
+	b^\star= y_i - {\mathbf{w}^\star}^T\mathbf{x}_i \ , \ i\in S_b\\
+	b^\star= \frac{1}{\vert S_b \vert}\sum_{i\in S_b}({y_i - {\mathbf{w}^\star}^T\mathbf{x}_i})\\
+	b^\star = -\frac{1}{2}{\mathbf{w}^\star}^T(\mathbf{x}_i+\mathbf{x}_j)\ , \ i\in S_b^+, j \in S_b^-
 	$$
 </center>

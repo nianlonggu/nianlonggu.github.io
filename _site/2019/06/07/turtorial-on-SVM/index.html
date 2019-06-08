@@ -452,7 +452,15 @@ S_w=\{ i \vert 0<\lambda_i^\star \leq C \} %]]></script> represent the support s
 S_b=\{ i \vert 0<\lambda_i^\star < C \} %]]></script> represent the support set related with <script type="math/tex">b</script>. Meanwhile, we define <script type="math/tex">S_b^+ =\{ i \vert i\in S_b \  \text{and}\ y_i = +1 \}</script> and <script type="math/tex">S_b^-=\{ i \vert i\in S_b\ \text{and}\ y_i = -1 \}</script>. Then we can compute the primal optimum:</p>
 <center>
 	$$
-	\mathbf{w}^\star = 
+	\mathbf{w}^\star = \sum_{i\in S_w}\lambda_i^\star y_i \mathbf{x}_i
+	$$
+</center>
+<p>Multiple ways can be used to compute <script type="math/tex">b^\star</script>:</p>
+<center>
+	$$
+	b^\star= y_i - {\mathbf{w}^\star}^T\mathbf{x}_i \ , \ i\in S_b\\
+	b^\star= \frac{1}{\vert S_b \vert}\sum_{i\in S_b}({y_i - {\mathbf{w}^\star}^T\mathbf{x}_i})\\
+	b^\star = -\frac{1}{2}{\mathbf{w}^\star}^T(\mathbf{x}_i+\mathbf{x}_j)\ , \ i\in S_b^+, j \in S_b^-
 	$$
 </center>
 
