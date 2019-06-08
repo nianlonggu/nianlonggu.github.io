@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 07 Jun 2019 21:45:55 +0200</pubDate>
-    <lastBuildDate>Fri, 07 Jun 2019 21:45:55 +0200</lastBuildDate>
+    <pubDate>Sat, 08 Jun 2019 00:04:48 +0200</pubDate>
+    <lastBuildDate>Sat, 08 Jun 2019 00:04:48 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -15,8 +15,7 @@
   &lt;p&gt;Just to clarify, these contents are mainly summarized from the course I took: “Fundamental of Big Data Analytics”, taught by Prof. Mathar Rudolf. For for information please visit: &lt;a href=&quot;https://www.ti.rwth-aachen.de&quot;&gt;https://www.ti.rwth-aachen.de&lt;/a&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;p&gt;Recall of the SVM primal problem and dual problem:&lt;br /&gt;
-&lt;strong&gt;Primal Problem&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Recall of the SVM primal problem:&lt;br /&gt;&lt;/p&gt;
 &lt;center&gt;
 	$$
 	\min_{\mathbf{w},b}\ \frac{1}{2}\|\mathbf{w}\|^2\\
@@ -56,7 +55,7 @@ If the points are not linearly separable, then the SVM primal problem doesn’t 
 	\end{align}
 	$$
 &lt;/center&gt;
-&lt;p&gt;Here &lt;script type=&quot;math/tex&quot;&gt;\xi_i&lt;/script&gt; is the slack variable. Suppose that for some point &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i&lt;/script&gt;, it holds &lt;script type=&quot;math/tex&quot;&gt;y_i(\mathbf{w}^T\mathbf{x}_i+b) = 1-\xi_i&lt;/script&gt;:&lt;/p&gt;
+&lt;p&gt;Here &lt;script type=&quot;math/tex&quot;&gt;\xi_i&lt;/script&gt; is the slack variable, and the positive &lt;script type=&quot;math/tex&quot;&gt;C&lt;/script&gt; is the weight for the penalty term. Suppose that for some point &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i&lt;/script&gt;, it holds &lt;script type=&quot;math/tex&quot;&gt;y_i(\mathbf{w}^T\mathbf{x}_i+b) = 1-\xi_i&lt;/script&gt;:&lt;/p&gt;
 &lt;ul&gt;
   &lt;li&gt;if &lt;script type=&quot;math/tex&quot;&gt;\xi_i=0&lt;/script&gt;, then &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i&lt;/script&gt; is exactly at the marginal hyperplane (the margin for short).&lt;/li&gt;
   &lt;li&gt;if &lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
@@ -67,6 +66,66 @@ If the points are not linearly separable, then the SVM primal problem doesn’t 
 &lt;!-- width=&quot;400&quot; hegiht=&quot;203&quot; /&gt; --&gt;
 &lt;em&gt;&lt;center&gt;Different $\xi$ and Point Locations&lt;/center&gt;&lt;/em&gt;&lt;/li&gt;
 &lt;/ul&gt;
+
+&lt;p&gt;It is possible to use Gradient Descent algorithm to solve the primal problem. However, due to the slack variables, the constraints is much more complex than the case without slack variables. It is more difficult to define the loss function used for gradient descent. On the contrary, the Lagrangian dual problem of this primal problem still remains compact and solvable, and can be easily extended to kernel SVM. Therefore, in the next, we mainly discuss the deduction of the Lagrangian dual problem of the Slack SVM primal problem.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Lagrangian Function&lt;/strong&gt;&lt;/p&gt;
+&lt;center&gt;
+$$L( \mathbf{w}, b, \mathbf{\xi}, \lambda, \mu )= \frac{1}{2}\|\mathbf{w}\|^2 + C\sum_{i=1}^{n}\xi_i  + \sum_{i=1}^{n}\lambda_i ( 1-\xi_i - y_i(\mathbf{w}^T\mathbf{x}_ i+b ) ) - \sum_{i=1}^{n}\mu_i \xi_i  $$
+&lt;/center&gt;
+&lt;p&gt;&lt;strong&gt;Lagrangian Dual function&lt;/strong&gt;&lt;/p&gt;
+&lt;center&gt;
+	$$
+	g(\lambda, \mu) = \inf_{\mathbf{w}, b, \xi} L(\mathbf{w}, b, \xi, \lambda, \mu)
+	$$
+&lt;/center&gt;
+&lt;p&gt;To get the dual function, we can compute the derivative and set them to 0.&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\frac{\partial{L}}{\partial{\mathbf{w}}} = \mathbf{w} - \sum_{i=1}^{n}\lambda_i y_i \mathbf{x}_i = 0 \\
+	\frac{\partial{L}}{\partial{b}} = -\sum_{i=1}^{n}\lambda_i y_i = 0\\
+	\frac{\partial{L}}{\partial{\xi_i}} = C - \lambda_i - \mu_i = 0
+	$$
+&lt;/center&gt;
+&lt;p&gt;From these 3 equations we have&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\mathbf{w}^\star = \sum_{i=1}^{n} \lambda_i y_i \mathbf{x}_i\\
+	\sum_{i=1}^{n} \lambda_i y_i = 0\\
+	\mu_i = C-\lambda_i
+	$$
+&lt;/center&gt;
+&lt;p&gt;Substitue them in the Lagrangian function, we can get the Lagrangian dual function:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	g(\lambda, \mu) = \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j + C\sum_{i=1}^{n}\xi_i + \sum_{i=1}^{n}\lambda_i -\sum_{i=1}^{n}\lambda_i \xi_i \\-\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j - \sum_{i=1}^{n}\lambda_i y_i b - C\sum_{i=1}^{n}\xi_i + \sum_{i=1}^{n}\lambda_i \xi_i\\
+	= \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j
+	$$
+&lt;/center&gt;
+&lt;p&gt;Therefore, the Lagrangian dual problem is:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\max_{\lambda, \mu} \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j\\
+	\begin{align}
+		s.t.\ &amp;amp; \lambda_i \geq 0\\
+		 &amp;amp;\mu_i \geq 0 \\
+		 &amp;amp;\mu_i = C-\lambda_i \\
+		 &amp;amp;\sum_{i=1}^{n} \lambda_i y_i =0
+	\end{align}
+	$$
+&lt;/center&gt;
+&lt;p&gt;We can use &lt;script type=&quot;math/tex&quot;&gt;\lambda_i&lt;/script&gt; to represent &lt;script type=&quot;math/tex&quot;&gt;\mu_i&lt;/script&gt;, and finally get the dual problem:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Dual Problem&lt;/strong&gt;&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\max_{\lambda, \mu} \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j\\
+	\begin{align}
+		s.t.\ &amp;amp; 0 \leq \lambda_i \leq C \\
+		 &amp;amp;\sum_{i=1}^{n} \lambda_i y_i =0
+	\end{align}
+	$$
+&lt;/center&gt;
 </description>
         <pubDate>Fri, 07 Jun 2019 18:06:00 +0200</pubDate>
         <link>http://localhost:4000/2019/06/07/turtorial-on-SVM/</link>

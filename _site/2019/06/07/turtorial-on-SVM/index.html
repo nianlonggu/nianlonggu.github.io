@@ -277,8 +277,7 @@
   <p>Just to clarify, these contents are mainly summarized from the course I took: “Fundamental of Big Data Analytics”, taught by Prof. Mathar Rudolf. For for information please visit: <a href="https://www.ti.rwth-aachen.de">https://www.ti.rwth-aachen.de</a></p>
 </blockquote>
 
-<p>Recall of the SVM primal problem and dual problem:<br />
-<strong>Primal Problem</strong></p>
+<p>Recall of the SVM primal problem:<br /></p>
 <center>
 	$$
 	\min_{\mathbf{w},b}\ \frac{1}{2}\|\mathbf{w}\|^2\\
@@ -318,7 +317,7 @@ If the points are not linearly separable, then the SVM primal problem doesn’t 
 	\end{align}
 	$$
 </center>
-<p>Here <script type="math/tex">\xi_i</script> is the slack variable. Suppose that for some point <script type="math/tex">\mathbf{x}_i</script>, it holds <script type="math/tex">y_i(\mathbf{w}^T\mathbf{x}_i+b) = 1-\xi_i</script>:</p>
+<p>Here <script type="math/tex">\xi_i</script> is the slack variable, and the positive <script type="math/tex">C</script> is the weight for the penalty term. Suppose that for some point <script type="math/tex">\mathbf{x}_i</script>, it holds <script type="math/tex">y_i(\mathbf{w}^T\mathbf{x}_i+b) = 1-\xi_i</script>:</p>
 <ul>
   <li>if <script type="math/tex">\xi_i=0</script>, then <script type="math/tex">\mathbf{x}_i</script> is exactly at the marginal hyperplane (the margin for short).</li>
   <li>if <script type="math/tex">% <![CDATA[
@@ -329,6 +328,66 @@ If the points are not linearly separable, then the SVM primal problem doesn’t 
 <!-- width="400" hegiht="203" /> -->
 <em><center>Different $\xi$ and Point Locations</center></em></li>
 </ul>
+
+<p>It is possible to use Gradient Descent algorithm to solve the primal problem. However, due to the slack variables, the constraints is much more complex than the case without slack variables. It is more difficult to define the loss function used for gradient descent. On the contrary, the Lagrangian dual problem of this primal problem still remains compact and solvable, and can be easily extended to kernel SVM. Therefore, in the next, we mainly discuss the deduction of the Lagrangian dual problem of the Slack SVM primal problem.</p>
+
+<p><strong>Lagrangian Function</strong></p>
+<center>
+$$L( \mathbf{w}, b, \mathbf{\xi}, \lambda, \mu )= \frac{1}{2}\|\mathbf{w}\|^2 + C\sum_{i=1}^{n}\xi_i  + \sum_{i=1}^{n}\lambda_i ( 1-\xi_i - y_i(\mathbf{w}^T\mathbf{x}_ i+b ) ) - \sum_{i=1}^{n}\mu_i \xi_i  $$
+</center>
+<p><strong>Lagrangian Dual function</strong></p>
+<center>
+	$$
+	g(\lambda, \mu) = \inf_{\mathbf{w}, b, \xi} L(\mathbf{w}, b, \xi, \lambda, \mu)
+	$$
+</center>
+<p>To get the dual function, we can compute the derivative and set them to 0.</p>
+<center>
+	$$
+	\frac{\partial{L}}{\partial{\mathbf{w}}} = \mathbf{w} - \sum_{i=1}^{n}\lambda_i y_i \mathbf{x}_i = 0 \\
+	\frac{\partial{L}}{\partial{b}} = -\sum_{i=1}^{n}\lambda_i y_i = 0\\
+	\frac{\partial{L}}{\partial{\xi_i}} = C - \lambda_i - \mu_i = 0
+	$$
+</center>
+<p>From these 3 equations we have</p>
+<center>
+	$$
+	\mathbf{w}^\star = \sum_{i=1}^{n} \lambda_i y_i \mathbf{x}_i\\
+	\sum_{i=1}^{n} \lambda_i y_i = 0\\
+	\mu_i = C-\lambda_i
+	$$
+</center>
+<p>Substitue them in the Lagrangian function, we can get the Lagrangian dual function:</p>
+<center>
+	$$
+	g(\lambda, \mu) = \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j + C\sum_{i=1}^{n}\xi_i + \sum_{i=1}^{n}\lambda_i -\sum_{i=1}^{n}\lambda_i \xi_i \\-\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j - \sum_{i=1}^{n}\lambda_i y_i b - C\sum_{i=1}^{n}\xi_i + \sum_{i=1}^{n}\lambda_i \xi_i\\
+	= \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j
+	$$
+</center>
+<p>Therefore, the Lagrangian dual problem is:</p>
+<center>
+	$$
+	\max_{\lambda, \mu} \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j\\
+	\begin{align}
+		s.t.\ &amp; \lambda_i \geq 0\\
+		 &amp;\mu_i \geq 0 \\
+		 &amp;\mu_i = C-\lambda_i \\
+		 &amp;\sum_{i=1}^{n} \lambda_i y_i =0
+	\end{align}
+	$$
+</center>
+<p>We can use <script type="math/tex">\lambda_i</script> to represent <script type="math/tex">\mu_i</script>, and finally get the dual problem:</p>
+
+<p><strong>Dual Problem</strong></p>
+<center>
+	$$
+	\max_{\lambda, \mu} \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j\\
+	\begin{align}
+		s.t.\ &amp; 0 \leq \lambda_i \leq C \\
+		 &amp;\sum_{i=1}^{n} \lambda_i y_i =0
+	\end{align}
+	$$
+</center>
 
 
                 <hr style="visibility: hidden;">

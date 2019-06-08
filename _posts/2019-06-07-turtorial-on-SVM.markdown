@@ -15,8 +15,7 @@ tags:
 > Just to clarify, these contents are mainly summarized from the course I took: "Fundamental of Big Data Analytics", taught by Prof. Mathar Rudolf. For for information please visit: [https://www.ti.rwth-aachen.de](https://www.ti.rwth-aachen.de)
 
 
-Recall of the SVM primal problem and dual problem:<br>
-**Primal Problem**
+Recall of the SVM primal problem:<br>
 <center>
 	$$
 	\min_{\mathbf{w},b}\ \frac{1}{2}\|\mathbf{w}\|^2\\
@@ -52,7 +51,7 @@ To solve the problems above, we need to introduce a slack variable to the origin
 	\end{align}
 	$$
 </center>
-Here $$\xi_i$$ is the slack variable. Suppose that for some point $$\mathbf{x}_i$$, it holds $$y_i(\mathbf{w}^T\mathbf{x}_i+b) = 1-\xi_i$$:
+Here $$\xi_i$$ is the slack variable, and the positive $$C$$ is the weight for the penalty term. Suppose that for some point $$\mathbf{x}_i$$, it holds $$y_i(\mathbf{w}^T\mathbf{x}_i+b) = 1-\xi_i$$:
 * if $$\xi_i=0$$, then $$\mathbf{x}_i$$ is exactly at the marginal hyperplane (the margin for short).
 * if $$0<\xi_i\leq 1$$, then $$\mathbf{x}_i$$ is located within the margin, but the label of $$\mathbf{x}_i$$ is correctly classified.
 * if $$\xi > 1$$, then $$\mathbf{x}_i$$ is located at the other side of the separating hyperplane, which means a miss-classification.
@@ -60,3 +59,63 @@ Here $$\xi_i$$ is the slack variable. Suppose that for some point $$\mathbf{x}_i
 <img src="https://nianlonggu.github.io/img/2019-06-07-SVM/svm-slack-variable.svg"/> 
 <!-- width="400" hegiht="203" /> -->
 *<center>Different $\xi$ and Point Locations</center>*
+
+It is possible to use Gradient Descent algorithm to solve the primal problem. However, due to the slack variables, the constraints is much more complex than the case without slack variables. It is more difficult to define the loss function used for gradient descent. On the contrary, the Lagrangian dual problem of this primal problem still remains compact and solvable, and can be easily extended to kernel SVM. Therefore, in the next, we mainly discuss the deduction of the Lagrangian dual problem of the Slack SVM primal problem.
+
+**Lagrangian Function**
+<center>
+$$L( \mathbf{w}, b, \mathbf{\xi}, \lambda, \mu )= \frac{1}{2}\|\mathbf{w}\|^2 + C\sum_{i=1}^{n}\xi_i  + \sum_{i=1}^{n}\lambda_i ( 1-\xi_i - y_i(\mathbf{w}^T\mathbf{x}_ i+b ) ) - \sum_{i=1}^{n}\mu_i \xi_i  $$
+</center>
+**Lagrangian Dual function**
+<center>
+	$$
+	g(\lambda, \mu) = \inf_{\mathbf{w}, b, \xi} L(\mathbf{w}, b, \xi, \lambda, \mu)
+	$$
+</center>
+To get the dual function, we can compute the derivative and set them to 0.
+<center>
+	$$
+	\frac{\partial{L}}{\partial{\mathbf{w}}} = \mathbf{w} - \sum_{i=1}^{n}\lambda_i y_i \mathbf{x}_i = 0 \\
+	\frac{\partial{L}}{\partial{b}} = -\sum_{i=1}^{n}\lambda_i y_i = 0\\
+	\frac{\partial{L}}{\partial{\xi_i}} = C - \lambda_i - \mu_i = 0
+	$$
+</center>
+From these 3 equations we have
+<center>
+	$$
+	\mathbf{w}^\star = \sum_{i=1}^{n} \lambda_i y_i \mathbf{x}_i\\
+	\sum_{i=1}^{n} \lambda_i y_i = 0\\
+	\mu_i = C-\lambda_i
+	$$
+</center>
+Substitue them in the Lagrangian function, we can get the Lagrangian dual function:
+<center>
+	$$
+	g(\lambda, \mu) = \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j + C\sum_{i=1}^{n}\xi_i + \sum_{i=1}^{n}\lambda_i -\sum_{i=1}^{n}\lambda_i \xi_i \\-\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j - \sum_{i=1}^{n}\lambda_i y_i b - C\sum_{i=1}^{n}\xi_i + \sum_{i=1}^{n}\lambda_i \xi_i\\
+	= \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j
+	$$
+</center>
+Therefore, the Lagrangian dual problem is:
+<center>
+	$$
+	\max_{\lambda, \mu} \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j\\
+	\begin{align}
+		s.t.\ & \lambda_i \geq 0\\
+		 &\mu_i \geq 0 \\
+		 &\mu_i = C-\lambda_i \\
+		 &\sum_{i=1}^{n} \lambda_i y_i =0
+	\end{align}
+	$$
+</center>
+We can use $$\lambda_i$$ to represent $$\mu_i$$, and finally get the dual problem:
+
+**Dual Problem**
+<center>
+	$$
+	\max_{\lambda, \mu} \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j\\
+	\begin{align}
+		s.t.\ & 0 \leq \lambda_i \leq C \\
+		 &\sum_{i=1}^{n} \lambda_i y_i =0
+	\end{align}
+	$$
+</center>
