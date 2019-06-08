@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sat, 08 Jun 2019 00:04:48 +0200</pubDate>
-    <lastBuildDate>Sat, 08 Jun 2019 00:04:48 +0200</lastBuildDate>
+    <pubDate>Sat, 08 Jun 2019 14:36:43 +0200</pubDate>
+    <lastBuildDate>Sat, 08 Jun 2019 14:36:43 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -60,7 +60,7 @@ If the points are not linearly separable, then the SVM primal problem doesn’t 
   &lt;li&gt;if &lt;script type=&quot;math/tex&quot;&gt;\xi_i=0&lt;/script&gt;, then &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i&lt;/script&gt; is exactly at the marginal hyperplane (the margin for short).&lt;/li&gt;
   &lt;li&gt;if &lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
 0&lt;\xi_i\leq 1 %]]&gt;&lt;/script&gt;, then &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i&lt;/script&gt; is located within the margin, but the label of &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i&lt;/script&gt; is correctly classified.&lt;/li&gt;
-  &lt;li&gt;if &lt;script type=&quot;math/tex&quot;&gt;\xi &gt; 1&lt;/script&gt;, then &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i&lt;/script&gt; is located at the other side of the separating hyperplane, which means a miss-classification.
+  &lt;li&gt;if &lt;script type=&quot;math/tex&quot;&gt;\xi_i &gt; 1&lt;/script&gt;, then &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i&lt;/script&gt; is located at the other side of the separating hyperplane, which means a miss-classification.
 &lt;a name=&quot;Different xi and Point Locations&quot;&gt;&lt;/a&gt;
 &lt;img src=&quot;https://nianlonggu.github.io/img/2019-06-07-SVM/svm-slack-variable.svg&quot; /&gt; 
 &lt;!-- width=&quot;400&quot; hegiht=&quot;203&quot; /&gt; --&gt;
@@ -126,6 +126,54 @@ $$L( \mathbf{w}, b, \mathbf{\xi}, \lambda, \mu )= \frac{1}{2}\|\mathbf{w}\|^2 + 
 	\end{align}
 	$$
 &lt;/center&gt;
+&lt;p&gt;Compared with the dual problem for the SVM without slack variables, the only difference is that here the constraints of &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; are &lt;script type=&quot;math/tex&quot;&gt;0\leq \lambda_i \leq C&lt;/script&gt;, instead of &lt;script type=&quot;math/tex&quot;&gt;\lambda_i \geq 0&lt;/script&gt;.&lt;/p&gt;
+
+&lt;p&gt;Actually in the primal problem of the SVM without slack variables, we can think there is a hidden &lt;script type=&quot;math/tex&quot;&gt;C=\infty&lt;/script&gt;, which means that the penalty of slack variables is infinitely large, so all points need to satisfy &lt;script type=&quot;math/tex&quot;&gt;y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1&lt;/script&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Solution of the Dual Problem&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Gradient Descent Algorithm
+The objective function for gradient descent is:&lt;center&gt;
+ $$
+ \min_{\lambda} L(\lambda) = -\sum_{i=1}^{n} \lambda_i + \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_ i^T \mathbf{x}_ j + \frac{c}{2}(\sum_{i=1}^{n}\lambda_i y_i)^2 \\
+ s.t.\ 0\leq \lambda_i \leq C \ , \ i=1,\dots,n
+ $$&lt;/center&gt;
+Compared with the post &lt;a href=&quot;https://nianlonggu.github.io/2019/05/27/turtorial-on-SVM/&quot;&gt;An Introduction to Support Vector Machines (SVM): Dual problem solution using GD&lt;/a&gt;, the objective function is the same. The only difference is that here the constraints are &lt;script type=&quot;math/tex&quot;&gt;0\leq \lambda_i \leq C&lt;/script&gt;. To achieve this constraints, we can clip the value of &lt;script type=&quot;math/tex&quot;&gt;\lambda_i&lt;/script&gt; in the range &lt;script type=&quot;math/tex&quot;&gt;[0,C]&lt;/script&gt; after each gradient descent back propagation. For the detail of the gradient form, please have a look at that post.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Sequential Minimal Optimization (SMO), which will be discussed in the following posts.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;strong&gt;Discussion on the Karush-Kuhn-Tucker (KKT) conditions&lt;/strong&gt;
+The KKT conditions are now slightly different, since now in the dual function there are actually two variables: &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\mu&lt;/script&gt;. For the primal optimum and the dual optimum, it holds:&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;primal constraints&lt;center&gt;
+ $$
+ y_i({\mathbf{w}^\star}^T\mathbf{x}_ i +b^\star) \geq 1-\xi^\star_i \\
+ \xi^\star_i \geq 0
+ $$&lt;/center&gt;&lt;/li&gt;
+  &lt;li&gt;compute the infimum of &lt;script type=&quot;math/tex&quot;&gt;L&lt;/script&gt; w.r.t &lt;script type=&quot;math/tex&quot;&gt;\mathbf{w}&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\xi&lt;/script&gt;&lt;center&gt;
+ $$
+ \Delta_{\mathbf{w},b,\xi}L( \mathbf{w}^\star, b^\star, \xi^\star, \lambda^\star, \mu^\star)=0
+ $$&lt;/center&gt;&lt;/li&gt;
+  &lt;li&gt;dual constraints&lt;center&gt;
+ $$
+ \lambda_i^\star \geq 0\\
+ \mu_i^\star \geq 0\\
+ &lt;!-- \text{These two comes with the condition 2:}\\ --&gt;
+ \sum_{i=1}^{n}\lambda_i^\star y_i =0\\
+ \mu_i^\star = C - \lambda_i^\star
+ $$&lt;/center&gt;&lt;/li&gt;
+  &lt;li&gt;Complementary Slackness&lt;center&gt;
+ $$
+ \lambda_i^\star ( 1-\xi_i^\star - y_i({\mathbf{w}^\star}^T\mathbf{x}_ i  +b^\star ) ) =0 \\
+ \mu_i^\star \xi_i^\star = 0
+ $$&lt;/center&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;The complementary slackness is interesting. Suppose that we have already find the primal optimum and dual optimum. We can analyze the location of the point &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i&lt;/script&gt;&lt;/p&gt;
 </description>
         <pubDate>Fri, 07 Jun 2019 18:06:00 +0200</pubDate>
         <link>http://localhost:4000/2019/06/07/turtorial-on-SVM/</link>

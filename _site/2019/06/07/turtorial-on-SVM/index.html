@@ -322,7 +322,7 @@ If the points are not linearly separable, then the SVM primal problem doesn’t 
   <li>if <script type="math/tex">\xi_i=0</script>, then <script type="math/tex">\mathbf{x}_i</script> is exactly at the marginal hyperplane (the margin for short).</li>
   <li>if <script type="math/tex">% <![CDATA[
 0<\xi_i\leq 1 %]]></script>, then <script type="math/tex">\mathbf{x}_i</script> is located within the margin, but the label of <script type="math/tex">\mathbf{x}_i</script> is correctly classified.</li>
-  <li>if <script type="math/tex">\xi > 1</script>, then <script type="math/tex">\mathbf{x}_i</script> is located at the other side of the separating hyperplane, which means a miss-classification.
+  <li>if <script type="math/tex">\xi_i > 1</script>, then <script type="math/tex">\mathbf{x}_i</script> is located at the other side of the separating hyperplane, which means a miss-classification.
 <a name="Different xi and Point Locations"></a>
 <img src="https://nianlonggu.github.io/img/2019-06-07-SVM/svm-slack-variable.svg" /> 
 <!-- width="400" hegiht="203" /> -->
@@ -388,6 +388,54 @@ $$L( \mathbf{w}, b, \mathbf{\xi}, \lambda, \mu )= \frac{1}{2}\|\mathbf{w}\|^2 + 
 	\end{align}
 	$$
 </center>
+<p>Compared with the dual problem for the SVM without slack variables, the only difference is that here the constraints of <script type="math/tex">\lambda</script> are <script type="math/tex">0\leq \lambda_i \leq C</script>, instead of <script type="math/tex">\lambda_i \geq 0</script>.</p>
+
+<p>Actually in the primal problem of the SVM without slack variables, we can think there is a hidden <script type="math/tex">C=\infty</script>, which means that the penalty of slack variables is infinitely large, so all points need to satisfy <script type="math/tex">y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1</script>.</p>
+
+<p><strong>Solution of the Dual Problem</strong></p>
+<ol>
+  <li>
+    <p>Gradient Descent Algorithm
+The objective function for gradient descent is:<center>
+ $$
+ \min_{\lambda} L(\lambda) = -\sum_{i=1}^{n} \lambda_i + \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_ i^T \mathbf{x}_ j + \frac{c}{2}(\sum_{i=1}^{n}\lambda_i y_i)^2 \\
+ s.t.\ 0\leq \lambda_i \leq C \ , \ i=1,\dots,n
+ $$</center>
+Compared with the post <a href="https://nianlonggu.github.io/2019/05/27/turtorial-on-SVM/">An Introduction to Support Vector Machines (SVM): Dual problem solution using GD</a>, the objective function is the same. The only difference is that here the constraints are <script type="math/tex">0\leq \lambda_i \leq C</script>. To achieve this constraints, we can clip the value of <script type="math/tex">\lambda_i</script> in the range <script type="math/tex">[0,C]</script> after each gradient descent back propagation. For the detail of the gradient form, please have a look at that post.</p>
+  </li>
+  <li>
+    <p>Sequential Minimal Optimization (SMO), which will be discussed in the following posts.</p>
+  </li>
+</ol>
+
+<p><strong>Discussion on the Karush-Kuhn-Tucker (KKT) conditions</strong>
+The KKT conditions are now slightly different, since now in the dual function there are actually two variables: <script type="math/tex">\lambda</script> and <script type="math/tex">\mu</script>. For the primal optimum and the dual optimum, it holds:</p>
+<ol>
+  <li>primal constraints<center>
+ $$
+ y_i({\mathbf{w}^\star}^T\mathbf{x}_ i +b^\star) \geq 1-\xi^\star_i \\
+ \xi^\star_i \geq 0
+ $$</center></li>
+  <li>compute the infimum of <script type="math/tex">L</script> w.r.t <script type="math/tex">\mathbf{w}</script> and <script type="math/tex">\xi</script><center>
+ $$
+ \Delta_{\mathbf{w},b,\xi}L( \mathbf{w}^\star, b^\star, \xi^\star, \lambda^\star, \mu^\star)=0
+ $$</center></li>
+  <li>dual constraints<center>
+ $$
+ \lambda_i^\star \geq 0\\
+ \mu_i^\star \geq 0\\
+ <!-- \text{These two comes with the condition 2:}\\ -->
+ \sum_{i=1}^{n}\lambda_i^\star y_i =0\\
+ \mu_i^\star = C - \lambda_i^\star
+ $$</center></li>
+  <li>Complementary Slackness<center>
+ $$
+ \lambda_i^\star ( 1-\xi_i^\star - y_i({\mathbf{w}^\star}^T\mathbf{x}_ i  +b^\star ) ) =0 \\
+ \mu_i^\star \xi_i^\star = 0
+ $$</center></li>
+</ol>
+
+<p>The complementary slackness is interesting. Suppose that we have already find the primal optimum and dual optimum. We can analyze the location of the point <script type="math/tex">\mathbf{x}_ i</script></p>
 
 
                 <hr style="visibility: hidden;">

@@ -54,7 +54,7 @@ To solve the problems above, we need to introduce a slack variable to the origin
 Here $$\xi_i$$ is the slack variable, and the positive $$C$$ is the weight for the penalty term. Suppose that for some point $$\mathbf{x}_i$$, it holds $$y_i(\mathbf{w}^T\mathbf{x}_i+b) = 1-\xi_i$$:
 * if $$\xi_i=0$$, then $$\mathbf{x}_i$$ is exactly at the marginal hyperplane (the margin for short).
 * if $$0<\xi_i\leq 1$$, then $$\mathbf{x}_i$$ is located within the margin, but the label of $$\mathbf{x}_i$$ is correctly classified.
-* if $$\xi > 1$$, then $$\mathbf{x}_i$$ is located at the other side of the separating hyperplane, which means a miss-classification.
+* if $$\xi_i > 1$$, then $$\mathbf{x}_i$$ is located at the other side of the separating hyperplane, which means a miss-classification.
 <a name="Different xi and Point Locations"></a>
 <img src="https://nianlonggu.github.io/img/2019-06-07-SVM/svm-slack-variable.svg"/> 
 <!-- width="400" hegiht="203" /> -->
@@ -119,3 +119,44 @@ We can use $$\lambda_i$$ to represent $$\mu_i$$, and finally get the dual proble
 	\end{align}
 	$$
 </center>
+Compared with the dual problem for the SVM without slack variables, the only difference is that here the constraints of $$\lambda$$ are $$0\leq \lambda_i \leq C$$, instead of $$\lambda_i \geq 0$$. 
+
+Actually in the primal problem of the SVM without slack variables, we can think there is a hidden $$C=\infty$$, which means that the penalty of slack variables is infinitely large, so all points need to satisfy $$y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1$$.
+
+**Solution of the Dual Problem**
+1. Gradient Descent Algorithm
+The objective function for gradient descent is:<center>
+	$$
+	\min_{\lambda} L(\lambda) = -\sum_{i=1}^{n} \lambda_i + \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_ i^T \mathbf{x}_ j + \frac{c}{2}(\sum_{i=1}^{n}\lambda_i y_i)^2 \\
+	s.t.\ 0\leq \lambda_i \leq C \ , \ i=1,\dots,n
+	$$</center>
+Compared with the post [An Introduction to Support Vector Machines (SVM): Dual problem solution using GD](https://nianlonggu.github.io/2019/05/27/turtorial-on-SVM/), the objective function is the same. The only difference is that here the constraints are $$0\leq \lambda_i \leq C$$. To achieve this constraints, we can clip the value of $$\lambda_i$$ in the range $$[0,C]$$ after each gradient descent back propagation. For the detail of the gradient form, please have a look at that post. 
+
+2. Sequential Minimal Optimization (SMO), which will be discussed in the following posts.
+
+**Discussion on the Karush-Kuhn-Tucker (KKT) conditions**
+The KKT conditions are now slightly different, since now in the dual function there are actually two variables: $$\lambda$$ and $$\mu$$. For the primal optimum and the dual optimum, it holds:
+1. primal constraints<center>
+	$$
+	y_i({\mathbf{w}^\star}^T\mathbf{x}_ i +b^\star) \geq 1-\xi^\star_i \\
+	\xi^\star_i \geq 0
+	$$</center>
+2. compute the infimum of $$L$$ w.r.t $$\mathbf{w}$$ and $$\xi$$<center>
+	$$
+	\Delta_{\mathbf{w},b,\xi}L( \mathbf{w}^\star, b^\star, \xi^\star, \lambda^\star, \mu^\star)=0
+	$$</center>
+3. dual constraints<center>
+	$$
+	\lambda_i^\star \geq 0\\
+	\mu_i^\star \geq 0\\
+	<!-- \text{These two comes with the condition 2:}\\ -->
+	\sum_{i=1}^{n}\lambda_i^\star y_i =0\\
+	\mu_i^\star = C - \lambda_i^\star
+	$$</center>
+4. Complementary Slackness<center>
+	$$
+	\lambda_i^\star ( 1-\xi_i^\star - y_i({\mathbf{w}^\star}^T\mathbf{x}_ i  +b^\star ) ) =0 \\
+	\mu_i^\star \xi_i^\star = 0
+	$$</center>
+
+The complementary slackness is interesting. Suppose that we have already find the primal optimum and dual optimum. We can analyze the location of the point $$\mathbf{x}_ i$$
