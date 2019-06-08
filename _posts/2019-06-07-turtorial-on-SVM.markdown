@@ -135,7 +135,7 @@ Compared with the post [An Introduction to Support Vector Machines (SVM): Dual p
 2. Sequential Minimal Optimization (SMO), which will be discussed in the following posts.
 
 **Discussion on the Karush-Kuhn-Tucker (KKT) conditions**
-The KKT conditions are now slightly different, since now in the dual function there are actually two variables: $$\lambda$$ and $$\mu$$. For the primal optimum and the dual optimum, it holds:
+The KKT conditions are now slightly different, since now in the dual function there are actually two variables: $$\lambda$$ and $$\mu$$. For the primal optimum $$\mathbf{w}^\star, b^\star, \xi^\star$$ and the dual optimum $$\lambda^\star, \mu^\star $$, it holds:
 1. primal constraints<center>
 	$$
 	y_i({\mathbf{w}^\star}^T\mathbf{x}_ i +b^\star) \geq 1-\xi^\star_i \\
@@ -159,4 +159,18 @@ The KKT conditions are now slightly different, since now in the dual function th
 	\mu_i^\star \xi_i^\star = 0
 	$$</center>
 
-The complementary slackness is interesting. Suppose that we have already find the primal optimum and dual optimum. We can analyze the location of the point $$\mathbf{x}_ i$$
+The complementary slackness is interesting. Suppose that we have already find the primal optimum and dual optimum. We can analyze the location of the point $$\mathbf{x}_ i$$ based on the value of $$\lambda_i$$:
+1. $$\lambda_i^\star=0$$\\
+ then $$\mu_i^\star = C$$, so $$\xi^\star_i=0$$, and $$y_i({\mathbf{w}^\star}^T\mathbf{x}_ i+b^\star)\geq 1$$. This means the distance from point $$\mathbf{x}_ i$$ to the separating hyperplane is greater than or equal to $$\frac{1}{\|\mathbf{w}^\star\|}$$. This point $$\mathbf{x}_ i$$ is not support vector.
+2. $$0<\lambda_i^\star<C$$\\
+ then $$0<\mu_i^\star<C$$, so $$\xi_i^\star =0$$, and $$y_i({\mathbf{w}^\star}^T\mathbf{x}_ i+b^\star)=1$$. This means that $$\mathbf{x}_ i$$ is exactly located at the margin hyperplane: the distance to the separating hyperplane is exactly $$\frac{1}{\|\mathbf{w}^\star\|}$$. The point $$\mathbf{x}_ i$$ is a support vector which is used to compute $$\mathbf{w}^\star$$ and $$b^\star$$.
+3. $$\lambda_i^\star = C$$\\
+ then $$\mu_i^\star =0$$, so $$\xi^\star_i\geq 0$$, and $$y_i({\mathbf{w}^\star}^T\mathbf{x}_ i+b^\star)=1-\xi^\star_i$$. This means that $$\mathbf{x}_ i$$ is within the margin, or even located in the other side of the separating hyperplane (miss-classification). The point $$\mathbf{x}_ i$$ is also a support vector which is used to compute $$\mathbf{w}^\star$$, **but not used to compute $$b^\star$$**.
+
+ 
+Suppose that we have solved the dual problem and get the dual optimum. Let $$S_w=\{ i \vert 0<\lambda_i^\star \leq C \}$$ represent the support set related with $$\mathbf{w}$$; $$S_b=\{ i \vert 0<\lambda_i^\star < C \}$$ represent the support set related with $$b$$. Meanwhile, we define $$S_b^+ =\{ i \vert i\in S_b \  \text{and}\ y_i = +1 \}$$ and $$S_b^-=\{ i \vert i\in S_b\ \text{and}\ y_i = -1 \}$$. Then we can compute the primal optimum:
+<center>
+	$$
+	\mathbf{w}^\star = 
+	$$
+</center>

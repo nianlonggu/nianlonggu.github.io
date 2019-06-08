@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sat, 08 Jun 2019 14:36:43 +0200</pubDate>
-    <lastBuildDate>Sat, 08 Jun 2019 14:36:43 +0200</lastBuildDate>
+    <pubDate>Sat, 08 Jun 2019 16:16:48 +0200</pubDate>
+    <lastBuildDate>Sat, 08 Jun 2019 16:16:48 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -147,7 +147,7 @@ Compared with the post &lt;a href=&quot;https://nianlonggu.github.io/2019/05/27/
 &lt;/ol&gt;
 
 &lt;p&gt;&lt;strong&gt;Discussion on the Karush-Kuhn-Tucker (KKT) conditions&lt;/strong&gt;
-The KKT conditions are now slightly different, since now in the dual function there are actually two variables: &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\mu&lt;/script&gt;. For the primal optimum and the dual optimum, it holds:&lt;/p&gt;
+The KKT conditions are now slightly different, since now in the dual function there are actually two variables: &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\mu&lt;/script&gt;. For the primal optimum &lt;script type=&quot;math/tex&quot;&gt;\mathbf{w}^\star, b^\star, \xi^\star&lt;/script&gt; and the dual optimum &lt;script type=&quot;math/tex&quot;&gt;\lambda^\star, \mu^\star&lt;/script&gt;, it holds:&lt;/p&gt;
 &lt;ol&gt;
   &lt;li&gt;primal constraints&lt;center&gt;
  $$
@@ -173,7 +173,26 @@ The KKT conditions are now slightly different, since now in the dual function th
  $$&lt;/center&gt;&lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;p&gt;The complementary slackness is interesting. Suppose that we have already find the primal optimum and dual optimum. We can analyze the location of the point &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i&lt;/script&gt;&lt;/p&gt;
+&lt;p&gt;The complementary slackness is interesting. Suppose that we have already find the primal optimum and dual optimum. We can analyze the location of the point &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i&lt;/script&gt; based on the value of &lt;script type=&quot;math/tex&quot;&gt;\lambda_i&lt;/script&gt;:&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;&lt;script type=&quot;math/tex&quot;&gt;\lambda_i^\star=0&lt;/script&gt;&lt;br /&gt;
+ then &lt;script type=&quot;math/tex&quot;&gt;\mu_i^\star = C&lt;/script&gt;, so &lt;script type=&quot;math/tex&quot;&gt;\xi^\star_i=0&lt;/script&gt;, and &lt;script type=&quot;math/tex&quot;&gt;y_i({\mathbf{w}^\star}^T\mathbf{x}_ i+b^\star)\geq 1&lt;/script&gt;. This means the distance from point &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i&lt;/script&gt; to the separating hyperplane is greater than or equal to &lt;script type=&quot;math/tex&quot;&gt;\frac{1}{\|\mathbf{w}^\star\|}&lt;/script&gt;. This point &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i&lt;/script&gt; is not support vector.&lt;/li&gt;
+  &lt;li&gt;&lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+0&lt;\lambda_i^\star&lt;C %]]&gt;&lt;/script&gt;&lt;br /&gt;
+ then &lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+0&lt;\mu_i^\star&lt;C %]]&gt;&lt;/script&gt;, so &lt;script type=&quot;math/tex&quot;&gt;\xi_i^\star =0&lt;/script&gt;, and &lt;script type=&quot;math/tex&quot;&gt;y_i({\mathbf{w}^\star}^T\mathbf{x}_ i+b^\star)=1&lt;/script&gt;. This means that &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i&lt;/script&gt; is exactly located at the margin hyperplane: the distance to the separating hyperplane is exactly &lt;script type=&quot;math/tex&quot;&gt;\frac{1}{\|\mathbf{w}^\star\|}&lt;/script&gt;. The point &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i&lt;/script&gt; is a support vector which is used to compute &lt;script type=&quot;math/tex&quot;&gt;\mathbf{w}^\star&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;b^\star&lt;/script&gt;.&lt;/li&gt;
+  &lt;li&gt;&lt;script type=&quot;math/tex&quot;&gt;\lambda_i^\star = C&lt;/script&gt;&lt;br /&gt;
+ then &lt;script type=&quot;math/tex&quot;&gt;\mu_i^\star =0&lt;/script&gt;, so &lt;script type=&quot;math/tex&quot;&gt;\xi^\star_i\geq 0&lt;/script&gt;, and &lt;script type=&quot;math/tex&quot;&gt;y_i({\mathbf{w}^\star}^T\mathbf{x}_ i+b^\star)=1-\xi^\star_i&lt;/script&gt;. This means that &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i&lt;/script&gt; is within the margin, or even located in the other side of the separating hyperplane (miss-classification). The point &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i&lt;/script&gt; is also a support vector which is used to compute &lt;script type=&quot;math/tex&quot;&gt;\mathbf{w}^\star&lt;/script&gt;, &lt;strong&gt;but not used to compute &lt;script type=&quot;math/tex&quot;&gt;b^\star&lt;/script&gt;&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Suppose that we have solved the dual problem and get the dual optimum. Let &lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+S_w=\{ i \vert 0&lt;\lambda_i^\star \leq C \} %]]&gt;&lt;/script&gt; represent the support set related with &lt;script type=&quot;math/tex&quot;&gt;\mathbf{w}&lt;/script&gt;; &lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+S_b=\{ i \vert 0&lt;\lambda_i^\star &lt; C \} %]]&gt;&lt;/script&gt; represent the support set related with &lt;script type=&quot;math/tex&quot;&gt;b&lt;/script&gt;. Meanwhile, we define &lt;script type=&quot;math/tex&quot;&gt;S_b^+ =\{ i \vert i\in S_b \  \text{and}\ y_i = +1 \}&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;S_b^-=\{ i \vert i\in S_b\ \text{and}\ y_i = -1 \}&lt;/script&gt;. Then we can compute the primal optimum:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\mathbf{w}^\star = 
+	$$
+&lt;/center&gt;
 </description>
         <pubDate>Fri, 07 Jun 2019 18:06:00 +0200</pubDate>
         <link>http://localhost:4000/2019/06/07/turtorial-on-SVM/</link>
