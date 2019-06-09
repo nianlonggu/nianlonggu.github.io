@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 09 Jun 2019 17:04:12 +0200</pubDate>
-    <lastBuildDate>Sun, 09 Jun 2019 17:04:12 +0200</lastBuildDate>
+    <pubDate>Sun, 09 Jun 2019 17:25:30 +0200</pubDate>
+    <lastBuildDate>Sun, 09 Jun 2019 17:25:30 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -268,7 +268,31 @@ Analyzing the influence of different Slack-SVM penalty term weight &lt;script ty
 
 &lt;p&gt;Since for large &lt;script type=&quot;math/tex&quot;&gt;C&lt;/script&gt;, we need to reduce the large &lt;script type=&quot;math/tex&quot;&gt;\xi_i&lt;/script&gt; of that outlier point, with the fact that the geodesic distance remains unchanged. So the possible solution is to reduce &lt;script type=&quot;math/tex&quot;&gt;\|\mathbf{w}\|&lt;/script&gt;. As a result, the geodesic margin &lt;script type=&quot;math/tex&quot;&gt;\frac{1}{\|\mathbf{w}\|}&lt;/script&gt; will be increased. Therefore, the larger &lt;script type=&quot;math/tex&quot;&gt;C&lt;/script&gt; is, the wider the margin area is.&lt;/p&gt;
 
-&lt;p&gt;We also notice that for &lt;script type=&quot;math/tex&quot;&gt;C=100&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;C=10000&lt;/script&gt;, the separating results are almost the same.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Original SVM for linearly non-separable cases&lt;/strong&gt;&lt;br /&gt;
+We also notice that for &lt;script type=&quot;math/tex&quot;&gt;C=100&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;C=10000&lt;/script&gt;, the separating results are almost the same. This leads to another question: what if we set &lt;script type=&quot;math/tex&quot;&gt;C=\infty&lt;/script&gt; and solve the dual problem of the Slack SVM?&lt;/p&gt;
+
+&lt;p&gt;If we set &lt;script type=&quot;math/tex&quot;&gt;C=\infty&lt;/script&gt;, the primal/dual problem of the Slack SVM is exactly the same as the primal/dual problem of the original SVM. This is the short proof:&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;for dual problem, it obviously holds.&lt;/li&gt;
+  &lt;li&gt;for primal problem:&lt;center&gt;
+ $$
+ \min_{\mathbf{w},b}\ \frac{1}{2}\|\mathbf{w}\|^2 + C \sum_{i=1}^{n}\xi _i \\
+ \begin{align}
+ s.t.\ \  y_i(\mathbf{w}^T\mathbf{x}_ i+b) &amp;amp;\geq 1-\xi_i ,\ &amp;amp;i=1,\dots,n \\
+   \xi_i  &amp;amp;\geq 0,\ &amp;amp;i=1,\dots,n
+ \end{align}
+$$&lt;/center&gt; 
+When &lt;script type=&quot;math/tex&quot;&gt;C\rightarrow \infty&lt;/script&gt;, to minimize the objective function into some finite value, it must hold &lt;script type=&quot;math/tex&quot;&gt;\xi_i \equiv 0&lt;/script&gt;. Therefore, &lt;script type=&quot;math/tex&quot;&gt;C \sum_{i=1}^{n}\xi _ i=0&lt;/script&gt;, and the Slack SVM’s primal problem will be:&lt;center&gt;
+ $$
+ \min_{\mathbf{w},b}\ \frac{1}{2}\|\mathbf{w}\|^2 \\
+ \begin{align}
+ s.t.\ \  y_i(\mathbf{w}^T\mathbf{x}_ i+b) &amp;amp;\geq 1,\ &amp;amp;i=1,\dots,n \\
+ \end{align}
+$$&lt;/center&gt; 
+This is exactly the Original SVM’s primal problem.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Therefore, the above question is equivalent to ask: What if we apply the Original SVM to the linearly non-separable case?&lt;/p&gt;
 </description>
         <pubDate>Fri, 07 Jun 2019 18:06:00 +0200</pubDate>
         <link>http://localhost:4000/2019/06/07/turtorial-on-SVM/</link>

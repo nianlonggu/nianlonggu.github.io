@@ -530,7 +530,31 @@ Analyzing the influence of different Slack-SVM penalty term weight <script type=
 
 <p>Since for large <script type="math/tex">C</script>, we need to reduce the large <script type="math/tex">\xi_i</script> of that outlier point, with the fact that the geodesic distance remains unchanged. So the possible solution is to reduce <script type="math/tex">\|\mathbf{w}\|</script>. As a result, the geodesic margin <script type="math/tex">\frac{1}{\|\mathbf{w}\|}</script> will be increased. Therefore, the larger <script type="math/tex">C</script> is, the wider the margin area is.</p>
 
-<p>We also notice that for <script type="math/tex">C=100</script> and <script type="math/tex">C=10000</script>, the separating results are almost the same.</p>
+<p><strong>Original SVM for linearly non-separable cases</strong><br />
+We also notice that for <script type="math/tex">C=100</script> and <script type="math/tex">C=10000</script>, the separating results are almost the same. This leads to another question: what if we set <script type="math/tex">C=\infty</script> and solve the dual problem of the Slack SVM?</p>
+
+<p>If we set <script type="math/tex">C=\infty</script>, the primal/dual problem of the Slack SVM is exactly the same as the primal/dual problem of the original SVM. This is the short proof:</p>
+<ol>
+  <li>for dual problem, it obviously holds.</li>
+  <li>for primal problem:<center>
+ $$
+ \min_{\mathbf{w},b}\ \frac{1}{2}\|\mathbf{w}\|^2 + C \sum_{i=1}^{n}\xi _i \\
+ \begin{align}
+ s.t.\ \  y_i(\mathbf{w}^T\mathbf{x}_ i+b) &amp;\geq 1-\xi_i ,\ &amp;i=1,\dots,n \\
+   \xi_i  &amp;\geq 0,\ &amp;i=1,\dots,n
+ \end{align}
+$$</center> 
+When <script type="math/tex">C\rightarrow \infty</script>, to minimize the objective function into some finite value, it must hold <script type="math/tex">\xi_i \equiv 0</script>. Therefore, <script type="math/tex">C \sum_{i=1}^{n}\xi _ i=0</script>, and the Slack SVM’s primal problem will be:<center>
+ $$
+ \min_{\mathbf{w},b}\ \frac{1}{2}\|\mathbf{w}\|^2 \\
+ \begin{align}
+ s.t.\ \  y_i(\mathbf{w}^T\mathbf{x}_ i+b) &amp;\geq 1,\ &amp;i=1,\dots,n \\
+ \end{align}
+$$</center> 
+This is exactly the Original SVM’s primal problem.</li>
+</ol>
+
+<p>Therefore, the above question is equivalent to ask: What if we apply the Original SVM to the linearly non-separable case?</p>
 
 
                 <hr style="visibility: hidden;">

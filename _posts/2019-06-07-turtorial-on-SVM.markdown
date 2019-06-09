@@ -249,4 +249,27 @@ For different value of $$C$$, the location and rotation of the separating hyperp
 
 Since for large $$C$$, we need to reduce the large $$\xi_i$$ of that outlier point, with the fact that the geodesic distance remains unchanged. So the possible solution is to reduce $$\|\mathbf{w}\|$$. As a result, the geodesic margin $$\frac{1}{\|\mathbf{w}\|}$$ will be increased. Therefore, the larger $$C$$ is, the wider the margin area is.
 
-We also notice that for $$C=100$$ and $$C=10000$$, the separating results are almost the same.
+
+**Original SVM for linearly non-separable cases**\\
+We also notice that for $$C=100$$ and $$C=10000$$, the separating results are almost the same. This leads to another question: what if we set $$C=\infty$$ and solve the dual problem of the Slack SVM?
+
+If we set $$C=\infty$$, the primal/dual problem of the Slack SVM is exactly the same as the primal/dual problem of the original SVM. This is the short proof:
+1. for dual problem, it obviously holds.
+2. for primal problem:<center>
+	$$
+	\min_{\mathbf{w},b}\ \frac{1}{2}\|\mathbf{w}\|^2 + C \sum_{i=1}^{n}\xi _i \\
+	\begin{align}
+	s.t.\ \  y_i(\mathbf{w}^T\mathbf{x}_ i+b) &\geq 1-\xi_i ,\ &i=1,\dots,n \\
+	  \xi_i  &\geq 0,\ &i=1,\dots,n
+	\end{align}
+$$</center> 
+When $$C\rightarrow \infty$$, to minimize the objective function into some finite value, it must hold $$\xi_i \equiv 0$$. Therefore, $$C \sum_{i=1}^{n}\xi _ i=0$$, and the Slack SVM's primal problem will be:<center>
+	$$
+	\min_{\mathbf{w},b}\ \frac{1}{2}\|\mathbf{w}\|^2 \\
+	\begin{align}
+	s.t.\ \  y_i(\mathbf{w}^T\mathbf{x}_ i+b) &\geq 1,\ &i=1,\dots,n \\
+	\end{align}
+$$</center> 
+This is exactly the Original SVM's primal problem.
+
+Therefore, the above question is equivalent to ask: What if we apply the Original SVM to the linearly non-separable case?
