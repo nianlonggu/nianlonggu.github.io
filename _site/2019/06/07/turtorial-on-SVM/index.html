@@ -513,6 +513,10 @@ Comparison of performance in the case where there are outliers but the points ar
 <em><center>Slack SVM vs Original SVM on separable outliers</center></em>
 This result fits well with the analysis in the Figure <a href="#hyperplane-influenced-by-outliers">Hyperplane Influenced by Outliers</a>! The original SVM tries hard to find a separating hyperplane regardless  of the obvious outlier point. It takes <script type="math/tex">2\times 10^6</script> iterations (20 times longer than Slack SVM) to finally find the separating hyperplane with a tight margin. On the contrary, the Slack SVM simply chooses to ignore the outlier point. The separating hyperplane is almost identical to the case without the outlier point.</p>
 
+<p><strong>Experiment 2.</strong><br />
+Analyzing the influence of different Slack-SVM penalty term weight <script type="math/tex">C</script>.</p>
+
+
 
                 <hr style="visibility: hidden;">
                 <ul class="pager">
