@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sat, 08 Jun 2019 20:58:58 +0200</pubDate>
-    <lastBuildDate>Sat, 08 Jun 2019 20:58:58 +0200</lastBuildDate>
+    <pubDate>Sun, 09 Jun 2019 12:12:36 +0200</pubDate>
+    <lastBuildDate>Sun, 09 Jun 2019 12:12:36 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -201,6 +201,50 @@ S_b=\{ i \vert 0&lt;\lambda_i^\star &lt; C \} %]]&gt;&lt;/script&gt; represent t
 	b^\star = -\frac{1}{2}{\mathbf{w}^\star}^T(\mathbf{x}_i+\mathbf{x}_j)\ , \ i\in S_b^+, j \in S_b^-
 	$$
 &lt;/center&gt;
+
+&lt;h2 id=&quot;experiment-results&quot;&gt;Experiment Results&lt;/h2&gt;
+&lt;p&gt;We compare the separating hyperplane results between the SVM with slack variables (&lt;strong&gt;Slack-SVM&lt;/strong&gt; for short) and the original SVM without slack variables (&lt;strong&gt;Original-SVM&lt;/strong&gt; for short). The SVM models are trained by solving the Lagrangian dual problem using gradient descent algorithm introduced in the last post.&lt;/p&gt;
+
+&lt;p&gt;For further discussion, we recall the primal/dual problem of the Original-SVM and the primal/dual problem of the Slack-SVM:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Original-SVM&lt;br /&gt;
+&lt;strong&gt;Primal Problem&lt;/strong&gt;&lt;center&gt;
+ $$
+ \min_{\mathbf{w},b}\ \frac{1}{2}\|\mathbf{w}\|^2\\
+ \begin{align}
+ s.t.\ \ &amp;amp; y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1,\ i=1,\dots,n
+ \end{align}
+ $$&lt;/center&gt;
+&lt;strong&gt;Dual Problem&lt;/strong&gt;&lt;center&gt;
+ $$
+ \max_{\lambda, \mu} \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j\\
+ \begin{align}
+     s.t.\ &amp;amp; \lambda_i \geq 0 \\
+      &amp;amp;\sum_{i=1}^{n} \lambda_i y_i =0
+ \end{align}
+ $$&lt;/center&gt;&lt;/li&gt;
+  &lt;li&gt;Slack-SVM&lt;br /&gt;
+&lt;strong&gt;Primal Problem&lt;/strong&gt;&lt;center&gt;
+ $$
+ \min_{\mathbf{w},b}\ \frac{1}{2}\|\mathbf{w}\|^2 + C \sum_{i=1}^{n}\xi _i \\
+ \begin{align}
+ s.t.\ \  y_i(\mathbf{w}^T\mathbf{x}_ i+b) &amp;amp;\geq 1-\xi_i ,\ &amp;amp;i=1,\dots,n \\
+   \xi_i  &amp;amp;\geq 0,\ &amp;amp;i=1,\dots,n
+ \end{align}
+ $$&lt;/center&gt;
+&lt;strong&gt;Dual Problem&lt;/strong&gt;&lt;center&gt;
+ $$
+ \max_{\lambda, \mu} \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j\\
+ \begin{align}
+     s.t.\ &amp;amp; 0 \leq \lambda_i \leq C \\
+      &amp;amp;\sum_{i=1}^{n} \lambda_i y_i =0
+ \end{align}
+ $$&lt;/center&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;strong&gt;Experiment 1.&lt;/strong&gt;&lt;br /&gt;
+Comparison of performance in the case where there are outliers but the points are still linearly separable. The Slack-SVM penalty term weight &lt;script type=&quot;math/tex&quot;&gt;C=0.5&lt;/script&gt;&lt;/p&gt;
 </description>
         <pubDate>Fri, 07 Jun 2019 18:06:00 +0200</pubDate>
         <link>http://localhost:4000/2019/06/07/turtorial-on-SVM/</link>

@@ -182,3 +182,47 @@ Multiple ways can be used to compute $$b^\star$$:
 	b^\star = -\frac{1}{2}{\mathbf{w}^\star}^T(\mathbf{x}_i+\mathbf{x}_j)\ , \ i\in S_b^+, j \in S_b^-
 	$$
 </center>
+
+## Experiment Results
+We compare the separating hyperplane results between the SVM with slack variables (**Slack-SVM** for short) and the original SVM without slack variables (**Original-SVM** for short). The SVM models are trained by solving the Lagrangian dual problem using gradient descent algorithm introduced in the last post. 
+
+For further discussion, we recall the primal/dual problem of the Original-SVM and the primal/dual problem of the Slack-SVM:
+
+1. Original-SVM\\
+**Primal Problem**<center>
+	$$
+	\min_{\mathbf{w},b}\ \frac{1}{2}\|\mathbf{w}\|^2\\
+	\begin{align}
+	s.t.\ \ & y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1,\ i=1,\dots,n
+	\end{align}
+	$$</center>
+**Dual Problem**<center>
+	$$
+	\max_{\lambda, \mu} \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j\\
+	\begin{align}
+		s.t.\ & \lambda_i \geq 0 \\
+		 &\sum_{i=1}^{n} \lambda_i y_i =0
+	\end{align}
+	$$</center>
+2. Slack-SVM\\
+**Primal Problem**<center>
+	$$
+	\min_{\mathbf{w},b}\ \frac{1}{2}\|\mathbf{w}\|^2 + C \sum_{i=1}^{n}\xi _i \\
+	\begin{align}
+	s.t.\ \  y_i(\mathbf{w}^T\mathbf{x}_ i+b) &\geq 1-\xi_i ,\ &i=1,\dots,n \\
+	  \xi_i  &\geq 0,\ &i=1,\dots,n
+	\end{align}
+	$$</center>
+**Dual Problem**<center>
+	$$
+	\max_{\lambda, \mu} \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j\\
+	\begin{align}
+		s.t.\ & 0 \leq \lambda_i \leq C \\
+		 &\sum_{i=1}^{n} \lambda_i y_i =0
+	\end{align}
+	$$</center>
+
+
+
+**Experiment 1.**\\
+Comparison of performance in the case where there are outliers but the points are still linearly separable. The Slack-SVM penalty term weight $$C=0.5$$
