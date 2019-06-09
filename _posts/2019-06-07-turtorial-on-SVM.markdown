@@ -234,9 +234,19 @@ This result fits well with the analysis in the Figure [Hyperplane Influenced by 
 
 **Experiment 2.**\\
 Analyzing the influence of different Slack-SVM penalty term weight $$C$$.
-<a name="Slack SVM Over C"></a>
+<a name="Slack-SVM-Over-C"></a>
 <img src="https://nianlonggu.github.io/img/2019-06-07-SVM/slack-svm-C.png"/> 
 <!-- width="400" hegiht="203" /> -->
 *<center>Slack SVM over different penalty weight C</center>*
 
-As we increase the value of $$C$$
+As we increase the value of $$C$$, the geodesic margin becomes wider. The outlier point is closer to the margin hyperplane geodesically. More points become support vectors. 
+
+To explain this we need to refer the form of the Slack SVM primal problem. When we increase $$C$$, the penalty term $$C\sum_{i=1}^{n}\xi_i$$ is more heavily penalized. The model tends to reduce the value of $$\xi_i$$. So how to reduce $$\xi_i$$ ?
+
+The answer is **to reduce $$\|\mathbf{w}\|$$**. This may sound a little bit bizarre, but we can tell that from the figure [Slack SVM over different penalty weight C](#Slack-SVM-Over-C). 
+
+For different value of $$C$$, the location and rotation of the separating hyperplane remains similar, so the distance from points to the separating hyperplane is similar. We know that for a point $$\mathbf{x}_ i$$ which is within the margin or is located in the other side of the separating hyperplane, its geodesic distance to the separating hyperplane is $$\frac{\vert 1-\xi_i \vert}{\|\mathbf{w}\|}$$. For the outlier points which cross the separating hyperplane, like the solid blue circle in the top right corner, the geodesic distance is $$\frac{\xi_i -1 }{\|\mathbf{w}\|}$$. 
+
+Since for large $$C$$, we need to reduce the large $$\xi_i$$ of that outlier point, with the fact that the geodesic distance remains unchanged. So the possible solution is to reduce $$\|\mathbf{w}\|$$. As a result, the geodesic margin $$\frac{1}{\|\mathbf{w}\|}$$ will be increased. Therefore, the larger $$C$$ is, the wider the margin area is.
+
+We also notice that for $$C=100$$ and $$C=10000$$, the separating results are almost the same.

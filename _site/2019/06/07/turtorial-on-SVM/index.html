@@ -515,12 +515,22 @@ This result fits well with the analysis in the Figure <a href="#hyperplane-influ
 
 <p><strong>Experiment 2.</strong><br />
 Analyzing the influence of different Slack-SVM penalty term weight <script type="math/tex">C</script>.
-<a name="Slack SVM Over C"></a>
+<a name="Slack-SVM-Over-C"></a>
 <img src="https://nianlonggu.github.io/img/2019-06-07-SVM/slack-svm-C.png" /> 
 <!-- width="400" hegiht="203" /> -->
 <em><center>Slack SVM over different penalty weight C</center></em></p>
 
-<p>As we increase the value of <script type="math/tex">C</script></p>
+<p>As we increase the value of <script type="math/tex">C</script>, the geodesic margin becomes wider. The outlier point is closer to the margin hyperplane geodesically. More points become support vectors.</p>
+
+<p>To explain this we need to refer the form of the Slack SVM primal problem. When we increase <script type="math/tex">C</script>, the penalty term <script type="math/tex">C\sum_{i=1}^{n}\xi_i</script> is more heavily penalized. The model tends to reduce the value of <script type="math/tex">\xi_i</script>. So how to reduce <script type="math/tex">\xi_i</script> ?</p>
+
+<p>The answer is <strong>to reduce <script type="math/tex">\|\mathbf{w}\|</script></strong>. This may sound a little bit bizarre, but we can tell that from the figure <a href="#Slack-SVM-Over-C">Slack SVM over different penalty weight C</a>.</p>
+
+<p>For different value of <script type="math/tex">C</script>, the location and rotation of the separating hyperplane remains similar, so the distance from points to the separating hyperplane is similar. We know that for a point <script type="math/tex">\mathbf{x}_ i</script> which is within the margin or is located in the other side of the separating hyperplane, its geodesic distance to the separating hyperplane is <script type="math/tex">\frac{\vert 1-\xi_i \vert}{\|\mathbf{w}\|}</script>. For the outlier points which cross the separating hyperplane, like the solid blue circle in the top right corner, the geodesic distance is <script type="math/tex">\frac{\xi_i -1 }{\|\mathbf{w}\|}</script>.</p>
+
+<p>Since for large <script type="math/tex">C</script>, we need to reduce the large <script type="math/tex">\xi_i</script> of that outlier point, with the fact that the geodesic distance remains unchanged. So the possible solution is to reduce <script type="math/tex">\|\mathbf{w}\|</script>. As a result, the geodesic margin <script type="math/tex">\frac{1}{\|\mathbf{w}\|}</script> will be increased. Therefore, the larger <script type="math/tex">C</script> is, the wider the margin area is.</p>
+
+<p>We also notice that for <script type="math/tex">C=100</script> and <script type="math/tex">C=10000</script>, the separating results are almost the same.</p>
 
 
                 <hr style="visibility: hidden;">

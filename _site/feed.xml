@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 09 Jun 2019 14:42:13 +0200</pubDate>
-    <lastBuildDate>Sun, 09 Jun 2019 14:42:13 +0200</lastBuildDate>
+    <pubDate>Sun, 09 Jun 2019 17:04:12 +0200</pubDate>
+    <lastBuildDate>Sun, 09 Jun 2019 17:04:12 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -253,12 +253,22 @@ This result fits well with the analysis in the Figure &lt;a href=&quot;#hyperpla
 
 &lt;p&gt;&lt;strong&gt;Experiment 2.&lt;/strong&gt;&lt;br /&gt;
 Analyzing the influence of different Slack-SVM penalty term weight &lt;script type=&quot;math/tex&quot;&gt;C&lt;/script&gt;.
-&lt;a name=&quot;Slack SVM Over C&quot;&gt;&lt;/a&gt;
+&lt;a name=&quot;Slack-SVM-Over-C&quot;&gt;&lt;/a&gt;
 &lt;img src=&quot;https://nianlonggu.github.io/img/2019-06-07-SVM/slack-svm-C.png&quot; /&gt; 
 &lt;!-- width=&quot;400&quot; hegiht=&quot;203&quot; /&gt; --&gt;
 &lt;em&gt;&lt;center&gt;Slack SVM over different penalty weight C&lt;/center&gt;&lt;/em&gt;&lt;/p&gt;
 
-&lt;p&gt;As we increase the value of &lt;script type=&quot;math/tex&quot;&gt;C&lt;/script&gt;&lt;/p&gt;
+&lt;p&gt;As we increase the value of &lt;script type=&quot;math/tex&quot;&gt;C&lt;/script&gt;, the geodesic margin becomes wider. The outlier point is closer to the margin hyperplane geodesically. More points become support vectors.&lt;/p&gt;
+
+&lt;p&gt;To explain this we need to refer the form of the Slack SVM primal problem. When we increase &lt;script type=&quot;math/tex&quot;&gt;C&lt;/script&gt;, the penalty term &lt;script type=&quot;math/tex&quot;&gt;C\sum_{i=1}^{n}\xi_i&lt;/script&gt; is more heavily penalized. The model tends to reduce the value of &lt;script type=&quot;math/tex&quot;&gt;\xi_i&lt;/script&gt;. So how to reduce &lt;script type=&quot;math/tex&quot;&gt;\xi_i&lt;/script&gt; ?&lt;/p&gt;
+
+&lt;p&gt;The answer is &lt;strong&gt;to reduce &lt;script type=&quot;math/tex&quot;&gt;\|\mathbf{w}\|&lt;/script&gt;&lt;/strong&gt;. This may sound a little bit bizarre, but we can tell that from the figure &lt;a href=&quot;#Slack-SVM-Over-C&quot;&gt;Slack SVM over different penalty weight C&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;For different value of &lt;script type=&quot;math/tex&quot;&gt;C&lt;/script&gt;, the location and rotation of the separating hyperplane remains similar, so the distance from points to the separating hyperplane is similar. We know that for a point &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i&lt;/script&gt; which is within the margin or is located in the other side of the separating hyperplane, its geodesic distance to the separating hyperplane is &lt;script type=&quot;math/tex&quot;&gt;\frac{\vert 1-\xi_i \vert}{\|\mathbf{w}\|}&lt;/script&gt;. For the outlier points which cross the separating hyperplane, like the solid blue circle in the top right corner, the geodesic distance is &lt;script type=&quot;math/tex&quot;&gt;\frac{\xi_i -1 }{\|\mathbf{w}\|}&lt;/script&gt;.&lt;/p&gt;
+
+&lt;p&gt;Since for large &lt;script type=&quot;math/tex&quot;&gt;C&lt;/script&gt;, we need to reduce the large &lt;script type=&quot;math/tex&quot;&gt;\xi_i&lt;/script&gt; of that outlier point, with the fact that the geodesic distance remains unchanged. So the possible solution is to reduce &lt;script type=&quot;math/tex&quot;&gt;\|\mathbf{w}\|&lt;/script&gt;. As a result, the geodesic margin &lt;script type=&quot;math/tex&quot;&gt;\frac{1}{\|\mathbf{w}\|}&lt;/script&gt; will be increased. Therefore, the larger &lt;script type=&quot;math/tex&quot;&gt;C&lt;/script&gt; is, the wider the margin area is.&lt;/p&gt;
+
+&lt;p&gt;We also notice that for &lt;script type=&quot;math/tex&quot;&gt;C=100&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;C=10000&lt;/script&gt;, the separating results are almost the same.&lt;/p&gt;
 </description>
         <pubDate>Fri, 07 Jun 2019 18:06:00 +0200</pubDate>
         <link>http://localhost:4000/2019/06/07/turtorial-on-SVM/</link>
