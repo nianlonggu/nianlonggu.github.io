@@ -234,4 +234,9 @@ This result fits well with the analysis in the Figure [Hyperplane Influenced by 
 
 **Experiment 2.**\\
 Analyzing the influence of different Slack-SVM penalty term weight $$C$$.
+<a name="Slack SVM Over C"></a>
+<img src="https://nianlonggu.github.io/img/2019-06-07-SVM/slack-svm-C.png"/> 
+<!-- width="400" hegiht="203" /> -->
+*<center>Slack SVM over different penalty weight C</center>*
 
+As we increase the value of $$C$$
