@@ -226,3 +226,8 @@ For further discussion, we recall the primal/dual problem of the Original-SVM an
 
 **Experiment 1.**\\
 Comparison of performance in the case where there are outliers but the points are still linearly separable. The Slack-SVM penalty term weight $$C=0.5$$
+<a name="Slack SVM vs Original SVM on separable outliers"></a>
+<img src="https://nianlonggu.github.io/img/2019-06-07-SVM/compare-slack-svm-outlier-separable.png"/> 
+<!-- width="400" hegiht="203" /> -->
+*<center>Slack SVM vs Original SVM on separable outliers</center>*
+This result fits well with the analysis in the Figure [Hyperplane Influenced by Outliers](#hyperplane-influenced-by-outliers)!
