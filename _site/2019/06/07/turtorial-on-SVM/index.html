@@ -556,6 +556,10 @@ This is exactly the Original SVM’s primal problem.</li>
 
 <p>Therefore, the above question is equivalent to ask: What if we apply the Original SVM to the linearly non-separable case?</p>
 
+<p>The answer is that the separating results will be almost the same as the case <script type="math/tex">C=10000</script> in the figure <a href="#Slack-SVM-Over-C">Slack SVM over different penalty weight C</a>. Why the geodesic margin is not further enlarged?</p>
+
+<p>We showed that original SVM is equivalent to set <script type="math/tex">C=\infty</script> in Slack-SVM. However, from the aspect of the dual problem, the real value of <script type="math/tex">C</script> is actually determined by the up-bound of <script type="math/tex">\lambda</script>. For example, if we set <script type="math/tex">C=\infty</script>, but the real up-bound of the trained <script type="math/tex">\lambda</script> is 10000, then the real effective <script type="math/tex">C</script> is actually 10000. Therefore, we will see by applying Original SVM to linearly non-separable case, the final separating result is identical to the <script type="math/tex">C=10000</script> case.</p>
+
 
                 <hr style="visibility: hidden;">
                 <ul class="pager">

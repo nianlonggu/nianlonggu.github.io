@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 09 Jun 2019 17:25:30 +0200</pubDate>
-    <lastBuildDate>Sun, 09 Jun 2019 17:25:30 +0200</lastBuildDate>
+    <pubDate>Thu, 27 Jun 2019 12:58:44 +0200</pubDate>
+    <lastBuildDate>Thu, 27 Jun 2019 12:58:44 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -293,6 +293,10 @@ This is exactly the Original SVM’s primal problem.&lt;/li&gt;
 &lt;/ol&gt;
 
 &lt;p&gt;Therefore, the above question is equivalent to ask: What if we apply the Original SVM to the linearly non-separable case?&lt;/p&gt;
+
+&lt;p&gt;The answer is that the separating results will be almost the same as the case &lt;script type=&quot;math/tex&quot;&gt;C=10000&lt;/script&gt; in the figure &lt;a href=&quot;#Slack-SVM-Over-C&quot;&gt;Slack SVM over different penalty weight C&lt;/a&gt;. Why the geodesic margin is not further enlarged?&lt;/p&gt;
+
+&lt;p&gt;We showed that original SVM is equivalent to set &lt;script type=&quot;math/tex&quot;&gt;C=\infty&lt;/script&gt; in Slack-SVM. However, from the aspect of the dual problem, the real value of &lt;script type=&quot;math/tex&quot;&gt;C&lt;/script&gt; is actually determined by the up-bound of &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt;. For example, if we set &lt;script type=&quot;math/tex&quot;&gt;C=\infty&lt;/script&gt;, but the real up-bound of the trained &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; is 10000, then the real effective &lt;script type=&quot;math/tex&quot;&gt;C&lt;/script&gt; is actually 10000. Therefore, we will see by applying Original SVM to linearly non-separable case, the final separating result is identical to the &lt;script type=&quot;math/tex&quot;&gt;C=10000&lt;/script&gt; case.&lt;/p&gt;
 </description>
         <pubDate>Fri, 07 Jun 2019 18:06:00 +0200</pubDate>
         <link>http://localhost:4000/2019/06/07/turtorial-on-SVM/</link>
