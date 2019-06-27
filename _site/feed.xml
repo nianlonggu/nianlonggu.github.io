@@ -5,9 +5,48 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Thu, 27 Jun 2019 16:40:07 +0200</pubDate>
-    <lastBuildDate>Thu, 27 Jun 2019 16:40:07 +0200</lastBuildDate>
+    <pubDate>Thu, 27 Jun 2019 23:22:16 +0200</pubDate>
+    <lastBuildDate>Thu, 27 Jun 2019 23:22:16 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
+    
+      <item>
+        <title>An Introduction to Support Vector Machines (SVM): Sequential Minimal Optimization (SMO)</title>
+        <description>&lt;p&gt;Recall the Kernel SVM dual problem:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Dual Problem&lt;/strong&gt;&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\max_{\lambda, \mu} \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j K_{i,j} \\
+	\begin{align}
+		s.t.\ &amp;amp; 0 \leq \lambda_i \leq C \\
+		 &amp;amp;\sum_{i=1}^{n} \lambda_i y_i =0
+	\end{align}
+	$$
+&lt;/center&gt;
+
+&lt;p&gt;We have introduced using gradient descent algorithm to solve the dual problem. However, the computation of the gradient has a high time complexity and thus would be a challenge for memory, especially when the training dataset is large.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Ref:&lt;/p&gt;
+  &lt;ol&gt;
+    &lt;li&gt;&lt;a href=&quot;https://zhuanlan.zhihu.com/p/29212107&quot;&gt;机器学习算法实践-SVM中的SMO算法- 知乎&lt;/a&gt;&lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/blockquote&gt;
+</description>
+        <pubDate>Fri, 28 Jun 2019 02:00:00 +0200</pubDate>
+        <link>http://localhost:4000/2019/06/28/turtorial-on-SVM/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/06/28/turtorial-on-SVM/</guid>
+        
+        <category>支持向量机</category>
+        
+        <category>机器学习</category>
+        
+        <category>SVM</category>
+        
+        <category>Machine Learning</category>
+        
+        
+      </item>
     
       <item>
         <title>An Introduction to Support Vector Machines (SVM): kernel functions</title>
@@ -50,6 +89,96 @@ S_b=\{ i \vert 0&lt;\lambda_i^\star &lt; C \} %]]&gt;&lt;/script&gt; represent t
 
 &lt;p&gt;In some cases, if the points is not linearly separable in current space, they are possibly linearly separable if we map them into the higher dimension.&lt;/p&gt;
 
+&lt;p&gt;&lt;a name=&quot;2d-3d-mapping&quot;&gt;&lt;/a&gt;
+&lt;img src=&quot;https://nianlonggu.github.io/img/2019-06-27-SVM/2d-3d-mapping.svg&quot; width=&quot;400&quot; hegiht=&quot;203&quot; /&gt;
+&lt;em&gt;&lt;center&gt;Mapping points from 2d to 3d to make them linearly separable.&lt;/center&gt;&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;We define &lt;script type=&quot;math/tex&quot;&gt;\phi(\mathbf{x}): R^p \rightarrow R^d\ ,\ d&gt;p&lt;/script&gt; as a mapping function which maps low dimensional data to a high dimensional data. We can first map our data &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i \rightarrow \phi(\mathbf{x}_ i)&lt;/script&gt;, then solve the dual problem:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\max_{\lambda, \mu} \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \phi(\mathbf{x}_i)^T \phi(\mathbf{x}_j)\\
+	\begin{align}
+		s.t.\ &amp;amp; 0 \leq \lambda_i \leq C \\
+		 &amp;amp;\sum_{i=1}^{n} \lambda_i y_i =0
+	\end{align}
+	$$
+&lt;/center&gt;
+
+&lt;p&gt;We notice that in the dual problem, computing &lt;script type=&quot;math/tex&quot;&gt;\mathbf{w}^\star&lt;/script&gt; and performing classification, &lt;script type=&quot;math/tex&quot;&gt;\phi(\mathbf{x}_ i)^T\phi(\mathbf{x}_ j)&lt;/script&gt; always appears as a whole. Therefore, we can avoid computing the exact form of &lt;script type=&quot;math/tex&quot;&gt;\phi(\mathbf{x})&lt;/script&gt;, but instead directly explore the function for the inner product of two mapped points &lt;script type=&quot;math/tex&quot;&gt;K: R^p \times R^p \rightarrow R&lt;/script&gt;:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	K_{i,j}=K(\mathbf{x}_i, \mathbf{x}_j)=&amp;lt;\phi(\mathbf{x}_i), \phi(\mathbf{x}_j)&amp;gt; 
+	$$
+&lt;/center&gt;
+&lt;p&gt;We call &lt;script type=&quot;math/tex&quot;&gt;K(\mathbf{x}_i, \mathbf{x}_j)&lt;/script&gt; as the &lt;strong&gt;kernel function&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;What is a valid kernel function?&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;A kernel function &lt;script type=&quot;math/tex&quot;&gt;K(\mathbf{x}_ i, \mathbf{x}_ j)&lt;/script&gt; is valid if there exists a mapping function &lt;script type=&quot;math/tex&quot;&gt;\phi&lt;/script&gt;, such that it holds &lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+K_{i,j} = &lt;\phi(\mathbf{x}_ i), \phi(\mathbf{x}_ j)&gt; %]]&gt;&lt;/script&gt; for any &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i, \mathbf{x}_ j\in R^p&lt;/script&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Moreover, there is an equivalent conclusion on the validness of a kernel function.&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;A kernel function &lt;script type=&quot;math/tex&quot;&gt;K(\mathbf{x}_ i, \mathbf{x}_ j)&lt;/script&gt; is valid if for any &lt;script type=&quot;math/tex&quot;&gt;n&lt;/script&gt; samples &lt;script type=&quot;math/tex&quot;&gt;\{ \mathbf{x}_ i \vert \mathbf{x}_ i \in R^p \}, i=1,\dots, n&lt;/script&gt;, the kernel matrix &lt;script type=&quot;math/tex&quot;&gt;\mathbf{K}=\begin{bmatrix}K_{1,1}, \dots, K_{1,n}\\\dots \\ K_{n,1},\dots, K_{n,n} \end{bmatrix}&lt;/script&gt; is non-negative definite.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;Examples of Kernel functions&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Polynomial kernel function&lt;/p&gt;
+
+    &lt;script type=&quot;math/tex; mode=display&quot;&gt;K(\mathbf{x}, \mathbf{y}) = ( \mathbf{x}^T\mathbf{y} +c )^d&lt;/script&gt;
+
+    &lt;p&gt;It can be proven that this function is equivalent to first mapping points to higher dimensional space and then computing the inner product.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Gaussian Kernel&lt;/p&gt;
+
+    &lt;script type=&quot;math/tex; mode=display&quot;&gt;K(\mathbf{x}, \mathbf{y}) = \exp\{ -\frac{ \|\mathbf{x}-\mathbf{y}\|^2 }{2{\epsilon}^2} \}&lt;/script&gt;
+
+    &lt;p&gt;Applying Gaussian kernel is equivalent to first mapping points to a infinitely high dimensional space and then computing the inner product. This can be understood by the Taylor expansion of the exponential function. For detailed explanation please see &lt;a href=&quot;https://www.zhihu.com/question/35602879&quot;&gt;SVM中，高斯核为什么会把原始维度映射到无穷多维？&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;dual-problem-with-kernel-function&quot;&gt;Dual problem with kernel function&lt;/h2&gt;
+&lt;p&gt;With the definition of the kernel function, we can rewrite the dual problem and classification task as following.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Dual Problem&lt;/strong&gt;&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\max_{\lambda, \mu} \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j K(\mathbf{x}_i, \mathbf{x}_j) \\
+	\begin{align}
+		s.t.\ &amp;amp; 0 \leq \lambda_i \leq C \\
+		 &amp;amp;\sum_{i=1}^{n} \lambda_i y_i =0
+	\end{align}
+	$$
+&lt;/center&gt;
+
+&lt;p&gt;Suppose that we have solved the dual problem and get the dual optimum. Let &lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+S_w=\{ i \vert 0&lt;\lambda_i^\star \leq C \} %]]&gt;&lt;/script&gt; represent the support set related with &lt;script type=&quot;math/tex&quot;&gt;\mathbf{w}&lt;/script&gt;; &lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+S_b=\{ i \vert 0&lt;\lambda_i^\star &lt; C \} %]]&gt;&lt;/script&gt; represent the support set related with &lt;script type=&quot;math/tex&quot;&gt;b&lt;/script&gt;. Meanwhile, we define &lt;script type=&quot;math/tex&quot;&gt;S_b^+ =\{ i \vert i\in S_b \  \text{and}\ y_i = +1 \}&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;S_b^-=\{ i \vert i\in S_b\ \text{and}\ y_i = -1 \}&lt;/script&gt;. Then we can compute the primal optimum:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\mathbf{w}^\star = \sum_{i\in S_w}\lambda_i^\star y_i \phi(\mathbf{x}_i)\\
+	b^\star= y_j - {\mathbf{w}^\star}^T\phi(\mathbf{x}_j) = y_j - \sum_{i\in S_w}\lambda_i^\star y_i K(\mathbf{x}_i, \mathbf{x}_j) \ , \ j\in S_b\\
+	$$
+&lt;/center&gt;
+&lt;p&gt;Given a new point &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}&lt;/script&gt;, we can perform classification by computing:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\begin{align}
+	\hat{y} &amp;amp;= {\mathbf{w}^\star}^T \phi(\mathbf{x}) + b^\star\\
+			&amp;amp;=\sum_{i\in S_w} \lambda^\star_i y_i K(\mathbf{x}_i, \mathbf{x}) + b^\star\\
+	\end{align}
+	$$
+&lt;/center&gt;
+&lt;p&gt;See, in fact &lt;script type=&quot;math/tex&quot;&gt;\mathbf{w}^\star&lt;/script&gt; is never really computed, since we are only interested in the kernel function!&lt;/p&gt;
+
+&lt;h2 id=&quot;solve-the-dual-problem-using-gradient-descent-algorithm&quot;&gt;Solve the dual problem using Gradient Descent Algorithm&lt;/h2&gt;
+&lt;p&gt;We can solve the dual problem using gradient descent algorithm as introduced in the post &lt;a href=&quot;http://nianlonggu.github.io/2019/05/27/turtorial-on-SVM/&quot;&gt;An Introduction to Support Vector Machines (SVM): Dual problem solution using GD&lt;/a&gt;. Just simply select a kernel function, such as polynomial or Gaussian, compte the Kernel matrix &lt;script type=&quot;math/tex&quot;&gt;\mathbf{K}&lt;/script&gt; for the training dataset, compute the gradient and then perform back propagation to get the dual optimum &lt;script type=&quot;math/tex&quot;&gt;\lambda^\star&lt;/script&gt;. After getting &lt;script type=&quot;math/tex&quot;&gt;\lambda^\star&lt;/script&gt;, we can compute the primal optimum &lt;script type=&quot;math/tex&quot;&gt;b^\star&lt;/script&gt; and perform classification on new points using the equations above.&lt;/p&gt;
+
+&lt;p&gt;In the next post, I will introduce how to solve the dual problem using Sequential Minimal Optimization (SMO).&lt;/p&gt;
 </description>
         <pubDate>Thu, 27 Jun 2019 17:10:00 +0200</pubDate>
         <link>http://localhost:4000/2019/06/27/turtorial-on-SVM/</link>
