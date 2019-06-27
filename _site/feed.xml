@@ -5,9 +5,66 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Thu, 27 Jun 2019 12:58:44 +0200</pubDate>
-    <lastBuildDate>Thu, 27 Jun 2019 12:58:44 +0200</lastBuildDate>
+    <pubDate>Thu, 27 Jun 2019 16:40:07 +0200</pubDate>
+    <lastBuildDate>Thu, 27 Jun 2019 16:40:07 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
+    
+      <item>
+        <title>An Introduction to Support Vector Machines (SVM): kernel functions</title>
+        <description>&lt;p&gt;Recall of the Slack SVM dual problem:&lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Dual Problem&lt;/strong&gt;&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\max_{\lambda, \mu} \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j\\
+	\begin{align}
+		s.t.\ &amp;amp; 0 \leq \lambda_i \leq C \\
+		 &amp;amp;\sum_{i=1}^{n} \lambda_i y_i =0
+	\end{align}
+	$$
+&lt;/center&gt;
+
+&lt;p&gt;Suppose that we have solved the dual problem and get the dual optimum. Let &lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+S_w=\{ i \vert 0&lt;\lambda_i^\star \leq C \} %]]&gt;&lt;/script&gt; represent the support set related with &lt;script type=&quot;math/tex&quot;&gt;\mathbf{w}&lt;/script&gt;; &lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+S_b=\{ i \vert 0&lt;\lambda_i^\star &lt; C \} %]]&gt;&lt;/script&gt; represent the support set related with &lt;script type=&quot;math/tex&quot;&gt;b&lt;/script&gt;. Meanwhile, we define &lt;script type=&quot;math/tex&quot;&gt;S_b^+ =\{ i \vert i\in S_b \  \text{and}\ y_i = +1 \}&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;S_b^-=\{ i \vert i\in S_b\ \text{and}\ y_i = -1 \}&lt;/script&gt;. Then we can compute the primal optimum:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\mathbf{w}^\star = \sum_{i\in S_w}\lambda_i^\star y_i \mathbf{x}_i\\
+	b^\star= y_j - {\mathbf{w}^\star}^T\mathbf{x}_j = y_j - \sum_{i\in S_w}\lambda_i^\star y_i \mathbf{x}_i^T \mathbf{x}_j \ , \ j\in S_b\\
+	$$
+&lt;/center&gt;
+&lt;p&gt;Given a new point &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}&lt;/script&gt;, we can perform classification by computing:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\begin{align}
+	\hat{y} &amp;amp;= {\mathbf{w}^\star}^T \mathbf{x} + b^\star\\
+			&amp;amp;=\sum_{i\in S_w} \lambda^\star_i y_i \mathbf{x}_i^T \mathbf{x} + b^\star\\
+	\end{align}
+	$$
+&lt;/center&gt;
+
+&lt;p&gt;According to the formulas above, we notice that in the dual problem, computation of &lt;script type=&quot;math/tex&quot;&gt;\mathbf{w}^\star&lt;/script&gt; and classification of new points, &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i^T\mathbf{x}_ j&lt;/script&gt; always appears as a whole.&lt;/p&gt;
+
+&lt;h2 id=&quot;svm-with-kernel-functions&quot;&gt;SVM with kernel functions&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;Mapping points to a higher dimensional space&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;In some cases, if the points is not linearly separable in current space, they are possibly linearly separable if we map them into the higher dimension.&lt;/p&gt;
+
+</description>
+        <pubDate>Thu, 27 Jun 2019 17:10:00 +0200</pubDate>
+        <link>http://localhost:4000/2019/06/27/turtorial-on-SVM/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/06/27/turtorial-on-SVM/</guid>
+        
+        <category>支持向量机</category>
+        
+        <category>机器学习</category>
+        
+        <category>SVM</category>
+        
+        <category>Machine Learning</category>
+        
+        
+      </item>
     
       <item>
         <title>An Introduction to Support Vector Machines (SVM): SVM with slack variables</title>
@@ -296,7 +353,33 @@ This is exactly the Original SVM’s primal problem.&lt;/li&gt;
 
 &lt;p&gt;The answer is that the separating results will be almost the same as the case &lt;script type=&quot;math/tex&quot;&gt;C=10000&lt;/script&gt; in the figure &lt;a href=&quot;#Slack-SVM-Over-C&quot;&gt;Slack SVM over different penalty weight C&lt;/a&gt;. Why the geodesic margin is not further enlarged?&lt;/p&gt;
 
-&lt;p&gt;We showed that original SVM is equivalent to set &lt;script type=&quot;math/tex&quot;&gt;C=\infty&lt;/script&gt; in Slack-SVM. However, from the aspect of the dual problem, the real value of &lt;script type=&quot;math/tex&quot;&gt;C&lt;/script&gt; is actually determined by the up-bound of &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt;. For example, if we set &lt;script type=&quot;math/tex&quot;&gt;C=\infty&lt;/script&gt;, but the real up-bound of the trained &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; is 10000, then the real effective &lt;script type=&quot;math/tex&quot;&gt;C&lt;/script&gt; is actually 10000. Therefore, we will see by applying Original SVM to linearly non-separable case, the final separating result is identical to the &lt;script type=&quot;math/tex&quot;&gt;C=10000&lt;/script&gt; case.&lt;/p&gt;
+&lt;p&gt;We showed that original SVM is equivalent to set &lt;script type=&quot;math/tex&quot;&gt;C=\infty&lt;/script&gt; in Slack-SVM. However, from the aspect of the dual problem, the real value of &lt;script type=&quot;math/tex&quot;&gt;C&lt;/script&gt; is actually determined by the up-bound of &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt;. For example, if we set &lt;script type=&quot;math/tex&quot;&gt;C=\infty&lt;/script&gt;, but the real up-bound of the trained &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; is 10000, then the real effective &lt;script type=&quot;math/tex&quot;&gt;C&lt;/script&gt; is actually 10000. Therefore, we will see by applying Original SVM to linearly non-separable case, the final separating result is identical to the &lt;script type=&quot;math/tex&quot;&gt;C=10000&lt;/script&gt; case.
+&lt;a name=&quot;Slack-SVM-Over-C-inf&quot;&gt;&lt;/a&gt;
+&lt;img src=&quot;https://nianlonggu.github.io/img/2019-06-07-SVM/slack-svm-C-inf.png&quot; width=&quot;400&quot; hegiht=&quot;203&quot; /&gt; 
+&lt;em&gt;&lt;center&gt;Original SVM on linearly non-separable case&lt;/center&gt;&lt;/em&gt;
+Here I also check the maximum of &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; after the training for different &lt;script type=&quot;math/tex&quot;&gt;C&lt;/script&gt;&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;C&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;10&lt;/td&gt;
+      &lt;td&gt;100&lt;/td&gt;
+      &lt;td&gt;10000&lt;/td&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\infty&lt;/script&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\max{\lambda}&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;10&lt;/td&gt;
+      &lt;td&gt;62.2&lt;/td&gt;
+      &lt;td&gt;62.2&lt;/td&gt;
+      &lt;td&gt;62.2&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;We can see that when &lt;script type=&quot;math/tex&quot;&gt;C&lt;/script&gt; reaches 100, the maximum of &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; usually reaches around 60. Therefore, keeping increasing &lt;script type=&quot;math/tex&quot;&gt;C&lt;/script&gt; does not influence the separating results further. Note that as we continue training, the &lt;script type=&quot;math/tex&quot;&gt;\max{\lambda}&lt;/script&gt; may further rise, but it can hardly reach the value of &lt;script type=&quot;math/tex&quot;&gt;C&lt;/script&gt; if &lt;script type=&quot;math/tex&quot;&gt;C&lt;/script&gt; is very large.&lt;/p&gt;
+
 </description>
         <pubDate>Fri, 07 Jun 2019 18:06:00 +0200</pubDate>
         <link>http://localhost:4000/2019/06/07/turtorial-on-SVM/</link>

@@ -278,3 +278,16 @@ Therefore, the above question is equivalent to ask: What if we apply the Origina
 The answer is that the separating results will be almost the same as the case $$C=10000$$ in the figure [Slack SVM over different penalty weight C](#Slack-SVM-Over-C). Why the geodesic margin is not further enlarged?
 
 We showed that original SVM is equivalent to set $$C=\infty$$ in Slack-SVM. However, from the aspect of the dual problem, the real value of $$C$$ is actually determined by the up-bound of $$\lambda$$. For example, if we set $$C=\infty$$, but the real up-bound of the trained $$\lambda$$ is 10000, then the real effective $$C$$ is actually 10000. Therefore, we will see by applying Original SVM to linearly non-separable case, the final separating result is identical to the $$C=10000$$ case.
+<a name="Slack-SVM-Over-C-inf"></a>
+<img src="https://nianlonggu.github.io/img/2019-06-07-SVM/slack-svm-C-inf.png" 
+ width="400" hegiht="203" /> 
+*<center>Original SVM on linearly non-separable case</center>*
+Here I also check the maximum of $$\lambda$$ after the training for different $$C$$
+
+|---|---|---|---|---|
+| $$C$$            | 10  | 100 |10000| $$\infty$$| 
+| $$\max{\lambda}$$| 10  |	62.2 |  62.2 |  62.2	 |  
+
+We can see that when $$C$$ reaches 100, the maximum of $$\lambda$$ usually reaches around 60. Therefore, keeping increasing $$C$$ does not influence the separating results further. Note that as we continue training, the $$\max{\lambda}$$ may further rise, but it can hardly reach the value of $$C$$ if $$C$$ is very large.
+
+  
