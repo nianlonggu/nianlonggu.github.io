@@ -121,6 +121,8 @@ We denote prediction error $$E_i= \hat{y}_i - y_i$$, then we have the expression
 
 > Discussion: What if $$K_{a,a} +K_{b,b} - 2K_{a,b}=0$$? In this case $$L(\lambda)$$ is a first degree function, it's still concave, but in this case the definition of $$\lambda_a^\text{new}$$ is no longer meaningful, so we just simply select another pair $$(\lambda_a, \lambda_b)$$ and do the computation above.
 
+Note that the expression of the $$\lambda_a^\text{new}$$ is not clipped, since according to the dual constraints, each $$\lambda_i$$ actually has a box constraint.
+
 
 > Ref:
 1. [机器学习算法实践-SVM中的SMO算法- 知乎](https://zhuanlan.zhihu.com/p/29212107)
