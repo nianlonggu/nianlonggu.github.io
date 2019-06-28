@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Thu, 27 Jun 2019 23:22:16 +0200</pubDate>
-    <lastBuildDate>Thu, 27 Jun 2019 23:22:16 +0200</lastBuildDate>
+    <pubDate>Fri, 28 Jun 2019 02:05:03 +0200</pubDate>
+    <lastBuildDate>Fri, 28 Jun 2019 02:05:03 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -16,7 +16,7 @@
 &lt;p&gt;&lt;strong&gt;Dual Problem&lt;/strong&gt;&lt;/p&gt;
 &lt;center&gt;
 	$$
-	\max_{\lambda, \mu} \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j K_{i,j} \\
+	\max_{\lambda, \mu} L(\lambda)= \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j K_{i,j} \\
 	\begin{align}
 		s.t.\ &amp;amp; 0 \leq \lambda_i \leq C \\
 		 &amp;amp;\sum_{i=1}^{n} \lambda_i y_i =0
@@ -24,7 +24,47 @@
 	$$
 &lt;/center&gt;
 
-&lt;p&gt;We have introduced using gradient descent algorithm to solve the dual problem. However, the computation of the gradient has a high time complexity and thus would be a challenge for memory, especially when the training dataset is large.&lt;/p&gt;
+&lt;p&gt;We have introduced using gradient descent algorithm to solve the dual problem. However, the computation of the gradient has a high time complexity and thus would be a challenge for memory, especially when the training dataset is large. In this post, I introduce an efficient and light-version algorithm to solve the dual problem: Sequential Minimal Optimization (SMO)&lt;/p&gt;
+
+&lt;h2 id=&quot;sequential-minimal-optimization-smo&quot;&gt;Sequential Minimal Optimization (SMO)&lt;/h2&gt;
+&lt;p&gt;The algorithm of SMO is:&lt;/p&gt;
+&lt;blockquote&gt;
+
+  &lt;p&gt;Initialization: let &lt;script type=&quot;math/tex&quot;&gt;\{\lambda_i\}, i=1,\dots,n&lt;/script&gt; be a set which satisfies the dual constraint.&lt;br /&gt;
+Repeat:&lt;br /&gt;
+&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \&lt;/script&gt;(1) heuristically select two &lt;script type=&quot;math/tex&quot;&gt;\lambda_a, \lambda_b&lt;/script&gt;, and set all the other &lt;script type=&quot;math/tex&quot;&gt;\lambda_i (i\neq a,b)&lt;/script&gt; fixed;&lt;br /&gt;
+&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \&lt;/script&gt;(2) optimize &lt;script type=&quot;math/tex&quot;&gt;L(\lambda)&lt;/script&gt; with respect to &lt;script type=&quot;math/tex&quot;&gt;\lambda_a, \lambda_b&lt;/script&gt;;&lt;br /&gt;
+Until: KKT condition is satisfied with certain accuracy.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;First question about the initialization: how to find a set &lt;script type=&quot;math/tex&quot;&gt;\{\lambda_i\}&lt;/script&gt; which satisfies the dual constraints? &lt;br /&gt;
+The answer is simply set &lt;script type=&quot;math/tex&quot;&gt;\lambda_i=0&lt;/script&gt; for &lt;script type=&quot;math/tex&quot;&gt;i=0,\dots,n&lt;/script&gt;.&lt;/p&gt;
+
+&lt;p&gt;Suppose that we have finished the initialization, and pick up a pair &lt;script type=&quot;math/tex&quot;&gt;\lambda_a, \lambda_b&lt;/script&gt; to optimize while keeping &lt;script type=&quot;math/tex&quot;&gt;\lambda_i (i\neq a,b)&lt;/script&gt; fixed, then we have&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\begin{align}
+	L(\lambda) =&amp;amp; \lambda_a + \lambda_b -\frac{1}{2} \lambda_a^2 K_{a,a} - \frac{1}{2} \lambda_b^2 K_{b,b} - \lambda_a \lambda_b y_a y_b K_{a,b} \\
+	&amp;amp; -  \sum_{i\neq a,b} \lambda_a \lambda_i y_a y_i K_{a,i} -  \sum_{i \neq a,b} \lambda_b \lambda_i y_b y_i K_{b,i} + Const
+	\end{align}
+	$$
+&lt;/center&gt;
+&lt;p&gt;Moreover, according to the dual constraints, we have&lt;/p&gt;
+&lt;center&gt;
+$$
+	\lambda_a y_a + \lambda_b y_b = -\sum_{i\neq a,b} \lambda_i y_i = - \xi\\
+	\lambda_b y_b = -\lambda_a y_a -\xi\\
+	\lambda_b = -\lambda_a y_a y_b -\xi y_b
+$$	
+&lt;/center&gt;
+&lt;p&gt;So we have&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\begin{align}
+	L(\lambda) =&amp;amp; \lambda_a -\lambda_a y_a y_b - \xi y_b - \frac{1}{2}\lambda_a^2 K_{a,a} -\frac{1}{2}(\lambda_a y_a + \xi)^2 K_{b,b} 
+	\end{align}
+	$$
+&lt;/center&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;Ref:&lt;/p&gt;

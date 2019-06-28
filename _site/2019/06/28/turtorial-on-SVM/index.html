@@ -279,7 +279,7 @@
 <p><strong>Dual Problem</strong></p>
 <center>
 	$$
-	\max_{\lambda, \mu} \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j K_{i,j} \\
+	\max_{\lambda, \mu} L(\lambda)= \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j K_{i,j} \\
 	\begin{align}
 		s.t.\ &amp; 0 \leq \lambda_i \leq C \\
 		 &amp;\sum_{i=1}^{n} \lambda_i y_i =0
@@ -287,7 +287,47 @@
 	$$
 </center>
 
-<p>We have introduced using gradient descent algorithm to solve the dual problem. However, the computation of the gradient has a high time complexity and thus would be a challenge for memory, especially when the training dataset is large.</p>
+<p>We have introduced using gradient descent algorithm to solve the dual problem. However, the computation of the gradient has a high time complexity and thus would be a challenge for memory, especially when the training dataset is large. In this post, I introduce an efficient and light-version algorithm to solve the dual problem: Sequential Minimal Optimization (SMO)</p>
+
+<h2 id="sequential-minimal-optimization-smo">Sequential Minimal Optimization (SMO)</h2>
+<p>The algorithm of SMO is:</p>
+<blockquote>
+
+  <p>Initialization: let <script type="math/tex">\{\lambda_i\}, i=1,\dots,n</script> be a set which satisfies the dual constraint.<br />
+Repeat:<br />
+<script type="math/tex">\ \ \ \</script>(1) heuristically select two <script type="math/tex">\lambda_a, \lambda_b</script>, and set all the other <script type="math/tex">\lambda_i (i\neq a,b)</script> fixed;<br />
+<script type="math/tex">\ \ \ \</script>(2) optimize <script type="math/tex">L(\lambda)</script> with respect to <script type="math/tex">\lambda_a, \lambda_b</script>;<br />
+Until: KKT condition is satisfied with certain accuracy.</p>
+</blockquote>
+
+<p>First question about the initialization: how to find a set <script type="math/tex">\{\lambda_i\}</script> which satisfies the dual constraints? <br />
+The answer is simply set <script type="math/tex">\lambda_i=0</script> for <script type="math/tex">i=0,\dots,n</script>.</p>
+
+<p>Suppose that we have finished the initialization, and pick up a pair <script type="math/tex">\lambda_a, \lambda_b</script> to optimize while keeping <script type="math/tex">\lambda_i (i\neq a,b)</script> fixed, then we have</p>
+<center>
+	$$
+	\begin{align}
+	L(\lambda) =&amp; \lambda_a + \lambda_b -\frac{1}{2} \lambda_a^2 K_{a,a} - \frac{1}{2} \lambda_b^2 K_{b,b} - \lambda_a \lambda_b y_a y_b K_{a,b} \\
+	&amp; -  \sum_{i\neq a,b} \lambda_a \lambda_i y_a y_i K_{a,i} -  \sum_{i \neq a,b} \lambda_b \lambda_i y_b y_i K_{b,i} + Const
+	\end{align}
+	$$
+</center>
+<p>Moreover, according to the dual constraints, we have</p>
+<center>
+$$
+	\lambda_a y_a + \lambda_b y_b = -\sum_{i\neq a,b} \lambda_i y_i = - \xi\\
+	\lambda_b y_b = -\lambda_a y_a -\xi\\
+	\lambda_b = -\lambda_a y_a y_b -\xi y_b
+$$	
+</center>
+<p>So we have</p>
+<center>
+	$$
+	\begin{align}
+	L(\lambda) =&amp; \lambda_a -\lambda_a y_a y_b - \xi y_b - \frac{1}{2}\lambda_a^2 K_{a,a} -\frac{1}{2}(\lambda_a y_a + \xi)^2 K_{b,b} 
+	\end{align}
+	$$
+</center>
 
 <blockquote>
   <p>Ref:</p>
