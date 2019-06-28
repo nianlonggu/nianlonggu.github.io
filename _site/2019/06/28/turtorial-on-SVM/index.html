@@ -346,9 +346,42 @@ $$
 	\lambda_a^{\text{new}} = \frac{ 1-y_a y_b - \xi y_a K_{b,b} + y_a \xi K_{a,b} - \sum_{i \neq a,b} y_a \lambda_i y_i K_{a,i} +\sum_{i\neq a,b}y_a \lambda_i y_i K_{b,i} }{ K_{a,a} + K_{b,b} -2K_{a,b} }
 	$$
 </center>
-<p>It is too complicated to compute the numerator since there are too many terms. In the next, we will show that we can actually compute <script type="math/tex">\lambda_a^\text{new}</script> from the old <script type="math/tex">\lambda_a^\text{old}</script>.</p>
+<p>It is too complicated to compute the numerator since there are too many terms. In the next, we will show that we can actually compute <script type="math/tex">\lambda_a^\text{new}, \lambda_b^\text{new}</script> from the old <script type="math/tex">\lambda_a^\text{old}, \lambda_b^\text{old}</script>.</p>
 
-<p>Before updating the value of <script type="math/tex">\lambda_a</script>, we first use the old version <script type="math/tex">\lambda</script> to perform the classification on data <script type="math/tex">\mathbf{x}_ a</script></p>
+<p>Before updating the value of <script type="math/tex">\lambda_a, \lambda_b</script>, we first use the old version <script type="math/tex">\lambda</script> to perform the classification on data <script type="math/tex">\mathbf{x}_ a, \mathbf{x}_ b</script>:</p>
+<center>
+	$$
+	\begin{align}
+	\hat{y}_a &amp;= \sum_{i\neq a,b}\lambda_i y_i K_{i,a} + \lambda_a^\text{old} y_a K_{a,a} + \lambda_b^\text{old} y_b K_{b,a}\\
+	\hat{y}_b &amp;= \sum_{i\neq a,b}\lambda_i y_i K_{i,b} + \lambda_a^\text{old} y_a K_{a,b} + \lambda_b^\text{old} y_b K_{b,b}\\
+	\end{align}
+	$$
+</center>
+<p>Base on the expressions of <script type="math/tex">\hat{y}_a, \hat{y}_b</script>, we can have the following equation:</p>
+<center>
+	$$
+	\begin{align}
+	&amp;y_a[ (\hat{y}_b - y_b) - (\hat{y}_a - y_a)  ]\\
+	= &amp; \sum_{i\neq a,b}y_a \lambda_i y_i K_{i,b} + \lambda_a^\text{old} K_{a,b} + \lambda_b^\text{old} y_a y_b K_{b,b} + y_a b^\text{old} - y_a y_b \\
+	\ &amp; - \sum_{i \neq a,b}y_a \lambda_i y_i K_{i,a} - \lambda_a^\text{old}K_{a,a} - \lambda_b^\text{old} y_a y_b K_{b,a} - y_a b^\text{old} +1\\
+	=&amp;  \sum_{i\neq a,b} y_a \lambda_i y_i K_{i,b} + \lambda_a^\text{old} K_{a,b} - \xi y_a K_{b,b}    - \lambda_a^\text{old} K_{b,b}- y_a y_b \\
+	\ &amp; - \sum_{i \neq a,b}y_a \lambda_i y_i K_{i,a} - \lambda_a^\text{old}K_{a,a}  + \lambda_a^\text{old} K_{a,b} + \xi y_a K_{a,b}   +1 \\
+	=&amp; 1- y_a y_b - \xi y_a K_{b,b} + \xi y_a K_{a,b} - \sum_{i \neq a,b}y_a \lambda_i y_i K_{i,a} +\sum_{i\neq a,b} y_a \lambda_i y_i K_{i,b}\\
+	\ &amp; -\lambda_a^\text{old}( K_{a,a} + K_{b,b} - 2K_{a,b} )\\
+	= &amp; \lambda_a^{\text{new}}(K_{a,a} + K_{b,b} -2K_{a,b})-\lambda_a^\text{old}( K_{a,a} + K_{b,b} - 2K_{a,b} )
+	\end{align}
+	$$
+</center>
+<p>We denote prediction error <script type="math/tex">E_i= \hat{y}_i - y_i</script>, then we have the expression of <script type="math/tex">\lambda_a^\text{new}</script>:</p>
+<center>
+	$$
+	\lambda_a^\text{new} = \lambda_a^\text{old} + \frac{y_a(E_b - E_a)}{K_{a,a} +K_{b,b} - 2K_{a,b}  }
+	$$
+</center>
+
+<blockquote>
+  <p>Discussion: What if <script type="math/tex">K_{a,a} +K_{b,b} - 2K_{a,b}=0</script>? In this case <script type="math/tex">L(\lambda)</script> is a first degree function, it’s still concave, but in this case the definition of <script type="math/tex">\lambda_a^\text{new}</script> is no longer meaningful, so we just simply select another pair <script type="math/tex">(\lambda_a, \lambda_b)</script> and do the computation above.</p>
+</blockquote>
 
 <blockquote>
   <p>Ref:</p>

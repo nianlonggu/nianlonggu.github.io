@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 28 Jun 2019 21:37:00 +0200</pubDate>
-    <lastBuildDate>Fri, 28 Jun 2019 21:37:00 +0200</lastBuildDate>
+    <pubDate>Sat, 29 Jun 2019 00:26:06 +0200</pubDate>
+    <lastBuildDate>Sat, 29 Jun 2019 00:26:06 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -83,9 +83,42 @@ $$
 	\lambda_a^{\text{new}} = \frac{ 1-y_a y_b - \xi y_a K_{b,b} + y_a \xi K_{a,b} - \sum_{i \neq a,b} y_a \lambda_i y_i K_{a,i} +\sum_{i\neq a,b}y_a \lambda_i y_i K_{b,i} }{ K_{a,a} + K_{b,b} -2K_{a,b} }
 	$$
 &lt;/center&gt;
-&lt;p&gt;It is too complicated to compute the numerator since there are too many terms. In the next, we will show that we can actually compute &lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{new}&lt;/script&gt; from the old &lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{old}&lt;/script&gt;.&lt;/p&gt;
+&lt;p&gt;It is too complicated to compute the numerator since there are too many terms. In the next, we will show that we can actually compute &lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{new}, \lambda_b^\text{new}&lt;/script&gt; from the old &lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{old}, \lambda_b^\text{old}&lt;/script&gt;.&lt;/p&gt;
 
-&lt;p&gt;Before updating the value of &lt;script type=&quot;math/tex&quot;&gt;\lambda_a&lt;/script&gt;, we first use the old version &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; to perform the classification on data &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ a&lt;/script&gt;&lt;/p&gt;
+&lt;p&gt;Before updating the value of &lt;script type=&quot;math/tex&quot;&gt;\lambda_a, \lambda_b&lt;/script&gt;, we first use the old version &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; to perform the classification on data &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ a, \mathbf{x}_ b&lt;/script&gt;:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\begin{align}
+	\hat{y}_a &amp;amp;= \sum_{i\neq a,b}\lambda_i y_i K_{i,a} + \lambda_a^\text{old} y_a K_{a,a} + \lambda_b^\text{old} y_b K_{b,a}\\
+	\hat{y}_b &amp;amp;= \sum_{i\neq a,b}\lambda_i y_i K_{i,b} + \lambda_a^\text{old} y_a K_{a,b} + \lambda_b^\text{old} y_b K_{b,b}\\
+	\end{align}
+	$$
+&lt;/center&gt;
+&lt;p&gt;Base on the expressions of &lt;script type=&quot;math/tex&quot;&gt;\hat{y}_a, \hat{y}_b&lt;/script&gt;, we can have the following equation:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\begin{align}
+	&amp;amp;y_a[ (\hat{y}_b - y_b) - (\hat{y}_a - y_a)  ]\\
+	= &amp;amp; \sum_{i\neq a,b}y_a \lambda_i y_i K_{i,b} + \lambda_a^\text{old} K_{a,b} + \lambda_b^\text{old} y_a y_b K_{b,b} + y_a b^\text{old} - y_a y_b \\
+	\ &amp;amp; - \sum_{i \neq a,b}y_a \lambda_i y_i K_{i,a} - \lambda_a^\text{old}K_{a,a} - \lambda_b^\text{old} y_a y_b K_{b,a} - y_a b^\text{old} +1\\
+	=&amp;amp;  \sum_{i\neq a,b} y_a \lambda_i y_i K_{i,b} + \lambda_a^\text{old} K_{a,b} - \xi y_a K_{b,b}    - \lambda_a^\text{old} K_{b,b}- y_a y_b \\
+	\ &amp;amp; - \sum_{i \neq a,b}y_a \lambda_i y_i K_{i,a} - \lambda_a^\text{old}K_{a,a}  + \lambda_a^\text{old} K_{a,b} + \xi y_a K_{a,b}   +1 \\
+	=&amp;amp; 1- y_a y_b - \xi y_a K_{b,b} + \xi y_a K_{a,b} - \sum_{i \neq a,b}y_a \lambda_i y_i K_{i,a} +\sum_{i\neq a,b} y_a \lambda_i y_i K_{i,b}\\
+	\ &amp;amp; -\lambda_a^\text{old}( K_{a,a} + K_{b,b} - 2K_{a,b} )\\
+	= &amp;amp; \lambda_a^{\text{new}}(K_{a,a} + K_{b,b} -2K_{a,b})-\lambda_a^\text{old}( K_{a,a} + K_{b,b} - 2K_{a,b} )
+	\end{align}
+	$$
+&lt;/center&gt;
+&lt;p&gt;We denote prediction error &lt;script type=&quot;math/tex&quot;&gt;E_i= \hat{y}_i - y_i&lt;/script&gt;, then we have the expression of &lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{new}&lt;/script&gt;:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\lambda_a^\text{new} = \lambda_a^\text{old} + \frac{y_a(E_b - E_a)}{K_{a,a} +K_{b,b} - 2K_{a,b}  }
+	$$
+&lt;/center&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Discussion: What if &lt;script type=&quot;math/tex&quot;&gt;K_{a,a} +K_{b,b} - 2K_{a,b}=0&lt;/script&gt;? In this case &lt;script type=&quot;math/tex&quot;&gt;L(\lambda)&lt;/script&gt; is a first degree function, it’s still concave, but in this case the definition of &lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{new}&lt;/script&gt; is no longer meaningful, so we just simply select another pair &lt;script type=&quot;math/tex&quot;&gt;(\lambda_a, \lambda_b)&lt;/script&gt; and do the computation above.&lt;/p&gt;
+&lt;/blockquote&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;Ref:&lt;/p&gt;

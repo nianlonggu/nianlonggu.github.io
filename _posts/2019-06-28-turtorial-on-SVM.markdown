@@ -86,10 +86,40 @@ By solving this equation, we will get the solution for $$\lambda_a^\star$$:
 	\lambda_a^{\text{new}} = \frac{ 1-y_a y_b - \xi y_a K_{b,b} + y_a \xi K_{a,b} - \sum_{i \neq a,b} y_a \lambda_i y_i K_{a,i} +\sum_{i\neq a,b}y_a \lambda_i y_i K_{b,i} }{ K_{a,a} + K_{b,b} -2K_{a,b} }
 	$$
 </center>
-It is too complicated to compute the numerator since there are too many terms. In the next, we will show that we can actually compute $$\lambda_a^\text{new}$$ from the old $$\lambda_a^\text{old}$$.
+It is too complicated to compute the numerator since there are too many terms. In the next, we will show that we can actually compute $$\lambda_a^\text{new}, \lambda_b^\text{new}$$ from the old $$\lambda_a^\text{old}, \lambda_b^\text{old} $$.
 
-Before updating the value of $$\lambda_a$$, we first use the old version $$\lambda$$ to perform the classification on data $$\mathbf{x}_ a$$
+Before updating the value of $$\lambda_a, \lambda_b$$, we first use the old version $$\lambda$$ to perform the classification on data $$\mathbf{x}_ a, \mathbf{x}_ b$$:
+<center>
+	$$
+	\begin{align}
+	\hat{y}_a &= \sum_{i\neq a,b}\lambda_i y_i K_{i,a} + \lambda_a^\text{old} y_a K_{a,a} + \lambda_b^\text{old} y_b K_{b,a}\\
+	\hat{y}_b &= \sum_{i\neq a,b}\lambda_i y_i K_{i,b} + \lambda_a^\text{old} y_a K_{a,b} + \lambda_b^\text{old} y_b K_{b,b}\\
+	\end{align}
+	$$
+</center>
+Base on the expressions of $$\hat{y}_a, \hat{y}_b$$, we can have the following equation:
+<center>
+	$$
+	\begin{align}
+	&y_a[ (\hat{y}_b - y_b) - (\hat{y}_a - y_a)  ]\\
+	= & \sum_{i\neq a,b}y_a \lambda_i y_i K_{i,b} + \lambda_a^\text{old} K_{a,b} + \lambda_b^\text{old} y_a y_b K_{b,b} + y_a b^\text{old} - y_a y_b \\
+	\ & - \sum_{i \neq a,b}y_a \lambda_i y_i K_{i,a} - \lambda_a^\text{old}K_{a,a} - \lambda_b^\text{old} y_a y_b K_{b,a} - y_a b^\text{old} +1\\
+	=&  \sum_{i\neq a,b} y_a \lambda_i y_i K_{i,b} + \lambda_a^\text{old} K_{a,b} - \xi y_a K_{b,b}    - \lambda_a^\text{old} K_{b,b}- y_a y_b \\
+	\ & - \sum_{i \neq a,b}y_a \lambda_i y_i K_{i,a} - \lambda_a^\text{old}K_{a,a}  + \lambda_a^\text{old} K_{a,b} + \xi y_a K_{a,b}   +1 \\
+	=& 1- y_a y_b - \xi y_a K_{b,b} + \xi y_a K_{a,b} - \sum_{i \neq a,b}y_a \lambda_i y_i K_{i,a} +\sum_{i\neq a,b} y_a \lambda_i y_i K_{i,b}\\
+	\ & -\lambda_a^\text{old}( K_{a,a} + K_{b,b} - 2K_{a,b} )\\
+	= & \lambda_a^{\text{new}}(K_{a,a} + K_{b,b} -2K_{a,b})-\lambda_a^\text{old}( K_{a,a} + K_{b,b} - 2K_{a,b} )
+	\end{align}
+	$$
+</center>
+We denote prediction error $$E_i= \hat{y}_i - y_i$$, then we have the expression of $$\lambda_a^\text{new}$$:
+<center>
+	$$
+	\lambda_a^\text{new} = \lambda_a^\text{old} + \frac{y_a(E_b - E_a)}{K_{a,a} +K_{b,b} - 2K_{a,b}  }
+	$$
+</center>
 
+> Discussion: What if $$K_{a,a} +K_{b,b} - 2K_{a,b}=0$$? In this case $$L(\lambda)$$ is a first degree function, it's still concave, but in this case the definition of $$\lambda_a^\text{new}$$ is no longer meaningful, so we just simply select another pair $$(\lambda_a, \lambda_b)$$ and do the computation above.
 
 
 > Ref:
