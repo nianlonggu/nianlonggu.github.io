@@ -324,10 +324,31 @@ $$
 <center>
 	$$
 	\begin{align}
-	L(\lambda) =&amp; \lambda_a -\lambda_a y_a y_b - \xi y_b - \frac{1}{2}\lambda_a^2 K_{a,a} -\frac{1}{2}(\lambda_a y_a + \xi)^2 K_{b,b} 
+	L(\lambda) =&amp; \lambda_a -\lambda_a y_a y_b - \xi y_b - \frac{1}{2}\lambda_a^2 K_{a,a} -\frac{1}{2}(\lambda_a y_a + \xi)^2 K_{b,b} \\
+	&amp; + \lambda_a y_a ( \lambda_a y_a + \xi ) K_{a,b} - \sum_{i\neq a,b} \lambda_a y_a \lambda_i y_i K_{a,i}\\
+	&amp; + \sum_{i\neq a,b}(\lambda_a y_a + \xi)\lambda_i y_i K_{b,i} + Const
 	\end{align}
 	$$
 </center>
+<p><script type="math/tex">L(\lambda)</script> is concave with respect to <script type="math/tex">\lambda_a</script>, since <script type="math/tex">\frac{\partial^2{L}}{\partial{\lambda_a^2}}= -( K_{a,a} + K_{b,b} - 2K_{a,b} )=-(e_a - e_b)^T \mathbf{K} (e_a - e_b) \leq 0</script> due to the fact that the kernel matrix <script type="math/tex">\mathbf{K}</script> is nonnegative definite (see last post <a href="http://nianlonggu.github.io/2019/06/27/turtorial-on-SVM/">An Introduction to Support Vector Machines (SVM): kernel functions</a> ). Therefore, we can find the optimal value of <script type="math/tex">\lambda_a</script> which maximizes <script type="math/tex">L(\lambda)</script> by computing the gradient and set it to 0.</p>
+<center>
+	$$
+	\begin{align}
+	\frac{\partial{L(\lambda)}}{\partial{\lambda_a}} =&amp; 1 - y_a y_b -\lambda_a K_{a,a} - (\lambda_a y_a +\xi)y_a K_{b,b} + 2\lambda_a K_{a,b} \\
+	&amp;+ y_a \xi K_{a,b} - \sum_{i\neq a,b} y_a \lambda_i y_i K_{a,i} + \sum_{i \neq a,b}y_a \lambda_i y_i K_{b,i}\\
+	=&amp; 0
+	\end{align}
+	$$
+</center>
+<p>By solving this equation, we will get the solution for <script type="math/tex">\lambda_a^\star</script>:</p>
+<center>
+	$$
+	\lambda_a^{\text{new}} = \frac{ 1-y_a y_b - \xi y_a K_{b,b} + y_a \xi K_{a,b} - \sum_{i \neq a,b} y_a \lambda_i y_i K_{a,i} +\sum_{i\neq a,b}y_a \lambda_i y_i K_{b,i} }{ K_{a,a} + K_{b,b} -2K_{a,b} }
+	$$
+</center>
+<p>It is too complicated to compute the numerator since there are too many terms. In the next, we will show that we can actually compute <script type="math/tex">\lambda_a^\text{new}</script> from the old <script type="math/tex">\lambda_a^\text{old}</script>.</p>
+
+<p>Before updating the value of <script type="math/tex">\lambda_a</script>, we first use the old version <script type="math/tex">\lambda</script> to perform the classification on data <script type="math/tex">\mathbf{x}_ a</script></p>
 
 <blockquote>
   <p>Ref:</p>

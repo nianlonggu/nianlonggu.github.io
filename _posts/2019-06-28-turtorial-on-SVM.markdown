@@ -64,10 +64,31 @@ So we have
 <center>
 	$$
 	\begin{align}
-	L(\lambda) =& \lambda_a -\lambda_a y_a y_b - \xi y_b - \frac{1}{2}\lambda_a^2 K_{a,a} -\frac{1}{2}(\lambda_a y_a + \xi)^2 K_{b,b} 
+	L(\lambda) =& \lambda_a -\lambda_a y_a y_b - \xi y_b - \frac{1}{2}\lambda_a^2 K_{a,a} -\frac{1}{2}(\lambda_a y_a + \xi)^2 K_{b,b} \\
+	& + \lambda_a y_a ( \lambda_a y_a + \xi ) K_{a,b} - \sum_{i\neq a,b} \lambda_a y_a \lambda_i y_i K_{a,i}\\
+	& + \sum_{i\neq a,b}(\lambda_a y_a + \xi)\lambda_i y_i K_{b,i} + Const
 	\end{align}
 	$$
 </center>
+$$L(\lambda)$$ is concave with respect to $$\lambda_a$$, since $$\frac{\partial^2{L}}{\partial{\lambda_a^2}}= -( K_{a,a} + K_{b,b} - 2K_{a,b} )=-(e_a - e_b)^T \mathbf{K} (e_a - e_b) \leq 0 $$ due to the fact that the kernel matrix $$\mathbf{K}$$ is nonnegative definite (see last post [An Introduction to Support Vector Machines (SVM): kernel functions](http://nianlonggu.github.io/2019/06/27/turtorial-on-SVM/) ). Therefore, we can find the optimal value of $$\lambda_a$$ which maximizes $$L(\lambda)$$ by computing the gradient and set it to 0.
+<center>
+	$$
+	\begin{align}
+	\frac{\partial{L(\lambda)}}{\partial{\lambda_a}} =& 1 - y_a y_b -\lambda_a K_{a,a} - (\lambda_a y_a +\xi)y_a K_{b,b} + 2\lambda_a K_{a,b} \\
+	&+ y_a \xi K_{a,b} - \sum_{i\neq a,b} y_a \lambda_i y_i K_{a,i} + \sum_{i \neq a,b}y_a \lambda_i y_i K_{b,i}\\
+	=& 0
+	\end{align}
+	$$
+</center>
+By solving this equation, we will get the solution for $$\lambda_a^\star$$:
+<center>
+	$$
+	\lambda_a^{\text{new}} = \frac{ 1-y_a y_b - \xi y_a K_{b,b} + y_a \xi K_{a,b} - \sum_{i \neq a,b} y_a \lambda_i y_i K_{a,i} +\sum_{i\neq a,b}y_a \lambda_i y_i K_{b,i} }{ K_{a,a} + K_{b,b} -2K_{a,b} }
+	$$
+</center>
+It is too complicated to compute the numerator since there are too many terms. In the next, we will show that we can actually compute $$\lambda_a^\text{new}$$ from the old $$\lambda_a^\text{old}$$.
+
+Before updating the value of $$\lambda_a$$, we first use the old version $$\lambda$$ to perform the classification on data $$\mathbf{x}_ a$$
 
 
 

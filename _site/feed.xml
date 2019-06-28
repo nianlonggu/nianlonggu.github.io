@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 28 Jun 2019 02:05:03 +0200</pubDate>
-    <lastBuildDate>Fri, 28 Jun 2019 02:05:03 +0200</lastBuildDate>
+    <pubDate>Fri, 28 Jun 2019 21:37:00 +0200</pubDate>
+    <lastBuildDate>Fri, 28 Jun 2019 21:37:00 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -61,10 +61,31 @@ $$
 &lt;center&gt;
 	$$
 	\begin{align}
-	L(\lambda) =&amp;amp; \lambda_a -\lambda_a y_a y_b - \xi y_b - \frac{1}{2}\lambda_a^2 K_{a,a} -\frac{1}{2}(\lambda_a y_a + \xi)^2 K_{b,b} 
+	L(\lambda) =&amp;amp; \lambda_a -\lambda_a y_a y_b - \xi y_b - \frac{1}{2}\lambda_a^2 K_{a,a} -\frac{1}{2}(\lambda_a y_a + \xi)^2 K_{b,b} \\
+	&amp;amp; + \lambda_a y_a ( \lambda_a y_a + \xi ) K_{a,b} - \sum_{i\neq a,b} \lambda_a y_a \lambda_i y_i K_{a,i}\\
+	&amp;amp; + \sum_{i\neq a,b}(\lambda_a y_a + \xi)\lambda_i y_i K_{b,i} + Const
 	\end{align}
 	$$
 &lt;/center&gt;
+&lt;p&gt;&lt;script type=&quot;math/tex&quot;&gt;L(\lambda)&lt;/script&gt; is concave with respect to &lt;script type=&quot;math/tex&quot;&gt;\lambda_a&lt;/script&gt;, since &lt;script type=&quot;math/tex&quot;&gt;\frac{\partial^2{L}}{\partial{\lambda_a^2}}= -( K_{a,a} + K_{b,b} - 2K_{a,b} )=-(e_a - e_b)^T \mathbf{K} (e_a - e_b) \leq 0&lt;/script&gt; due to the fact that the kernel matrix &lt;script type=&quot;math/tex&quot;&gt;\mathbf{K}&lt;/script&gt; is nonnegative definite (see last post &lt;a href=&quot;http://nianlonggu.github.io/2019/06/27/turtorial-on-SVM/&quot;&gt;An Introduction to Support Vector Machines (SVM): kernel functions&lt;/a&gt; ). Therefore, we can find the optimal value of &lt;script type=&quot;math/tex&quot;&gt;\lambda_a&lt;/script&gt; which maximizes &lt;script type=&quot;math/tex&quot;&gt;L(\lambda)&lt;/script&gt; by computing the gradient and set it to 0.&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\begin{align}
+	\frac{\partial{L(\lambda)}}{\partial{\lambda_a}} =&amp;amp; 1 - y_a y_b -\lambda_a K_{a,a} - (\lambda_a y_a +\xi)y_a K_{b,b} + 2\lambda_a K_{a,b} \\
+	&amp;amp;+ y_a \xi K_{a,b} - \sum_{i\neq a,b} y_a \lambda_i y_i K_{a,i} + \sum_{i \neq a,b}y_a \lambda_i y_i K_{b,i}\\
+	=&amp;amp; 0
+	\end{align}
+	$$
+&lt;/center&gt;
+&lt;p&gt;By solving this equation, we will get the solution for &lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\star&lt;/script&gt;:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\lambda_a^{\text{new}} = \frac{ 1-y_a y_b - \xi y_a K_{b,b} + y_a \xi K_{a,b} - \sum_{i \neq a,b} y_a \lambda_i y_i K_{a,i} +\sum_{i\neq a,b}y_a \lambda_i y_i K_{b,i} }{ K_{a,a} + K_{b,b} -2K_{a,b} }
+	$$
+&lt;/center&gt;
+&lt;p&gt;It is too complicated to compute the numerator since there are too many terms. In the next, we will show that we can actually compute &lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{new}&lt;/script&gt; from the old &lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{old}&lt;/script&gt;.&lt;/p&gt;
+
+&lt;p&gt;Before updating the value of &lt;script type=&quot;math/tex&quot;&gt;\lambda_a&lt;/script&gt;, we first use the old version &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; to perform the classification on data &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ a&lt;/script&gt;&lt;/p&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;Ref:&lt;/p&gt;
