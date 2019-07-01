@@ -399,8 +399,23 @@ $$
 
 <p>According to the figure, we can get the lower bound <script type="math/tex">L</script> and higher bound <script type="math/tex">H</script> for a meaningful solution of a new <script type="math/tex">\lambda_a</script>:</p>
 <ol>
-  <li>If <script type="math/tex">y_a = y_b</script></li>
+  <li>if <script type="math/tex">y_a \neq y_b</script>:</li>
 </ol>
+<center>
+	$$
+	L = \max(\xi y_b, 0)\\
+	H = \min(C+\xi y_b, C )
+	$$
+</center>
+<ol>
+  <li>if <script type="math/tex">y_a = y_b</script>:</li>
+</ol>
+<center>
+	$$
+	L = \max(0, -C-\xi y_b)\\
+	H = \min(C, -\xi y_b)
+	$$
+</center>
 
 <blockquote>
   <p>Ref:</p>

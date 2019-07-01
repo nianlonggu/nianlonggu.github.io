@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Mon, 01 Jul 2019 12:13:12 +0200</pubDate>
-    <lastBuildDate>Mon, 01 Jul 2019 12:13:12 +0200</lastBuildDate>
+    <pubDate>Mon, 01 Jul 2019 12:15:46 +0200</pubDate>
+    <lastBuildDate>Mon, 01 Jul 2019 12:15:46 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -136,8 +136,23 @@ $$
 
 &lt;p&gt;According to the figure, we can get the lower bound &lt;script type=&quot;math/tex&quot;&gt;L&lt;/script&gt; and higher bound &lt;script type=&quot;math/tex&quot;&gt;H&lt;/script&gt; for a meaningful solution of a new &lt;script type=&quot;math/tex&quot;&gt;\lambda_a&lt;/script&gt;:&lt;/p&gt;
 &lt;ol&gt;
-  &lt;li&gt;If &lt;script type=&quot;math/tex&quot;&gt;y_a = y_b&lt;/script&gt;&lt;/li&gt;
+  &lt;li&gt;if &lt;script type=&quot;math/tex&quot;&gt;y_a \neq y_b&lt;/script&gt;:&lt;/li&gt;
 &lt;/ol&gt;
+&lt;center&gt;
+	$$
+	L = \max(\xi y_b, 0)\\
+	H = \min(C+\xi y_b, C )
+	$$
+&lt;/center&gt;
+&lt;ol&gt;
+  &lt;li&gt;if &lt;script type=&quot;math/tex&quot;&gt;y_a = y_b&lt;/script&gt;:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;center&gt;
+	$$
+	L = \max(0, -C-\xi y_b)\\
+	H = \min(C, -\xi y_b)
+	$$
+&lt;/center&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;Ref:&lt;/p&gt;

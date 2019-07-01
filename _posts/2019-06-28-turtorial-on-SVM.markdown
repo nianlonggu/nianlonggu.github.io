@@ -136,7 +136,20 @@ We know that $$y_i \in {-1, +1}$$. Based on whether $$y_a = y_b$$ or not, we can
 *<center>Relationship between $\lambda_a$ and $\lambda_b$ with box constraints.</center>*
 
 According to the figure, we can get the lower bound $$L$$ and higher bound $$H$$ for a meaningful solution of a new $$\lambda_a$$:
-1. If $$y_a = y_b$$
+1. if $$y_a \neq y_b$$:
+<center>
+	$$
+	L = \max(\xi y_b, 0)\\
+	H = \min(C+\xi y_b, C )
+	$$
+</center>
+2. if $$y_a = y_b$$:
+<center>
+	$$
+	L = \max(0, -C-\xi y_b)\\
+	H = \min(C, -\xi y_b)
+	$$
+</center>
 
 > Ref:
 1. [机器学习算法实践-SVM中的SMO算法- 知乎](https://zhuanlan.zhihu.com/p/29212107)
