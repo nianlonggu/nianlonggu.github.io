@@ -31,7 +31,7 @@ Here the margin represents the minimum distance from points of both classes to t
  <!-- <center><img src="https://nianlonggu.github.io/img/2019-05-23-SVM/what-is-svm.svg"> </center> -->
 <!-- <center>![what is svm](https://nianlonggu.github.io/img/2019-05-23-SVM/what-is-svm.svg) </center> center here will make it not work -->
 <center><a name="linear-svm"></a></center>
-![what is svm](https://nlgu.top/img/2019-05-23-SVM/what-is-svm.svg)
+![what is svm](https://nianlonggu.github.io/img/2019-05-23-SVM/what-is-svm.svg)
 *<center>Linear SVM</center>*
 
 In the series of SVMs, following aspects will be discusses:<br>
