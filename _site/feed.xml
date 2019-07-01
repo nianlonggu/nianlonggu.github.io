@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sat, 29 Jun 2019 10:02:58 +0200</pubDate>
-    <lastBuildDate>Sat, 29 Jun 2019 10:02:58 +0200</lastBuildDate>
+    <pubDate>Mon, 01 Jul 2019 11:52:10 +0200</pubDate>
+    <lastBuildDate>Mon, 01 Jul 2019 11:52:10 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -120,7 +120,14 @@ $$
   &lt;p&gt;Discussion: What if &lt;script type=&quot;math/tex&quot;&gt;K_{a,a} +K_{b,b} - 2K_{a,b}=0&lt;/script&gt;? In this case &lt;script type=&quot;math/tex&quot;&gt;L(\lambda)&lt;/script&gt; is a first degree function, it’s still concave, but in this case the definition of &lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{new}&lt;/script&gt; is no longer meaningful, so we just simply select another pair &lt;script type=&quot;math/tex&quot;&gt;(\lambda_a, \lambda_b)&lt;/script&gt; and do the computation above.&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;p&gt;Note that the expression of the &lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{new}&lt;/script&gt; is not clipped, since according to the dual constraints, each &lt;script type=&quot;math/tex&quot;&gt;\lambda_i&lt;/script&gt; actually has a box constraint.&lt;/p&gt;
+&lt;p&gt;Note that the expression of the &lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{new}&lt;/script&gt; is not clipped, since according to the dual constraints, each &lt;script type=&quot;math/tex&quot;&gt;\lambda_i&lt;/script&gt; actually has a box constraint. So we have:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	0\leq \lambda_a \leq C\\
+	0\leq \lambda_b \leq C\\
+	\lambda_b = -\lambda_a y_a y_b - \xi y_b
+	$$
+&lt;/center&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;Ref:&lt;/p&gt;
@@ -128,6 +135,8 @@ $$
     &lt;li&gt;&lt;a href=&quot;https://zhuanlan.zhihu.com/p/29212107&quot;&gt;机器学习算法实践-SVM中的SMO算法- 知乎&lt;/a&gt;&lt;/li&gt;
   &lt;/ol&gt;
 &lt;/blockquote&gt;
+
+&lt;p&gt;3 ACL&lt;/p&gt;
 </description>
         <pubDate>Fri, 28 Jun 2019 02:00:00 +0200</pubDate>
         <link>http://localhost:4000/2019/06/28/turtorial-on-SVM/</link>
@@ -844,7 +853,7 @@ KKT conditions contain four conditions:&lt;br /&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;apply-lagrangian-duality-to-svm&quot;&gt;Apply Lagrangian Duality to SVM&lt;/h2&gt;
 &lt;p&gt;Now we are able to solve the SVM optimization problem using Lagrangian duality. 
-As introduced in the first post &lt;a href=&quot;https://nlgu.top/2019/05/23/turtorial-on-SVM/&quot;&gt;An Introduction to Support Vector Machines (SVM): Basics&lt;/a&gt;, the SVM optimization problem is:&lt;/p&gt;
+As introduced in the first post &lt;a href=&quot;https://nianlonggu.github.io/2019/05/23/turtorial-on-SVM/&quot;&gt;An Introduction to Support Vector Machines (SVM): Basics&lt;/a&gt;, the SVM optimization problem is:&lt;/p&gt;
 &lt;center&gt;
 	$$
 	\min_{\mathbf{w},b}\frac{1}{2}\|\mathbf{w}\|^2\\
@@ -936,7 +945,7 @@ Then the primal optimum will be:&lt;/p&gt;
 &lt;/center&gt;
 
 &lt;h2 id=&quot;use-svm-for-classification&quot;&gt;Use SVM for Classification&lt;/h2&gt;
-&lt;p&gt;Given a new point &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}&lt;/script&gt;, we can compute the value &lt;script type=&quot;math/tex&quot;&gt;{\mathbf{w}^\star}^T\mathbf{x}+b^\star&lt;/script&gt;, and predict the label &lt;script type=&quot;math/tex&quot;&gt;\hat{y}&lt;/script&gt; using hard decision or soft decision as shown in &lt;a href=&quot;https://nlgu.top/2019/05/24/turtorial-on-SVM/#use-svm-for-classification&quot;&gt;An Introduction to Support Vector Machines (SVM): Gradient Descent Solution&lt;/a&gt;. 
+&lt;p&gt;Given a new point &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}&lt;/script&gt;, we can compute the value &lt;script type=&quot;math/tex&quot;&gt;{\mathbf{w}^\star}^T\mathbf{x}+b^\star&lt;/script&gt;, and predict the label &lt;script type=&quot;math/tex&quot;&gt;\hat{y}&lt;/script&gt; using hard decision or soft decision as shown in &lt;a href=&quot;https://nianlonggu.github.io/2019/05/24/turtorial-on-SVM/#use-svm-for-classification&quot;&gt;An Introduction to Support Vector Machines (SVM): Gradient Descent Solution&lt;/a&gt;. 
 Substitute the expression of &lt;script type=&quot;math/tex&quot;&gt;{\mathbf{w}^\star}&lt;/script&gt;, we have:&lt;/p&gt;
 &lt;center&gt;
 	$$
@@ -988,7 +997,7 @@ y_i(\mathbf{w}^T\mathbf{x}_i+b)&lt;1 %]]&gt;&lt;/script&gt;, which represents in
 		h(z) = \max\{1-z, 0\}
 	$$
 &lt;/center&gt;
-&lt;p&gt;&lt;img src=&quot;https://nlgu.top/img/2019-05-24-SVM/hinge-func.svg&quot; alt=&quot;hinge function&quot; /&gt;
+&lt;p&gt;&lt;img src=&quot;https://nianlonggu.github.io/img/2019-05-24-SVM/hinge-func.svg&quot; alt=&quot;hinge function&quot; /&gt;
 &lt;em&gt;&lt;center&gt;It looks like a hinge, isn't it?&lt;/center&gt;&lt;/em&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; is a weight parameter used to control the weight of the regularization term. If &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; is too small, the model (the learned hyperplane) will mainly focuses on correctly classify the training data, but the margin may not be maximized. If &lt;script type=&quot;math/tex&quot;&gt;\lambda&lt;/script&gt; is too large, the model will have have a large margin, while there may exist more miss-classified points in the training dataset.&lt;/p&gt;
@@ -1114,7 +1123,7 @@ z, &amp; \text{if}\ -1 \leq z &lt; 1\\
  &lt;!-- &lt;center&gt;&lt;img src=&quot;https://nianlonggu.github.io/img/2019-05-23-SVM/what-is-svm.svg&quot;&gt; &lt;/center&gt; --&gt;
 &lt;!-- &lt;center&gt;![what is svm](https://nianlonggu.github.io/img/2019-05-23-SVM/what-is-svm.svg) &lt;/center&gt; center here will make it not work --&gt;&lt;/p&gt;
 &lt;center&gt;&lt;a name=&quot;linear-svm&quot;&gt;&lt;/a&gt;&lt;/center&gt;
-&lt;p&gt;&lt;img src=&quot;https://nlgu.top/img/2019-05-23-SVM/what-is-svm.svg&quot; alt=&quot;what is svm&quot; /&gt;
+&lt;p&gt;&lt;img src=&quot;https://nianlonggu.github.io/img/2019-05-23-SVM/what-is-svm.svg&quot; alt=&quot;what is svm&quot; /&gt;
 &lt;em&gt;&lt;center&gt;Linear SVM&lt;/center&gt;&lt;/em&gt;&lt;/p&gt;
 
 &lt;p&gt;In the series of SVMs, following aspects will be discusses:&lt;br /&gt;&lt;/p&gt;

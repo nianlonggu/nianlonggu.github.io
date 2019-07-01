@@ -383,7 +383,14 @@ $$
   <p>Discussion: What if <script type="math/tex">K_{a,a} +K_{b,b} - 2K_{a,b}=0</script>? In this case <script type="math/tex">L(\lambda)</script> is a first degree function, it’s still concave, but in this case the definition of <script type="math/tex">\lambda_a^\text{new}</script> is no longer meaningful, so we just simply select another pair <script type="math/tex">(\lambda_a, \lambda_b)</script> and do the computation above.</p>
 </blockquote>
 
-<p>Note that the expression of the <script type="math/tex">\lambda_a^\text{new}</script> is not clipped, since according to the dual constraints, each <script type="math/tex">\lambda_i</script> actually has a box constraint.</p>
+<p>Note that the expression of the <script type="math/tex">\lambda_a^\text{new}</script> is not clipped, since according to the dual constraints, each <script type="math/tex">\lambda_i</script> actually has a box constraint. So we have:</p>
+<center>
+	$$
+	0\leq \lambda_a \leq C\\
+	0\leq \lambda_b \leq C\\
+	\lambda_b = -\lambda_a y_a y_b - \xi y_b
+	$$
+</center>
 
 <blockquote>
   <p>Ref:</p>
@@ -391,6 +398,8 @@ $$
     <li><a href="https://zhuanlan.zhihu.com/p/29212107">机器学习算法实践-SVM中的SMO算法- 知乎</a></li>
   </ol>
 </blockquote>
+
+<p>3 ACL</p>
 
 
                 <hr style="visibility: hidden;">
