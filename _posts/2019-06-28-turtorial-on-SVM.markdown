@@ -204,7 +204,7 @@ $$\ \ \ \ \ \ \ $$$$\lambda_a\leftarrow \lambda_a^\text{new},\ \lambda_b\leftarr
 \\
 **Until**: Maximum iteration reached, or the dual objective function $$L(\lambda)$$ is not further maximized with a certain accuracy.
 
-Cool, isn't it?
+Cool, isn't it? Now We are able to solve the dual problem using the SMO algorithm!
 
 
 
