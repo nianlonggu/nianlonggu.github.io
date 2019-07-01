@@ -383,7 +383,7 @@ $$
   <p>Discussion: What if <script type="math/tex">K_{a,a} +K_{b,b} - 2K_{a,b}=0</script>? In this case <script type="math/tex">L(\lambda)</script> is a first degree function, it’s still concave, but in this case the definition of <script type="math/tex">\lambda_a^\text{new}</script> is no longer meaningful, so we just simply select another pair <script type="math/tex">(\lambda_a, \lambda_b)</script> and do the computation above.</p>
 </blockquote>
 
-<p>Note that the expression of the <script type="math/tex">\lambda_a^\text{new}</script> is not clipped, since according to the dual constraints, each <script type="math/tex">\lambda_i</script> actually has a box constraint. So we have:</p>
+<p>Note that the expression of the <script type="math/tex">\lambda_a^\text{new}</script> is not clipped, so for simplicity we name it as <script type="math/tex">\lambda_a^\text{new, unclipped}</script>. It is inadequate to only compute the <script type="math/tex">\lambda_a^\text{new, unclipped}</script>. We need to further clip it based on the meaningful domain determined by the dual constraints. According to the dual constraints, each <script type="math/tex">\lambda_i</script> actually has a box constraint. So we have:</p>
 <center>
 	$$
 	0\leq \lambda_a \leq C\\
@@ -391,6 +391,16 @@ $$
 	\lambda_b = -\lambda_a y_a y_b - \xi y_b
 	$$
 </center>
+<p>We know that <script type="math/tex">y_i \in {-1, +1}</script>. Based on whether <script type="math/tex">y_a = y_b</script> or not, we can have the relationship between <script type="math/tex">\lambda_a</script> and <script type="math/tex">\lambda_b</script> with box constraints, shown in the figure below.</p>
+
+<p><a name="lambda_ab"></a>
+<img src="https://nianlonggu.github.io/img/2019-06-28-SVM/lambda_ab.svg" />
+<em><center>Relationship between $\lambda_a$ and $\lambda_b$ with box constraints.</center></em></p>
+
+<p>According to the figure, we can get the lower bound <script type="math/tex">L</script> and higher bound <script type="math/tex">H</script> for a meaningful solution of a new <script type="math/tex">\lambda_a</script>:</p>
+<ol>
+  <li>If <script type="math/tex">y_a = y_b</script></li>
+</ol>
 
 <blockquote>
   <p>Ref:</p>

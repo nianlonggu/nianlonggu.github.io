@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Mon, 01 Jul 2019 11:52:10 +0200</pubDate>
-    <lastBuildDate>Mon, 01 Jul 2019 11:52:10 +0200</lastBuildDate>
+    <pubDate>Mon, 01 Jul 2019 12:13:12 +0200</pubDate>
+    <lastBuildDate>Mon, 01 Jul 2019 12:13:12 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -120,7 +120,7 @@ $$
   &lt;p&gt;Discussion: What if &lt;script type=&quot;math/tex&quot;&gt;K_{a,a} +K_{b,b} - 2K_{a,b}=0&lt;/script&gt;? In this case &lt;script type=&quot;math/tex&quot;&gt;L(\lambda)&lt;/script&gt; is a first degree function, it’s still concave, but in this case the definition of &lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{new}&lt;/script&gt; is no longer meaningful, so we just simply select another pair &lt;script type=&quot;math/tex&quot;&gt;(\lambda_a, \lambda_b)&lt;/script&gt; and do the computation above.&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;p&gt;Note that the expression of the &lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{new}&lt;/script&gt; is not clipped, since according to the dual constraints, each &lt;script type=&quot;math/tex&quot;&gt;\lambda_i&lt;/script&gt; actually has a box constraint. So we have:&lt;/p&gt;
+&lt;p&gt;Note that the expression of the &lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{new}&lt;/script&gt; is not clipped, so for simplicity we name it as &lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{new, unclipped}&lt;/script&gt;. It is inadequate to only compute the &lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{new, unclipped}&lt;/script&gt;. We need to further clip it based on the meaningful domain determined by the dual constraints. According to the dual constraints, each &lt;script type=&quot;math/tex&quot;&gt;\lambda_i&lt;/script&gt; actually has a box constraint. So we have:&lt;/p&gt;
 &lt;center&gt;
 	$$
 	0\leq \lambda_a \leq C\\
@@ -128,6 +128,16 @@ $$
 	\lambda_b = -\lambda_a y_a y_b - \xi y_b
 	$$
 &lt;/center&gt;
+&lt;p&gt;We know that &lt;script type=&quot;math/tex&quot;&gt;y_i \in {-1, +1}&lt;/script&gt;. Based on whether &lt;script type=&quot;math/tex&quot;&gt;y_a = y_b&lt;/script&gt; or not, we can have the relationship between &lt;script type=&quot;math/tex&quot;&gt;\lambda_a&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\lambda_b&lt;/script&gt; with box constraints, shown in the figure below.&lt;/p&gt;
+
+&lt;p&gt;&lt;a name=&quot;lambda_ab&quot;&gt;&lt;/a&gt;
+&lt;img src=&quot;https://nianlonggu.github.io/img/2019-06-28-SVM/lambda_ab.svg&quot; /&gt;
+&lt;em&gt;&lt;center&gt;Relationship between $\lambda_a$ and $\lambda_b$ with box constraints.&lt;/center&gt;&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;According to the figure, we can get the lower bound &lt;script type=&quot;math/tex&quot;&gt;L&lt;/script&gt; and higher bound &lt;script type=&quot;math/tex&quot;&gt;H&lt;/script&gt; for a meaningful solution of a new &lt;script type=&quot;math/tex&quot;&gt;\lambda_a&lt;/script&gt;:&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;If &lt;script type=&quot;math/tex&quot;&gt;y_a = y_b&lt;/script&gt;&lt;/li&gt;
+&lt;/ol&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;Ref:&lt;/p&gt;
