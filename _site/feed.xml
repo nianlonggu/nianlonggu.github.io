@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Mon, 01 Jul 2019 12:15:46 +0200</pubDate>
-    <lastBuildDate>Mon, 01 Jul 2019 12:15:46 +0200</lastBuildDate>
+    <pubDate>Mon, 01 Jul 2019 15:00:39 +0200</pubDate>
+    <lastBuildDate>Mon, 01 Jul 2019 15:00:39 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -128,7 +128,7 @@ $$
 	\lambda_b = -\lambda_a y_a y_b - \xi y_b
 	$$
 &lt;/center&gt;
-&lt;p&gt;We know that &lt;script type=&quot;math/tex&quot;&gt;y_i \in {-1, +1}&lt;/script&gt;. Based on whether &lt;script type=&quot;math/tex&quot;&gt;y_a = y_b&lt;/script&gt; or not, we can have the relationship between &lt;script type=&quot;math/tex&quot;&gt;\lambda_a&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\lambda_b&lt;/script&gt; with box constraints, shown in the figure below.&lt;/p&gt;
+&lt;p&gt;We know that &lt;script type=&quot;math/tex&quot;&gt;y_i \in \{-1, +1\}&lt;/script&gt;. Based on whether &lt;script type=&quot;math/tex&quot;&gt;y_a = y_b&lt;/script&gt; or not, we can have the relationship between &lt;script type=&quot;math/tex&quot;&gt;\lambda_a&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\lambda_b&lt;/script&gt; with box constraints, shown in the figure below.&lt;/p&gt;
 
 &lt;p&gt;&lt;a name=&quot;lambda_ab&quot;&gt;&lt;/a&gt;
 &lt;img src=&quot;https://nianlonggu.github.io/img/2019-06-28-SVM/lambda_ab.svg&quot; /&gt;
@@ -153,6 +153,66 @@ $$
 	H = \min(C, -\xi y_b)
 	$$
 &lt;/center&gt;
+&lt;p&gt;Based on &lt;script type=&quot;math/tex&quot;&gt;L&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;H&lt;/script&gt;, we can get the clipped new &lt;script type=&quot;math/tex&quot;&gt;\lambda_a&lt;/script&gt;:&lt;/p&gt;
+&lt;center&gt;
+	$$ \lambda_a^\text{new, clipped} = \begin{cases} 
+		L, &amp;amp;\ \text{if}\ \lambda_a^\text{new, unclipped} &amp;lt; L \\
+		H, &amp;amp;\ \text{if}\ \lambda_a^\text{new, unclipped} &amp;gt; H \\
+		\lambda_a^\text{new, unclipped}, &amp;amp;\ \text{otherwise}
+	\end{cases} $$
+&lt;/center&gt;
+&lt;p&gt;This &lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{new, clipped}&lt;/script&gt; is the final meaningful new value of &lt;script type=&quot;math/tex&quot;&gt;\lambda_a&lt;/script&gt;. For simplicity, in the following we use &lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{new}&lt;/script&gt; to refer &lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{new, clipped}&lt;/script&gt;.&lt;/p&gt;
+
+&lt;p&gt;After getting &lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{new}&lt;/script&gt;, we need to compute &lt;script type=&quot;math/tex&quot;&gt;\lambda_b^\text{new}&lt;/script&gt;:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\lambda_b^\text{new} = -\lambda_a^\text{new} y_a y_b - \xi y_b
+	$$
+&lt;/center&gt;
+
+&lt;p&gt;&lt;strong&gt;Now, we have finished one single iteration in SMO.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Before we summarize the algorithm of SMO, there are some updates that can improve the computation efficiency.&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;Computation of &lt;script type=&quot;math/tex&quot;&gt;\xi&lt;/script&gt;:
+In the deduction above, we can see &lt;script type=&quot;math/tex&quot;&gt;\xi&lt;/script&gt; is used in computing &lt;script type=&quot;math/tex&quot;&gt;L,\ H&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\lambda_b^\text{new}&lt;/script&gt;. If we compute &lt;script type=&quot;math/tex&quot;&gt;\xi&lt;/script&gt; using &lt;script type=&quot;math/tex&quot;&gt;\xi = \sum_{i\neq a,b}\lambda_i y_i&lt;/script&gt;, it will be time consuming. Instead, we can use the equation &lt;center&gt;$$ \xi = -\lambda_a^\text{old} y_a - \lambda_b^\text{old} y_b $$&lt;/center&gt;By substituting the expression of &lt;script type=&quot;math/tex&quot;&gt;\xi&lt;/script&gt; into the expression of &lt;script type=&quot;math/tex&quot;&gt;\lambda_b^\text{new}&lt;/script&gt;, we have:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;center&gt;
+	$$
+	\lambda_b^\text{new} = \lambda_b^\text{old} + ( \lambda_a^\text{old} - \lambda_a^\text{new}) y_a y_b
+	$$
+&lt;/center&gt;
+
+&lt;h2 id=&quot;sequential-minimal-optimization-algorithm&quot;&gt;Sequential Minimal Optimization Algorithm&lt;/h2&gt;
+&lt;p&gt;According to the deduction above, we can have the pseudo algorithm of the SMO.&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;strong&gt;Initialization:&lt;/strong&gt; &lt;script type=&quot;math/tex&quot;&gt;\lambda_i=0&lt;/script&gt; for &lt;script type=&quot;math/tex&quot;&gt;i=1,\dots,n&lt;/script&gt;, and pre-calculation of the Kernel matrix &lt;script type=&quot;math/tex&quot;&gt;\mathbf{K}&lt;/script&gt; &lt;br /&gt;
+&lt;strong&gt;Repeat:&lt;/strong&gt;&lt;br /&gt;
+&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \ \ \ \&lt;/script&gt;heuristically (or randomly) select a pair &lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{old}\leftarrow \lambda_a,\ \lambda_b^\text{old}\leftarrow \lambda_b&lt;/script&gt;;&lt;br /&gt;
+&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \ \ \ \&lt;/script&gt;&lt;script type=&quot;math/tex&quot;&gt;E_b - E_a = \sum_{i}\lambda_i y_i K_{i,b} - y_b - \sum_{i} \lambda_i y_i K_{i,a} + y_a&lt;/script&gt; &lt;br /&gt;
+&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \ \ \ \&lt;/script&gt;&lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{new, unclipped} = \lambda_a^\text{old} + \frac{ y_a (E_b - E_a)}{ K_{a,a} + K_{b,b} -2K_{a,b} }&lt;/script&gt;&lt;br /&gt;
+&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \ \ \ \&lt;/script&gt;&lt;script type=&quot;math/tex&quot;&gt;\xi = -\lambda_a^\text{old} y_a - \lambda_b^\text{old} y_b&lt;/script&gt;&lt;br /&gt;
+&lt;br /&gt;
+&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \ \ \ \&lt;/script&gt;&lt;strong&gt;if&lt;/strong&gt; &lt;script type=&quot;math/tex&quot;&gt;y_a \neq y_b&lt;/script&gt;:&lt;br /&gt;
+&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \ \ \ \&lt;/script&gt;&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \ \ \ \&lt;/script&gt;&lt;script type=&quot;math/tex&quot;&gt;L= \max( \xi y_b,0 ),\ H=\min(C+\xi y_b,C)&lt;/script&gt;&lt;br /&gt;
+&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \ \ \ \&lt;/script&gt;&lt;strong&gt;else&lt;/strong&gt;:&lt;br /&gt;
+&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \ \ \ \&lt;/script&gt;&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \ \ \ \&lt;/script&gt;&lt;script type=&quot;math/tex&quot;&gt;L= \max( 0, -C-\xi y_b ),\ H=\min(C, -\xi y_b)&lt;/script&gt;&lt;br /&gt;
+&lt;br /&gt;
+&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \ \ \ \&lt;/script&gt;&lt;strong&gt;if&lt;/strong&gt; &lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+\lambda_a^\text{new, unclipped} &lt; L %]]&gt;&lt;/script&gt;:&lt;br /&gt;
+&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \ \ \ \&lt;/script&gt;&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \ \ \ \&lt;/script&gt;&lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{new} = L&lt;/script&gt;&lt;br /&gt;
+&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \ \ \ \&lt;/script&gt;&lt;strong&gt;else if&lt;/strong&gt; &lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{new, unclipped} &gt; H&lt;/script&gt;:&lt;br /&gt;
+&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \ \ \ \&lt;/script&gt;&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \ \ \ \&lt;/script&gt;&lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{new} = H&lt;/script&gt;&lt;br /&gt;
+&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \ \ \ \&lt;/script&gt;&lt;strong&gt;else&lt;/strong&gt;:&lt;br /&gt;
+&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \ \ \ \&lt;/script&gt;&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \ \ \ \&lt;/script&gt;&lt;script type=&quot;math/tex&quot;&gt;\lambda_a^\text{new} = \lambda_a^\text{new, unclipped}&lt;/script&gt;&lt;br /&gt;
+&lt;br /&gt;
+&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \ \ \ \&lt;/script&gt;&lt;script type=&quot;math/tex&quot;&gt;\lambda_b^\text{new}=\lambda_b^\text{old}+(\lambda_a^\text{old}-\lambda_a^\text{new})y_a y_b&lt;/script&gt;&lt;br /&gt;
+&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \ \ \ \&lt;/script&gt;&lt;script type=&quot;math/tex&quot;&gt;\lambda_a\leftarrow \lambda_a^\text{new},\ \lambda_b\leftarrow \lambda_b^\text{new}&lt;/script&gt;&lt;br /&gt;
+&lt;br /&gt;
+&lt;strong&gt;Until&lt;/strong&gt;: Maximum iteration reached, or the dual objective function &lt;script type=&quot;math/tex&quot;&gt;L(\lambda)&lt;/script&gt; is not further maximized with a certain accuracy.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Cool, isn’t it?&lt;/p&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;Ref:&lt;/p&gt;
@@ -160,8 +220,6 @@ $$
     &lt;li&gt;&lt;a href=&quot;https://zhuanlan.zhihu.com/p/29212107&quot;&gt;机器学习算法实践-SVM中的SMO算法- 知乎&lt;/a&gt;&lt;/li&gt;
   &lt;/ol&gt;
 &lt;/blockquote&gt;
-
-&lt;p&gt;3 ACL&lt;/p&gt;
 </description>
         <pubDate>Fri, 28 Jun 2019 02:00:00 +0200</pubDate>
         <link>http://localhost:4000/2019/06/28/turtorial-on-SVM/</link>

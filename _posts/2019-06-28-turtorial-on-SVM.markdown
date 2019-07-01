@@ -129,7 +129,7 @@ Note that the expression of the $$\lambda_a^\text{new}$$ is not clipped, so for 
 	\lambda_b = -\lambda_a y_a y_b - \xi y_b
 	$$
 </center>
-We know that $$y_i \in {-1, +1}$$. Based on whether $$y_a = y_b$$ or not, we can have the relationship between $$\lambda_a$$ and $$\lambda_b$$ with box constraints, shown in the figure below.
+We know that $$y_i \in \{-1, +1\}$$. Based on whether $$y_a = y_b$$ or not, we can have the relationship between $$\lambda_a$$ and $$\lambda_b$$ with box constraints, shown in the figure below.
 
 <a name="lambda_ab"></a>
 <img src="https://nianlonggu.github.io/img/2019-06-28-SVM/lambda_ab.svg"/>
@@ -150,9 +150,63 @@ According to the figure, we can get the lower bound $$L$$ and higher bound $$H$$
 	H = \min(C, -\xi y_b)
 	$$
 </center>
+Based on $$L$$ and $$H$$, we can get the clipped new $$\lambda_a$$:
+<center>
+	$$ \lambda_a^\text{new, clipped} = \begin{cases} 
+		L, &\ \text{if}\ \lambda_a^\text{new, unclipped} < L \\
+		H, &\ \text{if}\ \lambda_a^\text{new, unclipped} > H \\
+		\lambda_a^\text{new, unclipped}, &\ \text{otherwise}
+	\end{cases} $$
+</center>
+This $$\lambda_a^\text{new, clipped}$$ is the final meaningful new value of $$\lambda_a$$. For simplicity, in the following we use $$\lambda_a^\text{new}$$ to refer $$\lambda_a^\text{new, clipped}$$.
+
+After getting $$\lambda_a^\text{new}$$, we need to compute $$\lambda_b^\text{new}$$:
+<center>
+	$$
+	\lambda_b^\text{new} = -\lambda_a^\text{new} y_a y_b - \xi y_b
+	$$
+</center>
+
+**Now, we have finished one single iteration in SMO.**
+
+Before we summarize the algorithm of SMO, there are some updates that can improve the computation efficiency. 
+1. Computation of $$\xi$$:
+In the deduction above, we can see $$\xi$$ is used in computing $$L,\ H$$ and $$\lambda_b^\text{new}$$. If we compute $$\xi$$ using $$\xi = \sum_{i\neq a,b}\lambda_i y_i$$, it will be time consuming. Instead, we can use the equation <center>$$ \xi = -\lambda_a^\text{old} y_a - \lambda_b^\text{old} y_b $$</center>By substituting the expression of $$\xi$$ into the expression of $$\lambda_b^\text{new}$$, we have:
+<center>
+	$$
+	\lambda_b^\text{new} = \lambda_b^\text{old} + ( \lambda_a^\text{old} - \lambda_a^\text{new}) y_a y_b
+	$$
+</center>
+
+## Sequential Minimal Optimization Algorithm
+According to the deduction above, we can have the pseudo algorithm of the SMO.
+> **Initialization:** $$\lambda_i=0$$ for $$i=1,\dots,n$$, and pre-calculation of the Kernel matrix $$\mathbf{K}$$ \\
+**Repeat:**\\
+$$\ \ \ \ \ \ \ $$heuristically (or randomly) select a pair $$\lambda_a^\text{old}\leftarrow \lambda_a,\ \lambda_b^\text{old}\leftarrow \lambda_b$$;\\
+$$\ \ \ \ \ \ \ $$$$E_b - E_a = \sum_{i}\lambda_i y_i K_{i,b} - y_b - \sum_{i} \lambda_i y_i K_{i,a} + y_a $$ \\
+$$\ \ \ \ \ \ \ $$$$\lambda_a^\text{new, unclipped} = \lambda_a^\text{old} + \frac{ y_a (E_b - E_a)}{ K_{a,a} + K_{b,b} -2K_{a,b} } $$\\
+$$\ \ \ \ \ \ \ $$$$\xi = -\lambda_a^\text{old} y_a - \lambda_b^\text{old} y_b $$\\
+\\
+$$\ \ \ \ \ \ \ $$**if** $$y_a \neq y_b$$:\\
+$$\ \ \ \ \ \ \ $$$$\ \ \ \ \ \ \ $$$$L= \max( \xi y_b,0 ),\ H=\min(C+\xi y_b,C)$$\\
+$$\ \ \ \ \ \ \ $$**else**:\\
+$$\ \ \ \ \ \ \ $$$$\ \ \ \ \ \ \ $$$$L= \max( 0, -C-\xi y_b ),\ H=\min(C, -\xi y_b)$$\\
+\\
+$$\ \ \ \ \ \ \ $$**if** $$\lambda_a^\text{new, unclipped} < L $$:\\
+$$\ \ \ \ \ \ \ $$$$\ \ \ \ \ \ \ $$$$\lambda_a^\text{new} = L$$\\
+$$\ \ \ \ \ \ \ $$**else if** $$\lambda_a^\text{new, unclipped} > H $$:\\
+$$\ \ \ \ \ \ \ $$$$\ \ \ \ \ \ \ $$$$\lambda_a^\text{new} = H$$\\
+$$\ \ \ \ \ \ \ $$**else**:\\
+$$\ \ \ \ \ \ \ $$$$\ \ \ \ \ \ \ $$$$\lambda_a^\text{new} = \lambda_a^\text{new, unclipped}$$\\
+\\
+$$\ \ \ \ \ \ \ $$$$\lambda_b^\text{new}=\lambda_b^\text{old}+(\lambda_a^\text{old}-\lambda_a^\text{new})y_a y_b$$\\
+$$\ \ \ \ \ \ \ $$$$\lambda_a\leftarrow \lambda_a^\text{new},\ \lambda_b\leftarrow \lambda_b^\text{new}$$\\
+\\
+**Until**: Maximum iteration reached, or the dual objective function $$L(\lambda)$$ is not further maximized with a certain accuracy.
+
+Cool, isn't it?
+
+
 
 > Ref:
 1. [机器学习算法实践-SVM中的SMO算法- 知乎](https://zhuanlan.zhihu.com/p/29212107)
-
-
-3 ACL
