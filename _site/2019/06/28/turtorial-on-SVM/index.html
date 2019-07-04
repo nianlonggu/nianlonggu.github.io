@@ -399,24 +399,18 @@ $$
 
 <p>According to the figure, we can get the lower bound <script type="math/tex">L</script> and higher bound <script type="math/tex">H</script> for a meaningful solution of a new <script type="math/tex">\lambda_a</script>:</p>
 <ol>
-  <li>if <script type="math/tex">y_a \neq y_b</script>:</li>
+  <li>if <script type="math/tex">y_a \neq y_b</script>:<center>
+ $$
+ L = \max(\xi y_b, 0)\\
+ H = \min(C+\xi y_b, C )
+ $$</center></li>
+  <li>if <script type="math/tex">y_a = y_b</script>:<center>
+ $$
+ L = \max(0, -C-\xi y_b)\\
+ H = \min(C, -\xi y_b)
+ $$</center>
+Based on <script type="math/tex">L</script> and <script type="math/tex">H</script>, we can get the clipped new <script type="math/tex">\lambda_a</script>:</li>
 </ol>
-<center>
-	$$
-	L = \max(\xi y_b, 0)\\
-	H = \min(C+\xi y_b, C )
-	$$
-</center>
-<ol>
-  <li>if <script type="math/tex">y_a = y_b</script>:</li>
-</ol>
-<center>
-	$$
-	L = \max(0, -C-\xi y_b)\\
-	H = \min(C, -\xi y_b)
-	$$
-</center>
-<p>Based on <script type="math/tex">L</script> and <script type="math/tex">H</script>, we can get the clipped new <script type="math/tex">\lambda_a</script>:</p>
 <center>
 	$$ \lambda_a^\text{new, clipped} = \begin{cases} 
 		L, &amp;\ \text{if}\ \lambda_a^\text{new, unclipped} &lt; L \\
@@ -432,6 +426,31 @@ $$
 	\lambda_b^\text{new} = -\lambda_a^\text{new} y_a y_b - \xi y_b
 	$$
 </center>
+
+<p>Now, we need to decide whether to update the value of <script type="math/tex">b^\star</script>. If <script type="math/tex">% <![CDATA[
+0<\lambda_a^\text{new}<C %]]></script>, then <script type="math/tex">\mathbf{x}_ a</script> is the support vector which is exactly located at the margin. Therefore, we can update <script type="math/tex">b^\text{new}</script> as:</p>
+<center>
+	$$
+	\begin{align}
+	b^\text{new} &amp;= y_a -\sum_{i\neq a,b} \lambda_i y_i K_{i,a} - \lambda_a^\text{new} y_a K_{a,a} - \lambda_b^\text{new} y_b K_{b,a}\\
+		   &amp;= b^\text{old} - ( \sum_{i}\lambda_i y_i K_{i,a} + b^\text{old} - y_a ) \\
+		   &amp;\ \ \ + (\lambda_a^\text{old}-\lambda_a^\text{new})y_a K_{a,a} +(\lambda_b^\text{old}-\lambda_b^\text{new}) y_b K_{b,a} \\
+		   &amp;= b^\text{old} - E_a + (\lambda_a^\text{old}-\lambda_a^\text{new})y_a K_{a,a} +(\lambda_b^\text{old}-\lambda_b^\text{new}) y_b K_{b,a} 
+	\end{align}
+	$$
+</center>
+
+<p>Otherwise, if <script type="math/tex">% <![CDATA[
+0<\lambda_b^\text{new}<C %]]></script>, we can update <script type="math/tex">b^\text{new}</script> as:</p>
+<center>
+	$$
+	b^\text{new} = b^\text{old} - E_b + ( \lambda_a^\text{old} - \lambda_a^\text{new} )y_a K_{a,b} +( \lambda_b^\text{old} - \lambda_b^\text{old} ) y_b K_{b,b}
+	$$
+</center>
+
+<p>Note that if neither <script type="math/tex">% <![CDATA[
+0<\lambda_a^\text{new}<C %]]></script> nor <script type="math/tex">% <![CDATA[
+0<\lambda_b^\text{new}<C %]]></script>, here we choose not to update <script type="math/tex">b</script>.</p>
 
 <p><strong>Now, we have finished one single iteration in SMO.</strong></p>
 
@@ -449,10 +468,15 @@ In the deduction above, we can see <script type="math/tex">\xi</script> is used 
 <h2 id="sequential-minimal-optimization-algorithm">Sequential Minimal Optimization Algorithm</h2>
 <p>According to the deduction above, we can have the pseudo algorithm of the SMO.</p>
 <blockquote>
-  <p><strong>Initialization:</strong> <script type="math/tex">\lambda_i=0</script> for <script type="math/tex">i=1,\dots,n</script>, and pre-calculation of the Kernel matrix <script type="math/tex">\mathbf{K}</script> <br />
+  <p><strong>Initialization:</strong> <script type="math/tex">\lambda_i=0</script> for <script type="math/tex">i=1,\dots,n</script>, <script type="math/tex">b=0</script>, and pre-calculation of the Kernel matrix <script type="math/tex">\mathbf{K}</script> <br />
 <strong>Repeat:</strong><br />
 <script type="math/tex">\ \ \ \ \ \ \</script>heuristically (or randomly) select a pair <script type="math/tex">\lambda_a^\text{old}\leftarrow \lambda_a,\ \lambda_b^\text{old}\leftarrow \lambda_b</script>;<br />
-<script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">E_b - E_a = \sum_{i}\lambda_i y_i K_{i,b} - y_b - \sum_{i} \lambda_i y_i K_{i,a} + y_a</script> <br />
+<br />
+<script type="math/tex">\ \ \ \ \ \ \</script><strong>if</strong> <script type="math/tex">K_{a,a}+K_{b,b}-2K_{a,b}==0</script>:<br />
+<script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">\ \ \ \ \ \ \</script><strong>continue</strong><br />
+<br />
+<script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">E_a = \sum_{i} \lambda_i y_i K_{i,a}+ b^\text{old} - y_a</script> <br />
+<script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">E_b = \sum_{i}\lambda_i y_i K_{i,b}+ b^\text{old} - y_b</script> <br />
 <script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">\lambda_a^\text{new, unclipped} = \lambda_a^\text{old} + \frac{ y_a (E_b - E_a)}{ K_{a,a} + K_{b,b} -2K_{a,b} }</script><br />
 <script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">\xi = -\lambda_a^\text{old} y_a - \lambda_b^\text{old} y_b</script><br />
 <br />
@@ -471,6 +495,13 @@ In the deduction above, we can see <script type="math/tex">\xi</script> is used 
 <br />
 <script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">\lambda_b^\text{new}=\lambda_b^\text{old}+(\lambda_a^\text{old}-\lambda_a^\text{new})y_a y_b</script><br />
 <script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">\lambda_a\leftarrow \lambda_a^\text{new},\ \lambda_b\leftarrow \lambda_b^\text{new}</script><br />
+<br />
+<script type="math/tex">\ \ \ \ \ \ \</script><strong>if</strong> <script type="math/tex">% <![CDATA[
+0<\lambda_a^\text{new}<C %]]></script>:<br />
+<script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">b^\text{new}=b^\text{old}-E_a +(\lambda_a^\text{old}-\lambda_a^\text{new})y_a K_{a,a}+(\lambda_b^\text{old}-\lambda_b^\text{new})y_b K_{b,a}</script><br />
+<script type="math/tex">\ \ \ \ \ \ \</script><strong>else if</strong> <script type="math/tex">% <![CDATA[
+0<\lambda_b^\text{new}<C %]]></script>:<br />
+<script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">b^\text{new}=b^\text{old}-E_b +(\lambda_a^\text{old}-\lambda_a^\text{new})y_a K_{a,b}+(\lambda_b^\text{old}-\lambda_b^\text{new})y_b K_{b,b}</script><br />
 <br />
 <strong>Until</strong>: Maximum iteration reached, or the dual objective function <script type="math/tex">L(\lambda)</script> is not further maximized with a certain accuracy.</p>
 </blockquote>
@@ -495,6 +526,13 @@ In the deduction above, we can see <script type="math/tex">\xi</script> is used 
                         </a>
                     </li>
                     
+                    
+                    <li class="next">
+                        <a href="/2019/07/04/turtorial-on-SVM/" data-toggle="tooltip" data-placement="top" title="An Introduction to Support Vector Machines (SVM): A Python Implementation">
+                        Next<br>
+                        <span>An Introduction to Support Vector Machines (SVM): A Python Implementation</span>
+                        </a>
+                    </li>
                     
                 </ul>
                 <hr style="visibility: hidden;">
@@ -552,22 +590,22 @@ In the deduction above, we can see <script type="math/tex">\xi</script> is used 
                 <a data-sort="0000" 
                     href="/archive/?tag=%E6%94%AF%E6%8C%81%E5%90%91%E9%87%8F%E6%9C%BA"
                     title="支持向量机"
-                    rel="7">支持向量机</a>
+                    rel="8">支持向量机</a>
         
                 <a data-sort="0000" 
                     href="/archive/?tag=%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0"
                     title="机器学习"
-                    rel="7">机器学习</a>
+                    rel="8">机器学习</a>
         
                 <a data-sort="0000" 
                     href="/archive/?tag=Machine+Learning"
                     title="Machine Learning"
-                    rel="7">Machine Learning</a>
+                    rel="8">Machine Learning</a>
         
                 <a data-sort="0000" 
                     href="/archive/?tag=SVM"
                     title="SVM"
-                    rel="7">SVM
+                    rel="8">SVM
     </div>
 </section>
 

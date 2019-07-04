@@ -136,20 +136,16 @@ We know that $$y_i \in \{-1, +1\}$$. Based on whether $$y_a = y_b$$ or not, we c
 *<center>Relationship between $\lambda_a$ and $\lambda_b$ with box constraints.</center>*
 
 According to the figure, we can get the lower bound $$L$$ and higher bound $$H$$ for a meaningful solution of a new $$\lambda_a$$:
-1. if $$y_a \neq y_b$$:
-<center>
+1. if $$y_a \neq y_b$$:<center>
 	$$
 	L = \max(\xi y_b, 0)\\
 	H = \min(C+\xi y_b, C )
-	$$
-</center>
-2. if $$y_a = y_b$$:
-<center>
+	$$</center>
+2. if $$y_a = y_b$$:<center>
 	$$
 	L = \max(0, -C-\xi y_b)\\
 	H = \min(C, -\xi y_b)
-	$$
-</center>
+	$$</center>
 Based on $$L$$ and $$H$$, we can get the clipped new $$\lambda_a$$:
 <center>
 	$$ \lambda_a^\text{new, clipped} = \begin{cases} 
@@ -167,6 +163,27 @@ After getting $$\lambda_a^\text{new}$$, we need to compute $$\lambda_b^\text{new
 	$$
 </center>
 
+Now, we need to decide whether to update the value of $$b^\star$$. If $$0<\lambda_a^\text{new}<C$$, then $$\mathbf{x}_ a$$ is the support vector which is exactly located at the margin. Therefore, we can update $$b^\text{new}$$ as:
+<center>
+	$$
+	\begin{align}
+	b^\text{new} &= y_a -\sum_{i\neq a,b} \lambda_i y_i K_{i,a} - \lambda_a^\text{new} y_a K_{a,a} - \lambda_b^\text{new} y_b K_{b,a}\\
+		   &= b^\text{old} - ( \sum_{i}\lambda_i y_i K_{i,a} + b^\text{old} - y_a ) \\
+		   &\ \ \ + (\lambda_a^\text{old}-\lambda_a^\text{new})y_a K_{a,a} +(\lambda_b^\text{old}-\lambda_b^\text{new}) y_b K_{b,a} \\
+		   &= b^\text{old} - E_a + (\lambda_a^\text{old}-\lambda_a^\text{new})y_a K_{a,a} +(\lambda_b^\text{old}-\lambda_b^\text{new}) y_b K_{b,a} 
+	\end{align}
+	$$
+</center>
+
+Otherwise, if $$0<\lambda_b^\text{new}<C$$, we can update $$b^\text{new}$$ as:
+<center>
+	$$
+	b^\text{new} = b^\text{old} - E_b + ( \lambda_a^\text{old} - \lambda_a^\text{new} )y_a K_{a,b} +( \lambda_b^\text{old} - \lambda_b^\text{old} ) y_b K_{b,b}
+	$$
+</center>
+
+Note that if neither $$0<\lambda_a^\text{new}<C$$ nor $$0<\lambda_b^\text{new}<C$$, here we choose not to update $$b$$.
+
 **Now, we have finished one single iteration in SMO.**
 
 Before we summarize the algorithm of SMO, there are some updates that can improve the computation efficiency. 
@@ -180,10 +197,15 @@ In the deduction above, we can see $$\xi$$ is used in computing $$L,\ H$$ and $$
 
 ## Sequential Minimal Optimization Algorithm
 According to the deduction above, we can have the pseudo algorithm of the SMO.
-> **Initialization:** $$\lambda_i=0$$ for $$i=1,\dots,n$$, and pre-calculation of the Kernel matrix $$\mathbf{K}$$ \\
+> **Initialization:** $$\lambda_i=0$$ for $$i=1,\dots,n$$, $$b=0$$, and pre-calculation of the Kernel matrix $$\mathbf{K}$$ \\
 **Repeat:**\\
 $$\ \ \ \ \ \ \ $$heuristically (or randomly) select a pair $$\lambda_a^\text{old}\leftarrow \lambda_a,\ \lambda_b^\text{old}\leftarrow \lambda_b$$;\\
-$$\ \ \ \ \ \ \ $$$$E_b - E_a = \sum_{i}\lambda_i y_i K_{i,b} - y_b - \sum_{i} \lambda_i y_i K_{i,a} + y_a $$ \\
+\\
+$$\ \ \ \ \ \ \ $$**if** $$K_{a,a}+K_{b,b}-2K_{a,b}==0$$:\\
+$$\ \ \ \ \ \ \ $$$$\ \ \ \ \ \ \ $$**continue**\\
+\\
+$$\ \ \ \ \ \ \ $$$$E_a = \sum_{i} \lambda_i y_i K_{i,a}+ b^\text{old} - y_a$$ \\
+$$\ \ \ \ \ \ \ $$$$E_b = \sum_{i}\lambda_i y_i K_{i,b}+ b^\text{old} - y_b$$ \\
 $$\ \ \ \ \ \ \ $$$$\lambda_a^\text{new, unclipped} = \lambda_a^\text{old} + \frac{ y_a (E_b - E_a)}{ K_{a,a} + K_{b,b} -2K_{a,b} } $$\\
 $$\ \ \ \ \ \ \ $$$$\xi = -\lambda_a^\text{old} y_a - \lambda_b^\text{old} y_b $$\\
 \\
@@ -201,6 +223,11 @@ $$\ \ \ \ \ \ \ $$$$\ \ \ \ \ \ \ $$$$\lambda_a^\text{new} = \lambda_a^\text{new
 \\
 $$\ \ \ \ \ \ \ $$$$\lambda_b^\text{new}=\lambda_b^\text{old}+(\lambda_a^\text{old}-\lambda_a^\text{new})y_a y_b$$\\
 $$\ \ \ \ \ \ \ $$$$\lambda_a\leftarrow \lambda_a^\text{new},\ \lambda_b\leftarrow \lambda_b^\text{new}$$\\
+\\
+$$\ \ \ \ \ \ \ $$**if** $$0<\lambda_a^\text{new}<C$$:\\
+$$\ \ \ \ \ \ \ $$$$\ \ \ \ \ \ \ $$$$b^\text{new}=b^\text{old}-E_a +(\lambda_a^\text{old}-\lambda_a^\text{new})y_a K_{a,a}+(\lambda_b^\text{old}-\lambda_b^\text{new})y_b K_{b,a}$$\\
+$$\ \ \ \ \ \ \ $$**else if** $$0<\lambda_b^\text{new}<C$$:\\
+$$\ \ \ \ \ \ \ $$$$\ \ \ \ \ \ \ $$$$b^\text{new}=b^\text{old}-E_b +(\lambda_a^\text{old}-\lambda_a^\text{new})y_a K_{a,b}+(\lambda_b^\text{old}-\lambda_b^\text{new})y_b K_{b,b}$$\\
 \\
 **Until**: Maximum iteration reached, or the dual objective function $$L(\lambda)$$ is not further maximized with a certain accuracy.
 
