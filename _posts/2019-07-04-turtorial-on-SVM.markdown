@@ -335,7 +335,7 @@ plt.show()
 ```
 
 
-![png](SVM-Tutorial_files/SVM-Tutorial_12_0.png)
+![png](https://nianlonggu.github.io/img/2019-07-04-SVM/SVM-Tutorial_12_0.png)
 
 
 From the figure, we can see that these points of two classes are obviously linearly non-separable, therefore we need to use the kernel SVM, and use Gaussian Kernel. Note that in the Gaussian Kernel there is a parameter: sigma, which represents the standard deviation. 
@@ -394,7 +394,7 @@ plot_results( x,y, svm.support_ind, pred_y= svm.predict(x), title = "",show_img 
 ```
 
 
-![png](../img/2019-07-04/SVM-Tutorial_18_0.png)
+![png](https://nianlonggu.github.io/img/2019-07-04-SVM/SVM-Tutorial_18_0.png)
 
 
 Several conclusions can be drawn:
@@ -544,7 +544,7 @@ plt.show()
 ```
 
 
-![png](SVM-Tutorial_files/SVM-Tutorial_31_0.png)
+![png](https://nianlonggu.github.io/img/2019-07-04-SVM/SVM-Tutorial_31_0.png)
 
 
 From the results we can see the support vectors are somehow ambiguous to distingush. E.g, the 9th digit 4 looks also like digit 9, and the second digit 9 also looks like digit 4. The SVM model is sensitive to such ambiguous samples and tend to use them as support vectors to determine the separating hyperplane.

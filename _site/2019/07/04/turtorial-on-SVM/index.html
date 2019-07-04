@@ -858,7 +858,7 @@ Return: a trained SVM model (solver) which is able to perform classification for
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></td></tr></tbody></table></code></pre></div></div>
 
-<p><img src="SVM-Tutorial_files/SVM-Tutorial_12_0.png" alt="png" /></p>
+<p><img src="https://nianlonggu.github.io/img/2019-07-04-SVM/SVM-Tutorial_12_0.png" alt="png" /></p>
 
 <p>From the figure, we can see that these points of two classes are obviously linearly non-separable, therefore we need to use the kernel SVM, and use Gaussian Kernel. Note that in the Gaussian Kernel there is a parameter: sigma, which represents the standard deviation.</p>
 
@@ -939,7 +939,7 @@ Iteration: 200000, 	Train accuracy: 100.00%, 	Val accuracy: 100.00%, 	Delta Obje
 </pre></td><td class="rouge-code"><pre><span class="n">plot_results</span><span class="p">(</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span> <span class="n">svm</span><span class="o">.</span><span class="n">support_ind</span><span class="p">,</span> <span class="n">pred_y</span><span class="o">=</span> <span class="n">svm</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">title</span> <span class="o">=</span> <span class="s">""</span><span class="p">,</span><span class="n">show_img</span> <span class="o">=</span> <span class="bp">True</span> <span class="p">)</span>
 </pre></td></tr></tbody></table></code></pre></div></div>
 
-<p><img src="../img/2019-07-04/SVM-Tutorial_18_0.png" alt="png" /></p>
+<p><img src="https://nianlonggu.github.io/img/2019-07-04-SVM/SVM-Tutorial_18_0.png" alt="png" /></p>
 
 <p>Several conclusions can be drawn:</p>
 <ol>
@@ -1181,7 +1181,7 @@ Iteration: 420000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Object
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></td></tr></tbody></table></code></pre></div></div>
 
-<p><img src="SVM-Tutorial_files/SVM-Tutorial_31_0.png" alt="png" /></p>
+<p><img src="https://nianlonggu.github.io/img/2019-07-04-SVM/SVM-Tutorial_31_0.png" alt="png" /></p>
 
 <p>From the results we can see the support vectors are somehow ambiguous to distingush. E.g, the 9th digit 4 looks also like digit 9, and the second digit 9 also looks like digit 4. The SVM model is sensitive to such ambiguous samples and tend to use them as support vectors to determine the separating hyperplane.</p>
 
