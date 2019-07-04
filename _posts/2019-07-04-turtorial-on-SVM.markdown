@@ -61,25 +61,6 @@ Description: A SVM solver
 Input:  training dataset (x,y), together with other hype-parameters
 Return: a trained SVM model (solver) which is able to perform classification for a give x
 """
-import numpy as np
-
-""" kernel part for SVM """
-def kernel_func(x1,x2, kernel_type=None):
-	if kernel_type is None:
-		return np.dot( x1,x2)
-	elif kernel_type["name"]=="GAUSSIAN":
-		sigma = kernel_type["params"][0]
-		return np.exp(- np.dot( x1-x2, x1-x2 )/(2*sigma**2)  )
-
-def get_kernel_matrix( x1, x2, kernel_type=None ):
-	num_samples_x1 = x1.shape[0]
-	num_samples_x2 = x2.shape[0]
-	kernel_matrix = np.zeros([num_samples_x1, num_samples_x2])
-	for nrow in range(num_samples_x1 ):
-		for ncol in range(num_samples_x2  ):
-			kernel_matrix[nrow][ncol] = kernel_func(x1[nrow] , x2[ncol], kernel_type = kernel_type)
-	return kernel_matrix
-
 class SVM_Solver:
 	def __init__(self, kernel_type=None , C=10):
 
@@ -386,7 +367,7 @@ svm.train(x,y, x_val, y_val, max_iter = 200000)
     Iteration: 200000, 	Train accuracy: 100.00%, 	Val accuracy: 100.00%, 	Delta Objective Function: 0.676768, 	Support Ratio: 8.30%
 
 
-Ok, let's have a lM results by plotting it!
+Ok, let's have a look of the results by plotting it!
 
 
 ```python
@@ -399,7 +380,7 @@ plot_results( x,y, svm.support_ind, pred_y= svm.predict(x), title = "",show_img 
 
 Several conclusions can be drawn:
 1. the training dataset is correctly separated, which implies an accurate separating hyperplane;
-2. The support vectors (points with solid color) are only located around the margin area, which indicates a good selection of the kernel parametes. This SVM is neithet overfit nor underfit.
+2. The support vectors (points with solid color) are only located around the margin area, which indicates a good selection of the kernel parameters. This SVM is neither over-fit nor under-fit.
 
 We can further evaluate the accuracy on test dataset:
 
@@ -547,11 +528,11 @@ plt.show()
 ![png](https://nianlonggu.github.io/img/2019-07-04-SVM/SVM-Tutorial_31_0.png)
 
 
-From the results we can see the support vectors are somehow ambiguous to distingush. E.g, the 9th digit 4 looks also like digit 9, and the second digit 9 also looks like digit 4. The SVM model is sensitive to such ambiguous samples and tend to use them as support vectors to determine the separating hyperplane.
+From the results we can see the support vectors are somehow ambiguous to distinguish. E.g, the 9th digit 4 looks also like digit 9, and the second digit 9 also looks like digit 4. The SVM model is sensitive to such ambiguous samples and tend to use them as support vectors to determine the separating hyperplane.
 
 **Conclusion**
 
-In these long serises, we mathematically show the principle of SVM and many possible solutions to thi problem. We also show the implementation and performance on some small but interesting samples. Hope this could be somehow helpful.
+In these long series, we mathematically show the principle of SVM and many possible solutions to the problem. We also show the implementation and performance on some small but interesting samples. Hope this could be somehow helpful.
 
 **Reference**
 1. [Andrew Ng's course on Machine Learning at Stanford University](http://cs229.stanford.edu/notes/)
