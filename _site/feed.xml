@@ -5,9 +5,126 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Thu, 04 Jul 2019 15:50:32 +0200</pubDate>
-    <lastBuildDate>Thu, 04 Jul 2019 15:50:32 +0200</lastBuildDate>
+    <pubDate>Sun, 07 Jul 2019 23:46:58 +0200</pubDate>
+    <lastBuildDate>Sun, 07 Jul 2019 23:46:58 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
+    
+      <item>
+        <title>An Introduction to Expectation-Maximization (EM) Algorithm and Gaussian Mixture Model (GMM) for Clustering</title>
+        <description>&lt;p&gt;Expectation Maximization (EM) algorithm is a special case of MLE where the observations (data samples &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}&lt;/script&gt;) are inherently related with some hidden variables (&lt;script type=&quot;math/tex&quot;&gt;\mathbf{z}&lt;/script&gt;). First of all, we need to review the basics of MLE.&lt;/p&gt;
+&lt;h2 id=&quot;maximum-likelihood-estimation-mle&quot;&gt;Maximum Likelihood Estimation (MLE)&lt;/h2&gt;
+&lt;p&gt;Let &lt;script type=&quot;math/tex&quot;&gt;\{\mathbf{x}_ i\},\ i=1,\dots,n&lt;/script&gt; be a set of independent and identically distributed observations, and &lt;script type=&quot;math/tex&quot;&gt;\mathbf{\theta}&lt;/script&gt; be the parameters of the data distribution which are unknown for us. The maximum likelihood estimation of the parameters &lt;script type=&quot;math/tex&quot;&gt;\theta&lt;/script&gt; is the parameters which can maximize the joint distribution &lt;script type=&quot;math/tex&quot;&gt;p_\theta(\mathbf{x}_ 1,\dots,\mathbf{x}_ n)= \prod_{i=1}^{n}p_\theta(\mathbf{x}_ i)&lt;/script&gt;&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\hat{\theta}_\text{MLE} = \arg\ \max_{\theta}{\prod_{i=1}^{n}p_\theta(\mathbf{x}_ i)}
+	$$
+&lt;/center&gt;
+&lt;p&gt;More commonly, we choose to maximize the joint log-likelihood:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\hat{\theta}_\text{MLE} = \arg\ \max_{\theta}{\sum_{i=1}^{n}\log p_\theta(\mathbf{x}_ i)}
+	$$
+&lt;/center&gt;
+
+&lt;p&gt;We use an example to illustrate how it works (referred from &lt;a href=&quot;https://zhuanlan.zhihu.com/p/40991784&quot;&gt;EM算法详解-知乎&lt;/a&gt;).&lt;/p&gt;
+
+&lt;p&gt;Suppose that we have a coin A, the likelihood of a heads is &lt;script type=&quot;math/tex&quot;&gt;\theta_A&lt;/script&gt;. We denote one observation &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i=\{ x_ {i,1},x_ {i,2},x_ {i,3},x_ {i,4},x_ {i,5}, \}&lt;/script&gt; as tossing the coin A 5 times and record the heads (1) or tails (0) of each tossing. For example, &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i&lt;/script&gt; can be 01001, 01110, 10010, … etc. The likelihood of the observation &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i&lt;/script&gt; is:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	p({\mathbf{x}_i}) = \prod_{j=1}^{5}\theta_A^{x_{i,j}}(1-\theta_A)^{1-x_{i,j}} = \theta_A^{\sum_{j=1}^{5}x_{i,j}}(1-\theta_A)^{\sum_{j=1}^{5}(1-x_{i,j})}
+	$$
+&lt;/center&gt;
+&lt;p&gt;Therefore, the log likelihood of the joint distribution of &lt;script type=&quot;math/tex&quot;&gt;n&lt;/script&gt; observations is:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	l(\theta_A) = \sum_{i=1}^{n} \sum_{j=1}^{5}\Big( x_{i,j}\log{\theta_A} +(1-x_{i,j})\log{(1-\theta_A)} \Big)
+	$$
+&lt;/center&gt;
+&lt;p&gt;The MLE of &lt;script type=&quot;math/tex&quot;&gt;\theta_A&lt;/script&gt; is&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\hat{\theta}_{A,\text{MLE}} = \arg \max_{\theta_A} l(\theta_A)
+	$$
+&lt;/center&gt;
+&lt;p&gt;To get &lt;script type=&quot;math/tex&quot;&gt;\hat{\theta}_{A,\text{MLE}}&lt;/script&gt; we can solve the equation &lt;script type=&quot;math/tex&quot;&gt;\frac{\partial{l(\theta_A)}}{\partial{\theta_A}}=0&lt;/script&gt;.&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\begin{align}
+	\frac{\partial{l(\theta_A)}}{\partial{\theta_A}} &amp;amp;= \sum_{i=1}^{n}\sum_{j=1}^5 \Big(\frac{x_{i,j}}{\theta_A} + \frac{x_{i,j}-1}{1-\theta_A} \Big)\\
+	&amp;amp;=  \frac{\sum_{i=1}^{n}\sum_{j=1}^5 x_{i,j}}{\theta_A} + \frac{\sum_{i=1}^{n}\sum_{j=1}^5 x_{i,j}-5n}{1-\theta_A} \\
+	&amp;amp;= 0
+	\end{align}
+	$$
+&lt;/center&gt;
+&lt;p&gt;Therefore, we have&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\hat{\theta}_{A, \text{MLE}} = \frac{\sum_{i=1}^{n}\sum_{j=1}^5 x_{i,j}}{5n}
+	$$
+&lt;/center&gt;
+&lt;p&gt;This is actually equivalent to compute the average value of all tossing results. 
+For example, if we have 10 observations as below:&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_1&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;01011&lt;/td&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_6&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;01110&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_2&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;01111&lt;/td&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_7&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;01110&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_3&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;11011&lt;/td&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_8&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;11011&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_4&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;00011&lt;/td&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_9&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;00100&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_5&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;01010&lt;/td&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_{10}&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;01001&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;The sum of all tossing is 28, and the total number of tossing is 50, so MLE of &lt;script type=&quot;math/tex&quot;&gt;\theta_A&lt;/script&gt; is &lt;script type=&quot;math/tex&quot;&gt;\frac{28}{50}=\frac{14}{25}&lt;/script&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;mle-with-hidden-variables&quot;&gt;MLE with hidden variables&lt;/h2&gt;
+
+&lt;!-- ![png](https://nianlonggu.github.io/img/2019-07-04-SVM/SVM-Tutorial_12_0.png) --&gt;
+
+</description>
+        <pubDate>Sun, 07 Jul 2019 23:09:00 +0200</pubDate>
+        <link>http://localhost:4000/2019/07/07/turtorial-on-EM/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/07/07/turtorial-on-EM/</guid>
+        
+        <category>EM Algorithm</category>
+        
+        <category>GMM</category>
+        
+        <category>Clustering</category>
+        
+        <category>聚类</category>
+        
+        <category>Machine Learning</category>
+        
+        <category>机器学习</category>
+        
+        
+      </item>
     
       <item>
         <title>An Introduction to Support Vector Machines (SVM): A Python Implementation</title>
@@ -202,49 +319,11 @@
 133
 134
 135
-136
-137
-138
-139
-140
-141
-142
-143
-144
-145
-146
-147
-148
-149
-150
-151
-152
-153
-154
 &lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;s&quot;&gt;&quot;&quot;&quot;
 Description: A SVM solver
 Input:  training dataset (x,y), together with other hype-parameters
 Return: a trained SVM model (solver) which is able to perform classification for a give x
 &quot;&quot;&quot;&lt;/span&gt;
-&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;numpy&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;
-
-&lt;span class=&quot;s&quot;&gt;&quot;&quot;&quot; kernel part for SVM &quot;&quot;&quot;&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;kernel_func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;kernel_type&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-	&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;kernel_type&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;is&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-		&lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dot&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-	&lt;span class=&quot;k&quot;&gt;elif&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;kernel_type&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;GAUSSIAN&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-		&lt;span class=&quot;n&quot;&gt;sigma&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;kernel_type&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;params&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-		&lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;exp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dot&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x2&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sigma&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;get_kernel_matrix&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;kernel_type&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-	&lt;span class=&quot;n&quot;&gt;num_samples_x1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-	&lt;span class=&quot;n&quot;&gt;num_samples_x2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-	&lt;span class=&quot;n&quot;&gt;kernel_matrix&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;zeros&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;num_samples_x1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;num_samples_x2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
-	&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nrow&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;num_samples_x1&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-		&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ncol&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;num_samples_x2&lt;/span&gt;  &lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-			&lt;span class=&quot;n&quot;&gt;kernel_matrix&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nrow&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ncol&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;kernel_func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nrow&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ncol&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;kernel_type&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;kernel_type&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-	&lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;kernel_matrix&lt;/span&gt;
-
 &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SVM_Solver&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
 	&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;kernel_type&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;C&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
 
@@ -670,7 +749,7 @@ Iteration: 190000, 	Train accuracy: 99.90%, 	Val accuracy: 99.00%, 	Delta Object
 Iteration: 200000, 	Train accuracy: 100.00%, 	Val accuracy: 100.00%, 	Delta Objective Function: 0.676768, 	Support Ratio: 8.30%
 &lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;Ok, let’s have a lM results by plotting it!&lt;/p&gt;
+&lt;p&gt;Ok, let’s have a look of the results by plotting it!&lt;/p&gt;
 
 &lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
 &lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;n&quot;&gt;plot_results&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;svm&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;support_ind&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pred_y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;svm&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;predict&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;title&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;show_img&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
@@ -681,7 +760,7 @@ Iteration: 200000, 	Train accuracy: 100.00%, 	Val accuracy: 100.00%, 	Delta Obje
 &lt;p&gt;Several conclusions can be drawn:&lt;/p&gt;
 &lt;ol&gt;
   &lt;li&gt;the training dataset is correctly separated, which implies an accurate separating hyperplane;&lt;/li&gt;
-  &lt;li&gt;The support vectors (points with solid color) are only located around the margin area, which indicates a good selection of the kernel parametes. This SVM is neithet overfit nor underfit.&lt;/li&gt;
+  &lt;li&gt;The support vectors (points with solid color) are only located around the margin area, which indicates a good selection of the kernel parameters. This SVM is neither over-fit nor under-fit.&lt;/li&gt;
 &lt;/ol&gt;
 
 &lt;p&gt;We can further evaluate the accuracy on test dataset:&lt;/p&gt;
@@ -920,11 +999,11 @@ Iteration: 420000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Object
 
 &lt;p&gt;&lt;img src=&quot;https://nianlonggu.github.io/img/2019-07-04-SVM/SVM-Tutorial_31_0.png&quot; alt=&quot;png&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;From the results we can see the support vectors are somehow ambiguous to distingush. E.g, the 9th digit 4 looks also like digit 9, and the second digit 9 also looks like digit 4. The SVM model is sensitive to such ambiguous samples and tend to use them as support vectors to determine the separating hyperplane.&lt;/p&gt;
+&lt;p&gt;From the results we can see the support vectors are somehow ambiguous to distinguish. E.g, the 9th digit 4 looks also like digit 9, and the second digit 9 also looks like digit 4. The SVM model is sensitive to such ambiguous samples and tend to use them as support vectors to determine the separating hyperplane.&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;Conclusion&lt;/strong&gt;&lt;/p&gt;
 
-&lt;p&gt;In these long serises, we mathematically show the principle of SVM and many possible solutions to thi problem. We also show the implementation and performance on some small but interesting samples. Hope this could be somehow helpful.&lt;/p&gt;
+&lt;p&gt;In these long series, we mathematically show the principle of SVM and many possible solutions to the problem. We also show the implementation and performance on some small but interesting samples. Hope this could be somehow helpful.&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;Reference&lt;/strong&gt;&lt;/p&gt;
 &lt;ol&gt;

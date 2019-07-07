@@ -465,49 +465,11 @@
 133
 134
 135
-136
-137
-138
-139
-140
-141
-142
-143
-144
-145
-146
-147
-148
-149
-150
-151
-152
-153
-154
 </pre></td><td class="rouge-code"><pre><span class="s">"""
 Description: A SVM solver
 Input:  training dataset (x,y), together with other hype-parameters
 Return: a trained SVM model (solver) which is able to perform classification for a give x
 """</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
-
-<span class="s">""" kernel part for SVM """</span>
-<span class="k">def</span> <span class="nf">kernel_func</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span> <span class="n">kernel_type</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-	<span class="k">if</span> <span class="n">kernel_type</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span> <span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">)</span>
-	<span class="k">elif</span> <span class="n">kernel_type</span><span class="p">[</span><span class="s">"name"</span><span class="p">]</span><span class="o">==</span><span class="s">"GAUSSIAN"</span><span class="p">:</span>
-		<span class="n">sigma</span> <span class="o">=</span> <span class="n">kernel_type</span><span class="p">[</span><span class="s">"params"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span> <span class="n">x1</span><span class="o">-</span><span class="n">x2</span><span class="p">,</span> <span class="n">x1</span><span class="o">-</span><span class="n">x2</span> <span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>  <span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">get_kernel_matrix</span><span class="p">(</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">kernel_type</span><span class="o">=</span><span class="bp">None</span> <span class="p">):</span>
-	<span class="n">num_samples_x1</span> <span class="o">=</span> <span class="n">x1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-	<span class="n">num_samples_x2</span> <span class="o">=</span> <span class="n">x2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-	<span class="n">kernel_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">num_samples_x1</span><span class="p">,</span> <span class="n">num_samples_x2</span><span class="p">])</span>
-	<span class="k">for</span> <span class="n">nrow</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_samples_x1</span> <span class="p">):</span>
-		<span class="k">for</span> <span class="n">ncol</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_samples_x2</span>  <span class="p">):</span>
-			<span class="n">kernel_matrix</span><span class="p">[</span><span class="n">nrow</span><span class="p">][</span><span class="n">ncol</span><span class="p">]</span> <span class="o">=</span> <span class="n">kernel_func</span><span class="p">(</span><span class="n">x1</span><span class="p">[</span><span class="n">nrow</span><span class="p">]</span> <span class="p">,</span> <span class="n">x2</span><span class="p">[</span><span class="n">ncol</span><span class="p">],</span> <span class="n">kernel_type</span> <span class="o">=</span> <span class="n">kernel_type</span><span class="p">)</span>
-	<span class="k">return</span> <span class="n">kernel_matrix</span>
-
 <span class="k">class</span> <span class="nc">SVM_Solver</span><span class="p">:</span>
 	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kernel_type</span><span class="o">=</span><span class="bp">None</span> <span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
 
@@ -933,7 +895,7 @@ Iteration: 190000, 	Train accuracy: 99.90%, 	Val accuracy: 99.00%, 	Delta Object
 Iteration: 200000, 	Train accuracy: 100.00%, 	Val accuracy: 100.00%, 	Delta Objective Function: 0.676768, 	Support Ratio: 8.30%
 </pre></td></tr></tbody></table></code></pre></div></div>
 
-<p>Ok, let’s have a lM results by plotting it!</p>
+<p>Ok, let’s have a look of the results by plotting it!</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 </pre></td><td class="rouge-code"><pre><span class="n">plot_results</span><span class="p">(</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span> <span class="n">svm</span><span class="o">.</span><span class="n">support_ind</span><span class="p">,</span> <span class="n">pred_y</span><span class="o">=</span> <span class="n">svm</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">title</span> <span class="o">=</span> <span class="s">""</span><span class="p">,</span><span class="n">show_img</span> <span class="o">=</span> <span class="bp">True</span> <span class="p">)</span>
@@ -944,7 +906,7 @@ Iteration: 200000, 	Train accuracy: 100.00%, 	Val accuracy: 100.00%, 	Delta Obje
 <p>Several conclusions can be drawn:</p>
 <ol>
   <li>the training dataset is correctly separated, which implies an accurate separating hyperplane;</li>
-  <li>The support vectors (points with solid color) are only located around the margin area, which indicates a good selection of the kernel parametes. This SVM is neithet overfit nor underfit.</li>
+  <li>The support vectors (points with solid color) are only located around the margin area, which indicates a good selection of the kernel parameters. This SVM is neither over-fit nor under-fit.</li>
 </ol>
 
 <p>We can further evaluate the accuracy on test dataset:</p>
@@ -1183,11 +1145,11 @@ Iteration: 420000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Object
 
 <p><img src="https://nianlonggu.github.io/img/2019-07-04-SVM/SVM-Tutorial_31_0.png" alt="png" /></p>
 
-<p>From the results we can see the support vectors are somehow ambiguous to distingush. E.g, the 9th digit 4 looks also like digit 9, and the second digit 9 also looks like digit 4. The SVM model is sensitive to such ambiguous samples and tend to use them as support vectors to determine the separating hyperplane.</p>
+<p>From the results we can see the support vectors are somehow ambiguous to distinguish. E.g, the 9th digit 4 looks also like digit 9, and the second digit 9 also looks like digit 4. The SVM model is sensitive to such ambiguous samples and tend to use them as support vectors to determine the separating hyperplane.</p>
 
 <p><strong>Conclusion</strong></p>
 
-<p>In these long serises, we mathematically show the principle of SVM and many possible solutions to thi problem. We also show the implementation and performance on some small but interesting samples. Hope this could be somehow helpful.</p>
+<p>In these long series, we mathematically show the principle of SVM and many possible solutions to the problem. We also show the implementation and performance on some small but interesting samples. Hope this could be somehow helpful.</p>
 
 <p><strong>Reference</strong></p>
 <ol>
@@ -1208,6 +1170,13 @@ Iteration: 420000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Object
                         </a>
                     </li>
                     
+                    
+                    <li class="next">
+                        <a href="/2019/07/07/turtorial-on-EM/" data-toggle="tooltip" data-placement="top" title="An Introduction to Expectation-Maximization (EM) Algorithm and Gaussian Mixture Model (GMM) for Clustering">
+                        Next<br>
+                        <span>An Introduction to Expectation-Maximization (EM) Algorithm and Gaussian Mixture Model (GMM) for Clustering</span>
+                        </a>
+                    </li>
                     
                 </ul>
                 <hr style="visibility: hidden;">
@@ -1262,7 +1231,7 @@ Iteration: 420000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Object
         </a>
         
         
-                <a data-sort="0000" 
+                <a data-sort="0001" 
                     href="/archive/?tag=%E6%94%AF%E6%8C%81%E5%90%91%E9%87%8F%E6%9C%BA"
                     title="支持向量机"
                     rel="8">支持向量机</a>
@@ -1270,14 +1239,14 @@ Iteration: 420000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Object
                 <a data-sort="0000" 
                     href="/archive/?tag=%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0"
                     title="机器学习"
-                    rel="8">机器学习</a>
+                    rel="9">机器学习</a>
         
                 <a data-sort="0000" 
                     href="/archive/?tag=Machine+Learning"
                     title="Machine Learning"
-                    rel="8">Machine Learning</a>
+                    rel="9">Machine Learning</a>
         
-                <a data-sort="0000" 
+                <a data-sort="0001" 
                     href="/archive/?tag=SVM"
                     title="SVM"
                     rel="8">SVM
