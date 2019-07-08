@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Mon, 08 Jul 2019 17:06:09 +0200</pubDate>
-    <lastBuildDate>Mon, 08 Jul 2019 17:06:09 +0200</lastBuildDate>
+    <pubDate>Mon, 08 Jul 2019 17:13:11 +0200</pubDate>
+    <lastBuildDate>Mon, 08 Jul 2019 17:13:11 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -195,7 +195,7 @@ Update &lt;script type=&quot;math/tex&quot;&gt;\theta \leftarrow \arg \max_{\the
 &lt;p&gt;This deduction shows that the EM algorithm is heading to the right direction. However, this direction may not be the ideal one. It is pretty obvious that if &lt;script type=&quot;math/tex&quot;&gt;l(\theta)&lt;/script&gt; is globally concave, EM algorithm  can always converge at the global optimum. If &lt;script type=&quot;math/tex&quot;&gt;l(\theta)&lt;/script&gt; is not globally concave, the property &lt;script type=&quot;math/tex&quot;&gt;l(\theta_l)\geq l(\theta_{l-1})&lt;/script&gt; will guarantee that EM algorithm will converge at some point (assume that &lt;script type=&quot;math/tex&quot;&gt;l(\theta)&lt;/script&gt; is not delta function), but the converge point may not be globally optimum.&lt;/p&gt;
 
 &lt;p&gt;Moreover, the EM algorithm is sensitive to the initialization. Different initialization may results in pretty different converge points, as shown in the figure below. 
-&lt;img src=&quot;https://nianlonggu.github.io/img/2019-07-07-EM/example-em-init.svg&quot; alt=&quot;EM initialization&quot; /&gt;
+&lt;img src=&quot;https://nianlonggu.github.io/img/2019-07-07-EM/example-em-init.svg&quot; alt=&quot;EM initialization&quot; /&gt; 
 As shown in this figure, if the initialization is at point &lt;script type=&quot;math/tex&quot;&gt;A&lt;/script&gt;, then EM will converge at point &lt;script type=&quot;math/tex&quot;&gt;C_A&lt;/script&gt;, while the EM will converge at point &lt;script type=&quot;math/tex&quot;&gt;C_B&lt;/script&gt; if initialization is &lt;script type=&quot;math/tex&quot;&gt;B&lt;/script&gt;. Obviously &lt;script type=&quot;math/tex&quot;&gt;C_B&lt;/script&gt; is the global optimum and &lt;script type=&quot;math/tex&quot;&gt;C_A&lt;/script&gt; not.&lt;/p&gt;
 
 &lt;p&gt;So how to make EM algorithm less sensitive to initialization and be more likely to find the global optimum? One simple, straight-forward but effective way is to randomly initialize the parameters and rum EM algorithm multiple times, and choose the parameters with the largest converged log-likelihood (objective function).&lt;/p&gt;
