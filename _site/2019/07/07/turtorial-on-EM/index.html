@@ -371,7 +371,26 @@ For example, if we have 10 observations as below:</p>
 
 <p>The sum of all tossing is 28, and the total number of tossing is 50, so MLE of <script type="math/tex">\theta_A</script> is <script type="math/tex">\frac{28}{50}=\frac{14}{25}</script></p>
 
-<h2 id="mle-with-hidden-variables">MLE with hidden variables</h2>
+<p><strong>MLE with hidden variables</strong></p>
+
+<p>Now things become more complicated. Suppose we have two coins: A and B. The likelihood of a heads of coin A and B are <script type="math/tex">\theta_A</script> and <script type="math/tex">\theta_B</script> respectively. We want to find the MLE of <script type="math/tex">\theta_A, \theta_B</script> using <script type="math/tex">n</script> observations <script type="math/tex">\{\mathbf{x}_ i\},\ i=1,\dots,n</script>. Each observation has the same form as above. The challenging part is that for each observation <script type="math/tex">\mathbf{x}_ i</script>, we don’t know which coin it comes from. For example, <script type="math/tex">n=10</script>, the observation set is the same as the table above. In this case how to find the MLE of <script type="math/tex">\theta_A</script> and <script type="math/tex">\theta_B</script>?</p>
+
+<p>This is an simple example where our observation is closely related with some hidden (unknown) variables. In other words, the information of the data is incomplete. The Expectation-Maximization algorithm can be used to solve these problems.</p>
+
+<h2 id="expectation-maximization-em-algorithm">Expectation-Maximization (EM) Algorithm</h2>
+<p>Before introducing EM algorithm, we need to known an important inequality: Jensen-Shannon Inequality.</p>
+
+<p><strong>Jensen-Shannon Inequality</strong></p>
+
+<p>If a function <script type="math/tex">f(\mathbf{X})</script> is strictly convex, where <script type="math/tex">\mathbf{X}</script> is a random variable and the Hessian matrix <script type="math/tex">H</script> is positive definite, we have</p>
+<center>
+	$$
+	E_{X}[f(\mathbf{X})] \geq f(E_X(\mathbf{X}))
+	$$
+</center>
+<p>The equality holds if and only if <script type="math/tex">E_X [\mathbf{X}]= \mathbf{X}</script> with the probability 1 (<script type="math/tex">\mathbf{X}</script> is a constant). Note that of <script type="math/tex">f(\mathbf{X})</script> is strictly concave, the direction of the inequality needs to be reversed.</p>
+
+<p>We can use an example to illustrate Jensen-Shannon inequality more intuitively (<strong>not proof</strong>).</p>
 
 <!-- ![png](https://nianlonggu.github.io/img/2019-07-04-SVM/SVM-Tutorial_12_0.png) -->
 

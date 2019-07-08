@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 07 Jul 2019 23:46:58 +0200</pubDate>
-    <lastBuildDate>Sun, 07 Jul 2019 23:46:58 +0200</lastBuildDate>
+    <pubDate>Mon, 08 Jul 2019 11:47:04 +0200</pubDate>
+    <lastBuildDate>Mon, 08 Jul 2019 11:47:04 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -102,7 +102,26 @@ For example, if we have 10 observations as below:&lt;/p&gt;
 
 &lt;p&gt;The sum of all tossing is 28, and the total number of tossing is 50, so MLE of &lt;script type=&quot;math/tex&quot;&gt;\theta_A&lt;/script&gt; is &lt;script type=&quot;math/tex&quot;&gt;\frac{28}{50}=\frac{14}{25}&lt;/script&gt;&lt;/p&gt;
 
-&lt;h2 id=&quot;mle-with-hidden-variables&quot;&gt;MLE with hidden variables&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;MLE with hidden variables&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Now things become more complicated. Suppose we have two coins: A and B. The likelihood of a heads of coin A and B are &lt;script type=&quot;math/tex&quot;&gt;\theta_A&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\theta_B&lt;/script&gt; respectively. We want to find the MLE of &lt;script type=&quot;math/tex&quot;&gt;\theta_A, \theta_B&lt;/script&gt; using &lt;script type=&quot;math/tex&quot;&gt;n&lt;/script&gt; observations &lt;script type=&quot;math/tex&quot;&gt;\{\mathbf{x}_ i\},\ i=1,\dots,n&lt;/script&gt;. Each observation has the same form as above. The challenging part is that for each observation &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i&lt;/script&gt;, we don’t know which coin it comes from. For example, &lt;script type=&quot;math/tex&quot;&gt;n=10&lt;/script&gt;, the observation set is the same as the table above. In this case how to find the MLE of &lt;script type=&quot;math/tex&quot;&gt;\theta_A&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\theta_B&lt;/script&gt;?&lt;/p&gt;
+
+&lt;p&gt;This is an simple example where our observation is closely related with some hidden (unknown) variables. In other words, the information of the data is incomplete. The Expectation-Maximization algorithm can be used to solve these problems.&lt;/p&gt;
+
+&lt;h2 id=&quot;expectation-maximization-em-algorithm&quot;&gt;Expectation-Maximization (EM) Algorithm&lt;/h2&gt;
+&lt;p&gt;Before introducing EM algorithm, we need to known an important inequality: Jensen-Shannon Inequality.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Jensen-Shannon Inequality&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;If a function &lt;script type=&quot;math/tex&quot;&gt;f(\mathbf{X})&lt;/script&gt; is strictly convex, where &lt;script type=&quot;math/tex&quot;&gt;\mathbf{X}&lt;/script&gt; is a random variable and the Hessian matrix &lt;script type=&quot;math/tex&quot;&gt;H&lt;/script&gt; is positive definite, we have&lt;/p&gt;
+&lt;center&gt;
+	$$
+	E_{X}[f(\mathbf{X})] \geq f(E_X(\mathbf{X}))
+	$$
+&lt;/center&gt;
+&lt;p&gt;The equality holds if and only if &lt;script type=&quot;math/tex&quot;&gt;E_X [\mathbf{X}]= \mathbf{X}&lt;/script&gt; with the probability 1 (&lt;script type=&quot;math/tex&quot;&gt;\mathbf{X}&lt;/script&gt; is a constant). Note that of &lt;script type=&quot;math/tex&quot;&gt;f(\mathbf{X})&lt;/script&gt; is strictly concave, the direction of the inequality needs to be reversed.&lt;/p&gt;
+
+&lt;p&gt;We can use an example to illustrate Jensen-Shannon inequality more intuitively (&lt;strong&gt;not proof&lt;/strong&gt;).&lt;/p&gt;
 
 &lt;!-- ![png](https://nianlonggu.github.io/img/2019-07-04-SVM/SVM-Tutorial_12_0.png) --&gt;
 

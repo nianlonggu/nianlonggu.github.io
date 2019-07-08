@@ -77,8 +77,26 @@ For example, if we have 10 observations as below:
 
 The sum of all tossing is 28, and the total number of tossing is 50, so MLE of $$\theta_A$$ is $$\frac{28}{50}=\frac{14}{25}$$
 
-## MLE with hidden variables
+**MLE with hidden variables**
 
+Now things become more complicated. Suppose we have two coins: A and B. The likelihood of a heads of coin A and B are $$\theta_A$$ and $$\theta_B$$ respectively. We want to find the MLE of $$\theta_A, \theta_B$$ using $$n$$ observations $$\{\mathbf{x}_ i\},\ i=1,\dots,n$$. Each observation has the same form as above. The challenging part is that for each observation $$\mathbf{x}_ i$$, we don't know which coin it comes from. For example, $$n=10$$, the observation set is the same as the table above. In this case how to find the MLE of $$\theta_A$$ and $$\theta_B$$?
+
+This is an simple example where our observation is closely related with some hidden (unknown) variables. In other words, the information of the data is incomplete. The Expectation-Maximization algorithm can be used to solve these problems.
+
+## Expectation-Maximization (EM) Algorithm
+Before introducing EM algorithm, we need to known an important inequality: Jensen-Shannon Inequality.
+
+**Jensen-Shannon Inequality**
+
+If a function $$f(\mathbf{X})$$ is strictly convex, where $$\mathbf{X}$$ is a random variable and the Hessian matrix $$H$$ is positive definite, we have
+<center>
+	$$
+	E_{X}[f(\mathbf{X})] \geq f(E_X(\mathbf{X}))
+	$$
+</center>
+The equality holds if and only if $$E_X [\mathbf{X}]= \mathbf{X}$$ with the probability 1 ($$\mathbf{X}$$ is a constant). Note that of $$f(\mathbf{X})$$ is strictly concave, the direction of the inequality needs to be reversed.
+
+We can use an example to illustrate Jensen-Shannon inequality more intuitively (**not proof**). 
 
 <!-- ![png](https://nianlonggu.github.io/img/2019-07-04-SVM/SVM-Tutorial_12_0.png) -->
 
