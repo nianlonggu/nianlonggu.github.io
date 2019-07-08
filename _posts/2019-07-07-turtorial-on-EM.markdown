@@ -163,4 +163,4 @@ So we have $$l(\theta_{l})\geq l(\theta_{l-1})$$. This guarantees that the overa
 This deduction shows that the EM algorithm is heading to the right direction. However, this direction may not be the ideal one. It is pretty obvious that if $$l(\theta)$$ is globally concave, EM algorithm  can always converge at the global optimum. If $$l(\theta)$$ is not globally concave, the property $$l(\theta_l)\geq l(\theta_{l-1})$$ will guarantee that EM algorithm will converge at some point (assume that $$l(\theta)$$ is not delta function), but the converge point may not be globally optimum. 
 
 Moreover, the EM algorithm is sensitive to the initialization. Different initialization may results in pretty different converge points, as shown in the figure below.
- 
+![EM initialization](https://nianlonggu.github.io/img/2019-07-07-EM/init-em.svg)
