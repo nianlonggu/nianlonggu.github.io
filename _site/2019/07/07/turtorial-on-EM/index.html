@@ -390,9 +390,80 @@ For example, if we have 10 observations as below:</p>
 </center>
 <p>The equality holds if and only if <script type="math/tex">E_X [\mathbf{X}]= \mathbf{X}</script> with the probability 1 (<script type="math/tex">\mathbf{X}</script> is a constant). Note that of <script type="math/tex">f(\mathbf{X})</script> is strictly concave, the direction of the inequality needs to be reversed.</p>
 
-<p>We can use an example to illustrate Jensen-Shannon inequality more intuitively (<strong>not proof</strong>).</p>
+<p>We can use an example to illustrate Jensen-Shannon inequality more intuitively (<strong>not proof</strong>). This example is referred from <a href="http://cs229.stanford.edu/notes/">Andrew Ng’s lecture note on EM</a>.
+<img src="https://nianlonggu.github.io/img/2019-07-07-EM/js-inequality.svg" alt="jensen-shannon inequality" />
+As shown in this figure, the random variable <script type="math/tex">\mathbf{X}</script> has only two possible values: <script type="math/tex">a</script> and <script type="math/tex">b</script>, each with the probability 0.5. Therefore, <script type="math/tex">f(E[\mathbf{X}])= f(\frac{a+b}{2})</script> and <script type="math/tex">E[f(\mathbf{X})]=\frac{f(a)+f(b)}{2}</script>. According to the convexity of the function <script type="math/tex">f(\mathbf{X})</script>, we have <script type="math/tex">E[f(\mathbf{X})]\geq f(E[\mathbf{X}])</script>, and the equality holds if and only if <script type="math/tex">a=b</script>, which means <script type="math/tex">E[\mathbf{X}]=\mathbf{X}=a</script>.</p>
 
-<!-- ![png](https://nianlonggu.github.io/img/2019-07-04-SVM/SVM-Tutorial_12_0.png) -->
+<p>Now we have a powerful tool, and we will use it to deduce the EM algorithm.</p>
+
+<p><strong>EM algorithm</strong><br />
+Recall the MLE problem:</p>
+<center>
+	$$
+	\theta_\text{MLE} = \arg \max_{\theta} \sum_{i=1}^{n} \log{p_\theta(\mathbf{x}_i)}
+	$$
+</center>
+<p>If <script type="math/tex">\mathbf{x}</script> is related with a latent variable <script type="math/tex">\mathbf{z}</script>, we write <script type="math/tex">p_\theta</script> as the marginal likelihood of the joint distribution:</p>
+<center>
+	$$
+	p_\theta(\mathbf{x}_i) = \sum_{z} p_\theta(\mathbf{x}_i, \mathbf{z})
+	$$
+</center>
+<p>Now our log-likelihood function <script type="math/tex">l(\theta)</script> becomes:</p>
+<center>
+	$$
+	l(\theta) = \sum_{i=1}^{n}\log \sum_{z} p_\theta(\mathbf{x}_i, \mathbf{z})
+	$$
+</center>
+<p>The expression of the joint distribution is not known to us. To solve this maximization problem we introduce a distribution <script type="math/tex">Q(\mathbf{z})</script>, and rewrite the log-likelihood function as:</p>
+<center>
+	$$
+	\begin{align}
+	l(\theta) &amp;= \sum_{i=1}^{n} \log \sum_{z} Q(z) \frac{p_\theta(\mathbf{x}_i,\mathbf{z}))}{Q(\mathbf{z})}\\
+	&amp;= \sum_{i=1}^{n} \log E_{z\in Q(z)} \left[ \frac{p_\theta(\mathbf{x}_i,\mathbf{z}))}{Q(\mathbf{z})}\right]
+	\end{align}
+	$$
+</center>
+<p>We know that the function <script type="math/tex">f(x)=\log(x)</script> is strictly concave, so according to the Jensen-Shannon inequality, we have the following inequality:</p>
+<center>
+	$$
+	l(\theta) \geq L(\theta, Q) =\sum_{i=1}^{n} E_{z \in Q(z)}\left[ \log{\frac{p_\theta(\mathbf{x}_i,\mathbf{z}))} {Q(\mathbf{z})}} \right]
+	$$
+</center>
+<p>The equality holds if and only if <script type="math/tex">\frac{p_\theta(\mathbf{x}_i,\mathbf{z}))} {Q(\mathbf{z})}</script> is a constant (with respect to variable <script type="math/tex">\mathbf{z}</script>). To achieve this we can set <script type="math/tex">Q(\mathbf{z})= \frac{p_\theta(\mathbf{x}_i,\mathbf{z})}{\sum_{z}p_\theta(\mathbf{x}_i,\mathbf{z})}= \frac{ p_\theta(\mathbf{x}_i,\mathbf{z}) }{p_\theta(\mathbf{x}_i)}= p_\theta(\mathbf{z}\vert \mathbf{x}_i)</script>. This means <script type="math/tex">Q(\mathbf{z})</script> is the posterior of <script type="math/tex">\mathbf{z}</script> given <script type="math/tex">\mathbf{x}_i</script>.</p>
+
+<p>People may ask: why do we try to find a proper <script type="math/tex">Q(\mathbf{z})</script> to make the equality hold?</p>
+<blockquote>
+  <p>Our initial goal is to find the MLE of $\theta$ w.r.t $l(\theta)$. However, the original expression of $l(\theta)$ is not explicit, so we take advantage of the Jensen-Shannon inequality, by selecting a proper distribution of $Q(\mathbf{z})$, to make $l(\theta)=L(\theta, Q)$. Then we can instead maximize $L(\theta, Q)$ w.r.t $\theta$ to find the MLE in an iterative way.</p>
+</blockquote>
+
+<p>Now, we can summarize the EM algorithm:</p>
+
+<ol>
+  <li>Heuristically (or randomly) initialize parameters <script type="math/tex">\theta</script></li>
+  <li>Repeat:<br />
+    <ul>
+      <li>Expectation (<strong>E</strong>) step:<br />
+Based on current parameter <script type="math/tex">\theta</script> and <script type="math/tex">\mathbf{x}_ i</script>, set <script type="math/tex">Q(\mathbf{z})=p_\theta(\mathbf{z}\vert \mathbf{x}_ i)</script>.</li>
+      <li>Maximization (<strong>M</strong>) step:<br />
+Update <script type="math/tex">\theta \leftarrow \arg \max_{\theta} \sum_{i=1}^{n}\sum_z Q(\mathbf{z}) \log \frac{p_\theta(\mathbf{x}_ i, \mathbf{z})}{Q(\mathbf{z})}</script></li>
+    </ul>
+  </li>
+</ol>
+
+<p><script type="math/tex">\ \ \ \ \ \ \ \</script>Until: <script type="math/tex">\theta</script> converges</p>
+
+<p>In <a href="http://cs229.stanford.edu/notes/">Andrew Ng’s lecture notes</a>, it is proven that can guarantee that <script type="math/tex">l(\theta)</script> is steadily maximized. Suppose that after <script type="math/tex">l-1</script> iterations we have the log-likelihood <script type="math/tex">l(\theta_{l-1})</script>. At the <script type="math/tex">l^\text{th}</script> iteration, after the <strong>E</strong> step, we have <script type="math/tex">L(\theta_{l-1}, Q_l)= l(\theta_{l-1})</script>; After the <strong>M</strong> step, updated <script type="math/tex">\theta_{l}</script> is selected such that <script type="math/tex">L(\theta_l, Q_l)\geq L(\theta_{l-1}, Q_l)</script>. Then at the <script type="math/tex">l+1</script> iteration, by selecting <script type="math/tex">Q_{l+1}</script> as the posterior of <script type="math/tex">\mathbf{z}</script>, we have <script type="math/tex">l(\theta_l)=L(\theta_l, Q_{l+1})</script>. Therefore, we have</p>
+<center>
+	$$
+	l(\theta_l) = L(\theta_l, Q_{l+1}) \geq L(\theta_l, Q_{l}) \geq L(\theta_{l-1}, Q_{l}) = l(\theta_{l-1})
+	$$
+</center>
+<p>So we have <script type="math/tex">l(\theta_{l})\geq l(\theta_{l-1})</script>. This guarantees that the overall log-likelihood can only keep increasing or stay unchanged, but not decrease.</p>
+
+<p>This deduction shows that the EM algorithm is heading to the right direction. However, this direction may not be the ideal one. It is pretty obvious that if <script type="math/tex">l(\theta)</script> is globally concave, EM algorithm  can always converge at the global optimum. If <script type="math/tex">l(\theta)</script> is not globally concave, the property <script type="math/tex">l(\theta_l)\geq l(\theta_{l-1})</script> will guarantee that EM algorithm will converge at some point (assume that <script type="math/tex">l(\theta)</script> is not delta function), but the converge point may not be globally optimum.</p>
+
+<p>Moreover, the EM algorithm is sensitive to the initialization. Different initialization may results in pretty different converge points, as shown in the figure below.</p>
 
 
 

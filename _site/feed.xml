@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Mon, 08 Jul 2019 11:47:04 +0200</pubDate>
-    <lastBuildDate>Mon, 08 Jul 2019 11:47:04 +0200</lastBuildDate>
+    <pubDate>Mon, 08 Jul 2019 16:46:36 +0200</pubDate>
+    <lastBuildDate>Mon, 08 Jul 2019 16:46:36 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -121,9 +121,80 @@ For example, if we have 10 observations as below:&lt;/p&gt;
 &lt;/center&gt;
 &lt;p&gt;The equality holds if and only if &lt;script type=&quot;math/tex&quot;&gt;E_X [\mathbf{X}]= \mathbf{X}&lt;/script&gt; with the probability 1 (&lt;script type=&quot;math/tex&quot;&gt;\mathbf{X}&lt;/script&gt; is a constant). Note that of &lt;script type=&quot;math/tex&quot;&gt;f(\mathbf{X})&lt;/script&gt; is strictly concave, the direction of the inequality needs to be reversed.&lt;/p&gt;
 
-&lt;p&gt;We can use an example to illustrate Jensen-Shannon inequality more intuitively (&lt;strong&gt;not proof&lt;/strong&gt;).&lt;/p&gt;
+&lt;p&gt;We can use an example to illustrate Jensen-Shannon inequality more intuitively (&lt;strong&gt;not proof&lt;/strong&gt;). This example is referred from &lt;a href=&quot;http://cs229.stanford.edu/notes/&quot;&gt;Andrew Ng’s lecture note on EM&lt;/a&gt;.
+&lt;img src=&quot;https://nianlonggu.github.io/img/2019-07-07-EM/js-inequality.svg&quot; alt=&quot;jensen-shannon inequality&quot; /&gt;
+As shown in this figure, the random variable &lt;script type=&quot;math/tex&quot;&gt;\mathbf{X}&lt;/script&gt; has only two possible values: &lt;script type=&quot;math/tex&quot;&gt;a&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;b&lt;/script&gt;, each with the probability 0.5. Therefore, &lt;script type=&quot;math/tex&quot;&gt;f(E[\mathbf{X}])= f(\frac{a+b}{2})&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;E[f(\mathbf{X})]=\frac{f(a)+f(b)}{2}&lt;/script&gt;. According to the convexity of the function &lt;script type=&quot;math/tex&quot;&gt;f(\mathbf{X})&lt;/script&gt;, we have &lt;script type=&quot;math/tex&quot;&gt;E[f(\mathbf{X})]\geq f(E[\mathbf{X}])&lt;/script&gt;, and the equality holds if and only if &lt;script type=&quot;math/tex&quot;&gt;a=b&lt;/script&gt;, which means &lt;script type=&quot;math/tex&quot;&gt;E[\mathbf{X}]=\mathbf{X}=a&lt;/script&gt;.&lt;/p&gt;
 
-&lt;!-- ![png](https://nianlonggu.github.io/img/2019-07-04-SVM/SVM-Tutorial_12_0.png) --&gt;
+&lt;p&gt;Now we have a powerful tool, and we will use it to deduce the EM algorithm.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;EM algorithm&lt;/strong&gt;&lt;br /&gt;
+Recall the MLE problem:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\theta_\text{MLE} = \arg \max_{\theta} \sum_{i=1}^{n} \log{p_\theta(\mathbf{x}_i)}
+	$$
+&lt;/center&gt;
+&lt;p&gt;If &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}&lt;/script&gt; is related with a latent variable &lt;script type=&quot;math/tex&quot;&gt;\mathbf{z}&lt;/script&gt;, we write &lt;script type=&quot;math/tex&quot;&gt;p_\theta&lt;/script&gt; as the marginal likelihood of the joint distribution:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	p_\theta(\mathbf{x}_i) = \sum_{z} p_\theta(\mathbf{x}_i, \mathbf{z})
+	$$
+&lt;/center&gt;
+&lt;p&gt;Now our log-likelihood function &lt;script type=&quot;math/tex&quot;&gt;l(\theta)&lt;/script&gt; becomes:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	l(\theta) = \sum_{i=1}^{n}\log \sum_{z} p_\theta(\mathbf{x}_i, \mathbf{z})
+	$$
+&lt;/center&gt;
+&lt;p&gt;The expression of the joint distribution is not known to us. To solve this maximization problem we introduce a distribution &lt;script type=&quot;math/tex&quot;&gt;Q(\mathbf{z})&lt;/script&gt;, and rewrite the log-likelihood function as:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\begin{align}
+	l(\theta) &amp;amp;= \sum_{i=1}^{n} \log \sum_{z} Q(z) \frac{p_\theta(\mathbf{x}_i,\mathbf{z}))}{Q(\mathbf{z})}\\
+	&amp;amp;= \sum_{i=1}^{n} \log E_{z\in Q(z)} \left[ \frac{p_\theta(\mathbf{x}_i,\mathbf{z}))}{Q(\mathbf{z})}\right]
+	\end{align}
+	$$
+&lt;/center&gt;
+&lt;p&gt;We know that the function &lt;script type=&quot;math/tex&quot;&gt;f(x)=\log(x)&lt;/script&gt; is strictly concave, so according to the Jensen-Shannon inequality, we have the following inequality:&lt;/p&gt;
+&lt;center&gt;
+	$$
+	l(\theta) \geq L(\theta, Q) =\sum_{i=1}^{n} E_{z \in Q(z)}\left[ \log{\frac{p_\theta(\mathbf{x}_i,\mathbf{z}))} {Q(\mathbf{z})}} \right]
+	$$
+&lt;/center&gt;
+&lt;p&gt;The equality holds if and only if &lt;script type=&quot;math/tex&quot;&gt;\frac{p_\theta(\mathbf{x}_i,\mathbf{z}))} {Q(\mathbf{z})}&lt;/script&gt; is a constant (with respect to variable &lt;script type=&quot;math/tex&quot;&gt;\mathbf{z}&lt;/script&gt;). To achieve this we can set &lt;script type=&quot;math/tex&quot;&gt;Q(\mathbf{z})= \frac{p_\theta(\mathbf{x}_i,\mathbf{z})}{\sum_{z}p_\theta(\mathbf{x}_i,\mathbf{z})}= \frac{ p_\theta(\mathbf{x}_i,\mathbf{z}) }{p_\theta(\mathbf{x}_i)}= p_\theta(\mathbf{z}\vert \mathbf{x}_i)&lt;/script&gt;. This means &lt;script type=&quot;math/tex&quot;&gt;Q(\mathbf{z})&lt;/script&gt; is the posterior of &lt;script type=&quot;math/tex&quot;&gt;\mathbf{z}&lt;/script&gt; given &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i&lt;/script&gt;.&lt;/p&gt;
+
+&lt;p&gt;People may ask: why do we try to find a proper &lt;script type=&quot;math/tex&quot;&gt;Q(\mathbf{z})&lt;/script&gt; to make the equality hold?&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;Our initial goal is to find the MLE of $\theta$ w.r.t $l(\theta)$. However, the original expression of $l(\theta)$ is not explicit, so we take advantage of the Jensen-Shannon inequality, by selecting a proper distribution of $Q(\mathbf{z})$, to make $l(\theta)=L(\theta, Q)$. Then we can instead maximize $L(\theta, Q)$ w.r.t $\theta$ to find the MLE in an iterative way.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Now, we can summarize the EM algorithm:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Heuristically (or randomly) initialize parameters &lt;script type=&quot;math/tex&quot;&gt;\theta&lt;/script&gt;&lt;/li&gt;
+  &lt;li&gt;Repeat:&lt;br /&gt;
+    &lt;ul&gt;
+      &lt;li&gt;Expectation (&lt;strong&gt;E&lt;/strong&gt;) step:&lt;br /&gt;
+Based on current parameter &lt;script type=&quot;math/tex&quot;&gt;\theta&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i&lt;/script&gt;, set &lt;script type=&quot;math/tex&quot;&gt;Q(\mathbf{z})=p_\theta(\mathbf{z}\vert \mathbf{x}_ i)&lt;/script&gt;.&lt;/li&gt;
+      &lt;li&gt;Maximization (&lt;strong&gt;M&lt;/strong&gt;) step:&lt;br /&gt;
+Update &lt;script type=&quot;math/tex&quot;&gt;\theta \leftarrow \arg \max_{\theta} \sum_{i=1}^{n}\sum_z Q(\mathbf{z}) \log \frac{p_\theta(\mathbf{x}_ i, \mathbf{z})}{Q(\mathbf{z})}&lt;/script&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \ \ \ \ \&lt;/script&gt;Until: &lt;script type=&quot;math/tex&quot;&gt;\theta&lt;/script&gt; converges&lt;/p&gt;
+
+&lt;p&gt;In &lt;a href=&quot;http://cs229.stanford.edu/notes/&quot;&gt;Andrew Ng’s lecture notes&lt;/a&gt;, it is proven that can guarantee that &lt;script type=&quot;math/tex&quot;&gt;l(\theta)&lt;/script&gt; is steadily maximized. Suppose that after &lt;script type=&quot;math/tex&quot;&gt;l-1&lt;/script&gt; iterations we have the log-likelihood &lt;script type=&quot;math/tex&quot;&gt;l(\theta_{l-1})&lt;/script&gt;. At the &lt;script type=&quot;math/tex&quot;&gt;l^\text{th}&lt;/script&gt; iteration, after the &lt;strong&gt;E&lt;/strong&gt; step, we have &lt;script type=&quot;math/tex&quot;&gt;L(\theta_{l-1}, Q_l)= l(\theta_{l-1})&lt;/script&gt;; After the &lt;strong&gt;M&lt;/strong&gt; step, updated &lt;script type=&quot;math/tex&quot;&gt;\theta_{l}&lt;/script&gt; is selected such that &lt;script type=&quot;math/tex&quot;&gt;L(\theta_l, Q_l)\geq L(\theta_{l-1}, Q_l)&lt;/script&gt;. Then at the &lt;script type=&quot;math/tex&quot;&gt;l+1&lt;/script&gt; iteration, by selecting &lt;script type=&quot;math/tex&quot;&gt;Q_{l+1}&lt;/script&gt; as the posterior of &lt;script type=&quot;math/tex&quot;&gt;\mathbf{z}&lt;/script&gt;, we have &lt;script type=&quot;math/tex&quot;&gt;l(\theta_l)=L(\theta_l, Q_{l+1})&lt;/script&gt;. Therefore, we have&lt;/p&gt;
+&lt;center&gt;
+	$$
+	l(\theta_l) = L(\theta_l, Q_{l+1}) \geq L(\theta_l, Q_{l}) \geq L(\theta_{l-1}, Q_{l}) = l(\theta_{l-1})
+	$$
+&lt;/center&gt;
+&lt;p&gt;So we have &lt;script type=&quot;math/tex&quot;&gt;l(\theta_{l})\geq l(\theta_{l-1})&lt;/script&gt;. This guarantees that the overall log-likelihood can only keep increasing or stay unchanged, but not decrease.&lt;/p&gt;
+
+&lt;p&gt;This deduction shows that the EM algorithm is heading to the right direction. However, this direction may not be the ideal one. It is pretty obvious that if &lt;script type=&quot;math/tex&quot;&gt;l(\theta)&lt;/script&gt; is globally concave, EM algorithm  can always converge at the global optimum. If &lt;script type=&quot;math/tex&quot;&gt;l(\theta)&lt;/script&gt; is not globally concave, the property &lt;script type=&quot;math/tex&quot;&gt;l(\theta_l)\geq l(\theta_{l-1})&lt;/script&gt; will guarantee that EM algorithm will converge at some point (assume that &lt;script type=&quot;math/tex&quot;&gt;l(\theta)&lt;/script&gt; is not delta function), but the converge point may not be globally optimum.&lt;/p&gt;
+
+&lt;p&gt;Moreover, the EM algorithm is sensitive to the initialization. Different initialization may results in pretty different converge points, as shown in the figure below.&lt;/p&gt;
 
 </description>
         <pubDate>Sun, 07 Jul 2019 23:09:00 +0200</pubDate>
