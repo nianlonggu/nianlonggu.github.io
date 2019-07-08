@@ -464,7 +464,7 @@ Update <script type="math/tex">\theta \leftarrow \arg \max_{\theta} \sum_{i=1}^{
 <p>This deduction shows that the EM algorithm is heading to the right direction. However, this direction may not be the ideal one. It is pretty obvious that if <script type="math/tex">l(\theta)</script> is globally concave, EM algorithm  can always converge at the global optimum. If <script type="math/tex">l(\theta)</script> is not globally concave, the property <script type="math/tex">l(\theta_l)\geq l(\theta_{l-1})</script> will guarantee that EM algorithm will converge at some point (assume that <script type="math/tex">l(\theta)</script> is not delta function), but the converge point may not be globally optimum.</p>
 
 <p>Moreover, the EM algorithm is sensitive to the initialization. Different initialization may results in pretty different converge points, as shown in the figure below. 
-<img src="https://nianlonggu.github.io/img/2019-07-07-EM/em-init.svg" alt="EM initialization" />
+<img src="https://nianlonggu.github.io/img/2019-07-07-EM/exaple-em-init.svg" alt="EM initialization" />
 As shown in this figure, if the initialization is at point A, then EM will converge at point <script type="math/tex"></script></p>
 
 
