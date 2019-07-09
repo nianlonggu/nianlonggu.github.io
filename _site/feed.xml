@@ -5,33 +5,33 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Mon, 08 Jul 2019 17:13:11 +0200</pubDate>
-    <lastBuildDate>Mon, 08 Jul 2019 17:13:11 +0200</lastBuildDate>
+    <pubDate>Tue, 09 Jul 2019 15:28:04 +0200</pubDate>
+    <lastBuildDate>Tue, 09 Jul 2019 15:28:04 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
         <title>An Introduction to Expectation-Maximization (EM) Algorithm and Gaussian Mixture Model (GMM) for Clustering</title>
         <description>&lt;p&gt;Expectation Maximization (EM) algorithm is a special case of MLE where the observations (data samples &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}&lt;/script&gt;) are inherently related with some hidden variables (&lt;script type=&quot;math/tex&quot;&gt;\mathbf{z}&lt;/script&gt;). First of all, we need to review the basics of MLE.&lt;/p&gt;
 &lt;h2 id=&quot;maximum-likelihood-estimation-mle&quot;&gt;Maximum Likelihood Estimation (MLE)&lt;/h2&gt;
-&lt;p&gt;Let &lt;script type=&quot;math/tex&quot;&gt;\{\mathbf{x}_ i\},\ i=1,\dots,n&lt;/script&gt; be a set of independent and identically distributed observations, and &lt;script type=&quot;math/tex&quot;&gt;\mathbf{\theta}&lt;/script&gt; be the parameters of the data distribution which are unknown for us. The maximum likelihood estimation of the parameters &lt;script type=&quot;math/tex&quot;&gt;\theta&lt;/script&gt; is the parameters which can maximize the joint distribution &lt;script type=&quot;math/tex&quot;&gt;p_\theta(\mathbf{x}_ 1,\dots,\mathbf{x}_ n)= \prod_{i=1}^{n}p_\theta(\mathbf{x}_ i)&lt;/script&gt;&lt;/p&gt;
+&lt;p&gt;Let &lt;script type=&quot;math/tex&quot;&gt;\{\mathbf{x}^{(i)}\},\ i=1,\dots,n&lt;/script&gt; be a set of independent and identically distributed observations, and &lt;script type=&quot;math/tex&quot;&gt;\mathbf{\theta}&lt;/script&gt; be the parameters of the data distribution which are unknown for us. The maximum likelihood estimation of the parameters &lt;script type=&quot;math/tex&quot;&gt;\theta&lt;/script&gt; is the parameters which can maximize the joint distribution &lt;script type=&quot;math/tex&quot;&gt;p_\theta(\mathbf{x}^{(1)},\dots,\mathbf{x}^{(n)})= \prod_{i=1}^{n}p_\theta(\mathbf{x}^{(i)})&lt;/script&gt;&lt;/p&gt;
 &lt;center&gt;
 	$$
-	\hat{\theta}_\text{MLE} = \arg\ \max_{\theta}{\prod_{i=1}^{n}p_\theta(\mathbf{x}_ i)}
+	\hat{\theta}_\text{MLE} = \arg\ \max_{\theta}{\prod_{i=1}^{n}p_\theta(\mathbf{x}^{(i)})}
 	$$
 &lt;/center&gt;
 &lt;p&gt;More commonly, we choose to maximize the joint log-likelihood:&lt;/p&gt;
 &lt;center&gt;
 	$$
-	\hat{\theta}_\text{MLE} = \arg\ \max_{\theta}{\sum_{i=1}^{n}\log p_\theta(\mathbf{x}_ i)}
+	\hat{\theta}_\text{MLE} = \arg\ \max_{\theta}{\sum_{i=1}^{n}\log p_\theta(\mathbf{x}^{(i)})}
 	$$
 &lt;/center&gt;
 
 &lt;p&gt;We use an example to illustrate how it works (referred from &lt;a href=&quot;https://zhuanlan.zhihu.com/p/40991784&quot;&gt;EM算法详解-知乎&lt;/a&gt;).&lt;/p&gt;
 
-&lt;p&gt;Suppose that we have a coin A, the likelihood of a heads is &lt;script type=&quot;math/tex&quot;&gt;\theta_A&lt;/script&gt;. We denote one observation &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i=\{ x_ {i,1},x_ {i,2},x_ {i,3},x_ {i,4},x_ {i,5}, \}&lt;/script&gt; as tossing the coin A 5 times and record the heads (1) or tails (0) of each tossing. For example, &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i&lt;/script&gt; can be 01001, 01110, 10010, … etc. The likelihood of the observation &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i&lt;/script&gt; is:&lt;/p&gt;
+&lt;p&gt;Suppose that we have a coin A, the likelihood of a heads is &lt;script type=&quot;math/tex&quot;&gt;\theta_A&lt;/script&gt;. We denote one observation &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(i)}=\{ x_ {i,1},x_ {i,2},x_ {i,3},x_ {i,4},x_ {i,5}, \}&lt;/script&gt; as tossing the coin A 5 times and record the heads (1) or tails (0) of each tossing. For example, &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(i)}&lt;/script&gt; can be 01001, 01110, 10010, … etc. The likelihood of the observation &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(i)}&lt;/script&gt; is:&lt;/p&gt;
 &lt;center&gt;
 	$$
-	p({\mathbf{x}_i}) = \prod_{j=1}^{5}\theta_A^{x_{i,j}}(1-\theta_A)^{1-x_{i,j}} = \theta_A^{\sum_{j=1}^{5}x_{i,j}}(1-\theta_A)^{\sum_{j=1}^{5}(1-x_{i,j})}
+	p({\mathbf{x}^{(i)}}) = \prod_{j=1}^{5}\theta_A^{x_{i,j}}(1-\theta_A)^{1-x_{i,j}} = \theta_A^{\sum_{j=1}^{5}x_{i,j}}(1-\theta_A)^{\sum_{j=1}^{5}(1-x_{i,j})}
 	$$
 &lt;/center&gt;
 &lt;p&gt;Therefore, the log likelihood of the joint distribution of &lt;script type=&quot;math/tex&quot;&gt;n&lt;/script&gt; observations is:&lt;/p&gt;
@@ -68,33 +68,33 @@ For example, if we have 10 observations as below:&lt;/p&gt;
 &lt;table&gt;
   &lt;tbody&gt;
     &lt;tr&gt;
-      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_1&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(1)}&lt;/script&gt;&lt;/td&gt;
       &lt;td&gt;01011&lt;/td&gt;
-      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_6&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(6)}&lt;/script&gt;&lt;/td&gt;
       &lt;td&gt;01110&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
-      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_2&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(2)}&lt;/script&gt;&lt;/td&gt;
       &lt;td&gt;01111&lt;/td&gt;
-      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_7&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(7)}&lt;/script&gt;&lt;/td&gt;
       &lt;td&gt;01110&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
-      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_3&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(3)}&lt;/script&gt;&lt;/td&gt;
       &lt;td&gt;11011&lt;/td&gt;
-      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_8&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(8)}&lt;/script&gt;&lt;/td&gt;
       &lt;td&gt;11011&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
-      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_4&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(4)}&lt;/script&gt;&lt;/td&gt;
       &lt;td&gt;00011&lt;/td&gt;
-      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_9&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(9)}&lt;/script&gt;&lt;/td&gt;
       &lt;td&gt;00100&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
-      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_5&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(5)}&lt;/script&gt;&lt;/td&gt;
       &lt;td&gt;01010&lt;/td&gt;
-      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_{10}&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(10)}&lt;/script&gt;&lt;/td&gt;
       &lt;td&gt;01001&lt;/td&gt;
     &lt;/tr&gt;
   &lt;/tbody&gt;
@@ -104,7 +104,7 @@ For example, if we have 10 observations as below:&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;MLE with hidden variables&lt;/strong&gt;&lt;/p&gt;
 
-&lt;p&gt;Now things become more complicated. Suppose we have two coins: A and B. The likelihood of a heads of coin A and B are &lt;script type=&quot;math/tex&quot;&gt;\theta_A&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\theta_B&lt;/script&gt; respectively. We want to find the MLE of &lt;script type=&quot;math/tex&quot;&gt;\theta_A, \theta_B&lt;/script&gt; using &lt;script type=&quot;math/tex&quot;&gt;n&lt;/script&gt; observations &lt;script type=&quot;math/tex&quot;&gt;\{\mathbf{x}_ i\},\ i=1,\dots,n&lt;/script&gt;. Each observation has the same form as above. The challenging part is that for each observation &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i&lt;/script&gt;, we don’t know which coin it comes from. For example, &lt;script type=&quot;math/tex&quot;&gt;n=10&lt;/script&gt;, the observation set is the same as the table above. In this case how to find the MLE of &lt;script type=&quot;math/tex&quot;&gt;\theta_A&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\theta_B&lt;/script&gt;?&lt;/p&gt;
+&lt;p&gt;Now things become more complicated. Suppose we have two coins: A and B. The likelihood of a heads of coin A and B are &lt;script type=&quot;math/tex&quot;&gt;\theta_A&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\theta_B&lt;/script&gt; respectively. We want to find the MLE of &lt;script type=&quot;math/tex&quot;&gt;\theta_A, \theta_B&lt;/script&gt; using &lt;script type=&quot;math/tex&quot;&gt;n&lt;/script&gt; observations &lt;script type=&quot;math/tex&quot;&gt;\{\mathbf{x}^{(i)}\},\ i=1,\dots,n&lt;/script&gt;. Each observation has the same form as above. The challenging part is that for each observation &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(i)}&lt;/script&gt;, we don’t know which coin it comes from. For example, &lt;script type=&quot;math/tex&quot;&gt;n=10&lt;/script&gt;, the observation set is the same as the table above. In this case how to find the MLE of &lt;script type=&quot;math/tex&quot;&gt;\theta_A&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\theta_B&lt;/script&gt;?&lt;/p&gt;
 
 &lt;p&gt;This is an simple example where our observation is closely related with some hidden (unknown) variables. In other words, the information of the data is incomplete. The Expectation-Maximization algorithm can be used to solve these problems.&lt;/p&gt;
 
@@ -131,41 +131,41 @@ As shown in this figure, the random variable &lt;script type=&quot;math/tex&quot
 Recall the MLE problem:&lt;/p&gt;
 &lt;center&gt;
 	$$
-	\theta_\text{MLE} = \arg \max_{\theta} \sum_{i=1}^{n} \log{p_\theta(\mathbf{x}_i)}
+	\theta_\text{MLE} = \arg \max_{\theta} \sum_{i=1}^{n} \log{p_\theta(\mathbf{x}^{(i)})}
 	$$
 &lt;/center&gt;
 &lt;p&gt;If &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}&lt;/script&gt; is related with a latent variable &lt;script type=&quot;math/tex&quot;&gt;\mathbf{z}&lt;/script&gt;, we write &lt;script type=&quot;math/tex&quot;&gt;p_\theta&lt;/script&gt; as the marginal likelihood of the joint distribution:&lt;/p&gt;
 &lt;center&gt;
 	$$
-	p_\theta(\mathbf{x}_i) = \sum_{z} p_\theta(\mathbf{x}_i, \mathbf{z})
+	p_\theta(\mathbf{x}^{(i)}) = \sum_{z} p_\theta(\mathbf{x}^{(i)}, \mathbf{z})
 	$$
 &lt;/center&gt;
 &lt;p&gt;Now our log-likelihood function &lt;script type=&quot;math/tex&quot;&gt;l(\theta)&lt;/script&gt; becomes:&lt;/p&gt;
 &lt;center&gt;
 	$$
-	l(\theta) = \sum_{i=1}^{n}\log \sum_{z} p_\theta(\mathbf{x}_i, \mathbf{z})
+	l(\theta) = \sum_{i=1}^{n}\log \sum_{z} p_\theta(\mathbf{x}^{(i)}, \mathbf{z})
 	$$
 &lt;/center&gt;
-&lt;p&gt;The expression of the joint distribution is not known to us. To solve this maximization problem we introduce a distribution &lt;script type=&quot;math/tex&quot;&gt;Q(\mathbf{z})&lt;/script&gt;, and rewrite the log-likelihood function as:&lt;/p&gt;
+&lt;p&gt;The expression of the joint distribution is not known to us. To solve this maximization problem we introduce a distribution &lt;script type=&quot;math/tex&quot;&gt;Q^{(i)}(\mathbf{z})&lt;/script&gt;, and rewrite the log-likelihood function as:&lt;/p&gt;
 &lt;center&gt;
 	$$
 	\begin{align}
-	l(\theta) &amp;amp;= \sum_{i=1}^{n} \log \sum_{z} Q(z) \frac{p_\theta(\mathbf{x}_i,\mathbf{z}))}{Q(\mathbf{z})}\\
-	&amp;amp;= \sum_{i=1}^{n} \log E_{z\in Q(z)} \left[ \frac{p_\theta(\mathbf{x}_i,\mathbf{z}))}{Q(\mathbf{z})}\right]
+	l(\theta) &amp;amp;= \sum_{i=1}^{n} \log \sum_{z} Q^{(i)}(z) \frac{p_\theta(\mathbf{x}^{(i)},\mathbf{z}))}{Q^{(i)}(\mathbf{z})}\\
+	&amp;amp;= \sum_{i=1}^{n} \log E_{z\in Q^{(i)}(z)} \left[ \frac{p_\theta(\mathbf{x}^{(i)},\mathbf{z}))}{Q^{(i)}(\mathbf{z})}\right]
 	\end{align}
 	$$
 &lt;/center&gt;
 &lt;p&gt;We know that the function &lt;script type=&quot;math/tex&quot;&gt;f(x)=\log(x)&lt;/script&gt; is strictly concave, so according to the Jensen-Shannon inequality, we have the following inequality:&lt;/p&gt;
 &lt;center&gt;
 	$$
-	l(\theta) \geq L(\theta, Q) =\sum_{i=1}^{n} E_{z \in Q(z)}\left[ \log{\frac{p_\theta(\mathbf{x}_i,\mathbf{z}))} {Q(\mathbf{z})}} \right]
+	l(\theta) \geq L(\theta, Q^{(i)}) =\sum_{i=1}^{n} E_{z \in Q^{(i)}(z)}\left[ \log{\frac{p_\theta(\mathbf{x}^{(i)},\mathbf{z}))} {Q^{(i)}(\mathbf{z})}} \right]
 	$$
 &lt;/center&gt;
-&lt;p&gt;The equality holds if and only if &lt;script type=&quot;math/tex&quot;&gt;\frac{p_\theta(\mathbf{x}_i,\mathbf{z}))} {Q(\mathbf{z})}&lt;/script&gt; is a constant (with respect to variable &lt;script type=&quot;math/tex&quot;&gt;\mathbf{z}&lt;/script&gt;). To achieve this we can set &lt;script type=&quot;math/tex&quot;&gt;Q(\mathbf{z})= \frac{p_\theta(\mathbf{x}_i,\mathbf{z})}{\sum_{z}p_\theta(\mathbf{x}_i,\mathbf{z})}= \frac{ p_\theta(\mathbf{x}_i,\mathbf{z}) }{p_\theta(\mathbf{x}_i)}= p_\theta(\mathbf{z}\vert \mathbf{x}_i)&lt;/script&gt;. This means &lt;script type=&quot;math/tex&quot;&gt;Q(\mathbf{z})&lt;/script&gt; is the posterior of &lt;script type=&quot;math/tex&quot;&gt;\mathbf{z}&lt;/script&gt; given &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_i&lt;/script&gt;.&lt;/p&gt;
+&lt;p&gt;The equality holds if and only if &lt;script type=&quot;math/tex&quot;&gt;\frac{p_\theta(\mathbf{x}^{(i)},\mathbf{z}))} {Q^{(i)}(\mathbf{z})}&lt;/script&gt; is a constant (with respect to variable &lt;script type=&quot;math/tex&quot;&gt;\mathbf{z}&lt;/script&gt;). To achieve this we can set &lt;script type=&quot;math/tex&quot;&gt;Q^{(i)}(\mathbf{z})= \frac{p_\theta(\mathbf{x}^{(i)},\mathbf{z})}{\sum_{z}p_\theta(\mathbf{x}^{(i)},\mathbf{z})}= \frac{ p_\theta(\mathbf{x}^{(i)},\mathbf{z}) }{p_\theta(\mathbf{x}^{(i)})}= p_\theta(\mathbf{z}\vert \mathbf{x}^{(i)})&lt;/script&gt;. This means &lt;script type=&quot;math/tex&quot;&gt;Q^{(i)}(\mathbf{z})&lt;/script&gt; is the posterior of &lt;script type=&quot;math/tex&quot;&gt;\mathbf{z}&lt;/script&gt; given &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(i)}&lt;/script&gt;.&lt;/p&gt;
 
-&lt;p&gt;People may ask: why do we try to find a proper &lt;script type=&quot;math/tex&quot;&gt;Q(\mathbf{z})&lt;/script&gt; to make the equality hold?&lt;/p&gt;
+&lt;p&gt;People may ask: why do we try to find a proper &lt;script type=&quot;math/tex&quot;&gt;Q^{(i)}(\mathbf{z})&lt;/script&gt; to make the equality hold?&lt;/p&gt;
 &lt;blockquote&gt;
-  &lt;p&gt;Our initial goal is to find the MLE of $\theta$ w.r.t $l(\theta)$. However, the original expression of $l(\theta)$ is not explicit, so we take advantage of the Jensen-Shannon inequality, by selecting a proper distribution of $Q(\mathbf{z})$, to make $l(\theta)=L(\theta, Q)$. Then we can instead maximize $L(\theta, Q)$ w.r.t $\theta$ to find the MLE in an iterative way.&lt;/p&gt;
+  &lt;p&gt;Our initial goal is to find the MLE of $\theta$ w.r.t $l(\theta)$. However, the original expression of $l(\theta)$ is not explicit, so we take advantage of the Jensen-Shannon inequality, by selecting a proper distribution of $Q^{(i)}(\mathbf{z})$, to make $l(\theta)=L(\theta, Q^{(i)})$. Then we can instead maximize $L(\theta, Q^{(i)})$ w.r.t $\theta$ to find the MLE in an iterative way.&lt;/p&gt;
 &lt;/blockquote&gt;
 
 &lt;p&gt;Now, we can summarize the EM algorithm:&lt;/p&gt;
@@ -175,19 +175,19 @@ Recall the MLE problem:&lt;/p&gt;
   &lt;li&gt;Repeat:&lt;br /&gt;
     &lt;ul&gt;
       &lt;li&gt;Expectation (&lt;strong&gt;E&lt;/strong&gt;) step:&lt;br /&gt;
-Based on current parameter &lt;script type=&quot;math/tex&quot;&gt;\theta&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}_ i&lt;/script&gt;, set &lt;script type=&quot;math/tex&quot;&gt;Q(\mathbf{z})=p_\theta(\mathbf{z}\vert \mathbf{x}_ i)&lt;/script&gt;.&lt;/li&gt;
+Based on current parameter &lt;script type=&quot;math/tex&quot;&gt;\theta&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(i)}&lt;/script&gt;, set &lt;script type=&quot;math/tex&quot;&gt;Q^{(i)}(\mathbf{z})=p_\theta(\mathbf{z}\vert \mathbf{x}^{(i)})&lt;/script&gt;.&lt;/li&gt;
       &lt;li&gt;Maximization (&lt;strong&gt;M&lt;/strong&gt;) step:&lt;br /&gt;
-Update &lt;script type=&quot;math/tex&quot;&gt;\theta \leftarrow \arg \max_{\theta} \sum_{i=1}^{n}\sum_z Q(\mathbf{z}) \log \frac{p_\theta(\mathbf{x}_ i, \mathbf{z})}{Q(\mathbf{z})}&lt;/script&gt;&lt;/li&gt;
+Update &lt;script type=&quot;math/tex&quot;&gt;\theta \leftarrow \arg \max_{\theta} \sum_{i=1}^{n}\sum_z Q^{(i)}(\mathbf{z}) \log \frac{p_\theta(\mathbf{x}^{(i)}, \mathbf{z})}{Q^{(i)}(\mathbf{z})}&lt;/script&gt;&lt;/li&gt;
     &lt;/ul&gt;
   &lt;/li&gt;
 &lt;/ol&gt;
 
 &lt;p&gt;&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \ \ \ \ \&lt;/script&gt;Until: &lt;script type=&quot;math/tex&quot;&gt;\theta&lt;/script&gt; converges&lt;/p&gt;
 
-&lt;p&gt;In &lt;a href=&quot;http://cs229.stanford.edu/notes/&quot;&gt;Andrew Ng’s lecture notes&lt;/a&gt;, it is proven that can guarantee that &lt;script type=&quot;math/tex&quot;&gt;l(\theta)&lt;/script&gt; is steadily maximized. Suppose that after &lt;script type=&quot;math/tex&quot;&gt;l-1&lt;/script&gt; iterations we have the log-likelihood &lt;script type=&quot;math/tex&quot;&gt;l(\theta_{l-1})&lt;/script&gt;. At the &lt;script type=&quot;math/tex&quot;&gt;l^\text{th}&lt;/script&gt; iteration, after the &lt;strong&gt;E&lt;/strong&gt; step, we have &lt;script type=&quot;math/tex&quot;&gt;L(\theta_{l-1}, Q_l)= l(\theta_{l-1})&lt;/script&gt;; After the &lt;strong&gt;M&lt;/strong&gt; step, updated &lt;script type=&quot;math/tex&quot;&gt;\theta_{l}&lt;/script&gt; is selected such that &lt;script type=&quot;math/tex&quot;&gt;L(\theta_l, Q_l)\geq L(\theta_{l-1}, Q_l)&lt;/script&gt;. Then at the &lt;script type=&quot;math/tex&quot;&gt;l+1&lt;/script&gt; iteration, by selecting &lt;script type=&quot;math/tex&quot;&gt;Q_{l+1}&lt;/script&gt; as the posterior of &lt;script type=&quot;math/tex&quot;&gt;\mathbf{z}&lt;/script&gt;, we have &lt;script type=&quot;math/tex&quot;&gt;l(\theta_l)=L(\theta_l, Q_{l+1})&lt;/script&gt;. Therefore, we have&lt;/p&gt;
+&lt;p&gt;In &lt;a href=&quot;http://cs229.stanford.edu/notes/&quot;&gt;Andrew Ng’s lecture notes&lt;/a&gt;, it is proven that can guarantee that &lt;script type=&quot;math/tex&quot;&gt;l(\theta)&lt;/script&gt; is steadily maximized. Suppose that after &lt;script type=&quot;math/tex&quot;&gt;l-1&lt;/script&gt; iterations we have the log-likelihood &lt;script type=&quot;math/tex&quot;&gt;l(\theta_{l-1})&lt;/script&gt;. At the &lt;script type=&quot;math/tex&quot;&gt;l^\text{th}&lt;/script&gt; iteration, after the &lt;strong&gt;E&lt;/strong&gt; step, we have &lt;script type=&quot;math/tex&quot;&gt;L(\theta_{l-1}, Q^{(i)}_l)= l(\theta_{l-1})&lt;/script&gt;; After the &lt;strong&gt;M&lt;/strong&gt; step, updated &lt;script type=&quot;math/tex&quot;&gt;\theta_{l}&lt;/script&gt; is selected such that &lt;script type=&quot;math/tex&quot;&gt;L(\theta_l, Q^{(i)}_l)\geq L(\theta_{l-1}, Q^{(i)}_l)&lt;/script&gt;. Then at the &lt;script type=&quot;math/tex&quot;&gt;l+1&lt;/script&gt; iteration, by selecting &lt;script type=&quot;math/tex&quot;&gt;Q^{(i)}_{l+1}&lt;/script&gt; as the posterior of &lt;script type=&quot;math/tex&quot;&gt;\mathbf{z}&lt;/script&gt;, we have &lt;script type=&quot;math/tex&quot;&gt;l(\theta_l)=L(\theta_l, Q^{(i)}_{l+1})&lt;/script&gt;. Therefore, we have&lt;/p&gt;
 &lt;center&gt;
 	$$
-	l(\theta_l) = L(\theta_l, Q_{l+1}) \geq L(\theta_l, Q_{l}) \geq L(\theta_{l-1}, Q_{l}) = l(\theta_{l-1})
+	l(\theta_l) = L(\theta_l, Q^{(i)}_{l+1}) \geq L(\theta_l, Q^{(i)}_{l}) \geq L(\theta_{l-1}, Q^{(i)}_{l}) = l(\theta_{l-1})
 	$$
 &lt;/center&gt;
 &lt;p&gt;So we have &lt;script type=&quot;math/tex&quot;&gt;l(\theta_{l})\geq l(\theta_{l-1})&lt;/script&gt;. This guarantees that the overall log-likelihood can only keep increasing or stay unchanged, but not decrease.&lt;/p&gt;
@@ -199,6 +199,74 @@ Update &lt;script type=&quot;math/tex&quot;&gt;\theta \leftarrow \arg \max_{\the
 As shown in this figure, if the initialization is at point &lt;script type=&quot;math/tex&quot;&gt;A&lt;/script&gt;, then EM will converge at point &lt;script type=&quot;math/tex&quot;&gt;C_A&lt;/script&gt;, while the EM will converge at point &lt;script type=&quot;math/tex&quot;&gt;C_B&lt;/script&gt; if initialization is &lt;script type=&quot;math/tex&quot;&gt;B&lt;/script&gt;. Obviously &lt;script type=&quot;math/tex&quot;&gt;C_B&lt;/script&gt; is the global optimum and &lt;script type=&quot;math/tex&quot;&gt;C_A&lt;/script&gt; not.&lt;/p&gt;
 
 &lt;p&gt;So how to make EM algorithm less sensitive to initialization and be more likely to find the global optimum? One simple, straight-forward but effective way is to randomly initialize the parameters and rum EM algorithm multiple times, and choose the parameters with the largest converged log-likelihood (objective function).&lt;/p&gt;
+
+&lt;h2 id=&quot;apply-em-algorithm-to-practical-questions&quot;&gt;Apply EM algorithm to practical questions&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;Tossing two coins with different heads probability&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Let recall the question raised in the first section:&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;Suppose we have two coins: A and B. The likelihood of a heads of coin A and B are &lt;script type=&quot;math/tex&quot;&gt;\theta_A&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\theta_B&lt;/script&gt; respectively. We want to find the MLE of &lt;script type=&quot;math/tex&quot;&gt;\theta_A, \theta_B&lt;/script&gt; using &lt;script type=&quot;math/tex&quot;&gt;n&lt;/script&gt; observations &lt;script type=&quot;math/tex&quot;&gt;\{\mathbf{x}^{(i)}\},\ i=1,\dots,n&lt;/script&gt;. Each observation has the same form as above. The challenging part is that for each observation &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(i)}&lt;/script&gt;, we don’t know which coin it comes from. For example, &lt;script type=&quot;math/tex&quot;&gt;n=10&lt;/script&gt;, the observation set is the same as the table above. In this case how to find the MLE of &lt;script type=&quot;math/tex&quot;&gt;\theta_A&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\theta_B&lt;/script&gt;? Furthermore, the 10 observations are the same as above:&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;table&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(1)}&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;01011&lt;/td&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(6)}&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;01110&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(2)}&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;01111&lt;/td&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(7)}&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;01110&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(3)}&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;11011&lt;/td&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(8)}&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;11011&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(4)}&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;00011&lt;/td&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(9)}&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;00100&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(5)}&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;01010&lt;/td&gt;
+      &lt;td&gt;&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(10)}&lt;/script&gt;&lt;/td&gt;
+      &lt;td&gt;01001&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;In this case, &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}&lt;/script&gt; is related with a hidden variable &lt;script type=&quot;math/tex&quot;&gt;z&lt;/script&gt;. &lt;script type=&quot;math/tex&quot;&gt;z&lt;/script&gt; can only have 2 values: &lt;script type=&quot;math/tex&quot;&gt;z=A&lt;/script&gt; for coin &lt;script type=&quot;math/tex&quot;&gt;A&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;z=B&lt;/script&gt; for coin &lt;script type=&quot;math/tex&quot;&gt;B&lt;/script&gt;. We want to apply EM algorithm to this case.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Randomly initialization: let &lt;script type=&quot;math/tex&quot;&gt;\theta_{A,0}=0.4&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\theta_{B,0}=0.5&lt;/script&gt;, and the prior distribution of &lt;script type=&quot;math/tex&quot;&gt;z&lt;/script&gt; is &lt;script type=&quot;math/tex&quot;&gt;P(z=A)=0.5&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;P(z=B)=0.5&lt;/script&gt;.
+    &lt;blockquote&gt;
+      &lt;p&gt;Note that here we choose such a prior distribution since it is easier to express the posterior. For such a simple case, the choice of prior may not influence the final learned parameters very much (proof?). Moreover, we can also select the prior of current iteration as the posterior of previous iteration. This is commonly used when data comes as a sequence.&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Repeat:&lt;br /&gt;
+at the &lt;script type=&quot;math/tex&quot;&gt;l^\text{th}&lt;/script&gt; iteration:
+    &lt;ul&gt;
+      &lt;li&gt;&lt;strong&gt;E&lt;/strong&gt; step: &lt;br /&gt;
+We need to compute the posterior:&lt;center&gt;$$Q^{(i)}_l(z) = P(z|\mathbf{x}^{(i)}; \theta_{l-1}) = \frac{P(\mathbf{x}^{(i)}\vert z; \theta_{l-1}) P(z) }{ P(\mathbf{x}^{(i)}) }$$&lt;/center&gt; 
+Here &lt;script type=&quot;math/tex&quot;&gt;\theta_{l-1}&lt;/script&gt; represents the parameter set &lt;script type=&quot;math/tex&quot;&gt;\{\theta_{A,l-1}, \theta_{B, l-1}\}&lt;/script&gt;. 
+Furthermore, we known that &lt;script type=&quot;math/tex&quot;&gt;P(z=A|\mathbf{x}^{(i)}; \theta_{l-1})+P(z=A|\mathbf{x}^{(i)}; \theta_{l-1})=1&lt;/script&gt;. Moreover we have the prior &lt;script type=&quot;math/tex&quot;&gt;P(z=A)=0.5&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;P(z=B)=0.5&lt;/script&gt;. Therefore, we have&lt;center&gt;$$\begin{align} &amp;amp;  Q^{(i)}_{A,l}= Q^{(i)}_ l(z=A)\\=&amp;amp;\frac{P(\mathbf{x}^{(i)}\vert z=A; \theta_{l-1})P(z=A) }{ P(\mathbf{x}^{(i)}\vert z=A; \theta_{l-1})P(z=A) +P(\mathbf{x}^{(i)}\vert z=B; \theta_{l-1})  P(z=B) }\\
+=&amp;amp;\frac{P(\mathbf{x}^{(i)}\vert z=A; \theta_{l-1})}{ P(\mathbf{x}^{(i)}\vert z=A; \theta_{l-1}) +P(\mathbf{x}^{(i)}\vert z=B; \theta_{l-1})  } \end{align}$$&lt;/center&gt; and &lt;center&gt;$$\begin{align} &amp;amp;Q^{(i)}_{B,l}=Q^{(i)}_ l(z=B)\\=&amp;amp;\frac{P(\mathbf{x}^{(i)}\vert z=B; \theta_{l-1}) }{ P(\mathbf{x}^{(i)}\vert z=A; \theta_{l-1}) +P(\mathbf{x}^{(i)}\vert z=B; \theta_{l-1})   }\end{align}$$&lt;/center&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;strong&gt;M&lt;/strong&gt; step:&lt;br /&gt;
+The objective function is &lt;center&gt;$$\begin{align}&amp;amp;L(\theta_{l-1}, Q^{(i)}_l)\\ =&amp;amp; \sum_{i=1}^{n} \sum_z Q^{(i)}_l(z) \log \frac{P(\mathbf{x}^{(i)},z;\theta_{l-1})}{Q^{(i)}_ l(z)}\\ =&amp;amp; \sum_{i=1}^{n}\Big( Q_l^{(i)}(z=A)\log \frac{ P(\mathbf{x}^{(i)}|z=A; \theta_{l-1} )P(z=A) }{Q_l^{(i)}(z=A)  } +\\ &amp;amp;\ \ \ Q_l^{(i)}(z=B)\log \frac{ P(\mathbf{x}^{(i)}|z=B; \theta_{l-1} )P(z=B) }{Q_l^{(i)}(z=B)  }\Big)\\ =&amp;amp; \sum_{i=1}^{n}  \sum_{j=1}^{5}\Big[Q_{A,l}^{(i)}\Big(x_{i,j}\log \theta_{A,l-1} +(1-x_{i,j})\log (1-\theta_{A,l-1})  \Big)+\\ &amp;amp;\ \ \ Q_{B,l}^{(i)}\Big(x_{i,j}\log \theta_{B,l-1} +(1-x_{i,j})\log (1-\theta_{B,l-1})  \Big)\Big]+C     \end{align}$$&lt;/center&gt; Where &lt;script type=&quot;math/tex&quot;&gt;C&lt;/script&gt; is a term which is not related with &lt;script type=&quot;math/tex&quot;&gt;\theta_A&lt;/script&gt; or &lt;script type=&quot;math/tex&quot;&gt;\theta_B&lt;/script&gt;. To update &lt;script type=&quot;math/tex&quot;&gt;\theta&lt;/script&gt;, we need to compute the partial derivate ad set them to 0: &lt;center&gt;$$\begin{align} \frac{\partial{L(\theta_{l-1}, Q_l^{(i)})}}{\partial{ \theta_{A,l-1} }}= \frac{\sum_{i=1}^{n}\sum_{j=1}^{5}Q_{A,l}^{(i)}x_{i,j}}{\theta_{A,l-1}} + \frac{\sum_{i=1}^{n}\sum_{j=1}^{5}Q_{A,l}^{(i)}(x_{i,j}-1)}{1-\theta_{A,l-1}} =0 \\ \frac{\partial{L(\theta_{l-1}, Q_l^{(i)})}}{\partial{ \theta_{B,l-1} }}= \frac{\sum_{i=1}^{n}\sum_{j=1}^{5}Q_{B,l}^{(i)}x_{i,j}}{\theta_{B,l-1}} + \frac{\sum_{i=1}^{n}\sum_{j=1}^{5}Q_{B,l}^{(i)}(x_{i,j}-1)}{1-\theta_{B,l-1}} =0  \end{align}$$&lt;/center&gt; By solving these two equations, we get the update rule: &lt;center&gt;$$
+\theta_{A,l} = \frac{ \sum_{i}^{n} \sum_{j=1}^5 Q_{A,l}^{(i)} x_{i,j} }{ \sum_{i}^{n}5Q_{A,l}^{(i)}}\\
+\theta_{B,l} = \frac{ \sum_{i}^{n} \sum_{j=1}^5 Q_{B,l}^{(i)} x_{i,j} }{ \sum_{i}^{n}5Q_{B,l}^{(i)}}
+$$&lt;/center&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
 </description>
         <pubDate>Sun, 07 Jul 2019 23:09:00 +0200</pubDate>
         <link>http://localhost:4000/2019/07/07/turtorial-on-EM/</link>

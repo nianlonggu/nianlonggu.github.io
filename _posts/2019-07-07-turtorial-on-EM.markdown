@@ -17,25 +17,25 @@ tags:
 
 Expectation Maximization (EM) algorithm is a special case of MLE where the observations (data samples $$\mathbf{x}$$) are inherently related with some hidden variables ($$\mathbf{z}$$). First of all, we need to review the basics of MLE.
 ## Maximum Likelihood Estimation (MLE)
-Let $$\{\mathbf{x}_ i\},\ i=1,\dots,n$$ be a set of independent and identically distributed observations, and $$\mathbf{\theta}$$ be the parameters of the data distribution which are unknown for us. The maximum likelihood estimation of the parameters $$\theta$$ is the parameters which can maximize the joint distribution $$p_\theta(\mathbf{x}_ 1,\dots,\mathbf{x}_ n)= \prod_{i=1}^{n}p_\theta(\mathbf{x}_ i)$$
+Let $$\{\mathbf{x}^{(i)}\},\ i=1,\dots,n$$ be a set of independent and identically distributed observations, and $$\mathbf{\theta}$$ be the parameters of the data distribution which are unknown for us. The maximum likelihood estimation of the parameters $$\theta$$ is the parameters which can maximize the joint distribution $$p_\theta(\mathbf{x}^{(1)},\dots,\mathbf{x}^{(n)})= \prod_{i=1}^{n}p_\theta(\mathbf{x}^{(i)})$$
 <center>
 	$$
-	\hat{\theta}_\text{MLE} = \arg\ \max_{\theta}{\prod_{i=1}^{n}p_\theta(\mathbf{x}_ i)}
+	\hat{\theta}_\text{MLE} = \arg\ \max_{\theta}{\prod_{i=1}^{n}p_\theta(\mathbf{x}^{(i)})}
 	$$
 </center>
 More commonly, we choose to maximize the joint log-likelihood:
 <center>
 	$$
-	\hat{\theta}_\text{MLE} = \arg\ \max_{\theta}{\sum_{i=1}^{n}\log p_\theta(\mathbf{x}_ i)}
+	\hat{\theta}_\text{MLE} = \arg\ \max_{\theta}{\sum_{i=1}^{n}\log p_\theta(\mathbf{x}^{(i)})}
 	$$
 </center>
 
 We use an example to illustrate how it works (referred from [EM算法详解-知乎](https://zhuanlan.zhihu.com/p/40991784)). 
 
-Suppose that we have a coin A, the likelihood of a heads is $$\theta_A$$. We denote one observation $$\mathbf{x}_ i=\{ x_ {i,1},x_ {i,2},x_ {i,3},x_ {i,4},x_ {i,5}, \}$$ as tossing the coin A 5 times and record the heads (1) or tails (0) of each tossing. For example, $$\mathbf{x}_ i$$ can be 01001, 01110, 10010, ... etc. The likelihood of the observation $$\mathbf{x}_ i$$ is:
+Suppose that we have a coin A, the likelihood of a heads is $$\theta_A$$. We denote one observation $$\mathbf{x}^{(i)}=\{ x_ {i,1},x_ {i,2},x_ {i,3},x_ {i,4},x_ {i,5}, \}$$ as tossing the coin A 5 times and record the heads (1) or tails (0) of each tossing. For example, $$\mathbf{x}^{(i)}$$ can be 01001, 01110, 10010, ... etc. The likelihood of the observation $$\mathbf{x}^{(i)}$$ is:
 <center>
 	$$
-	p({\mathbf{x}_i}) = \prod_{j=1}^{5}\theta_A^{x_{i,j}}(1-\theta_A)^{1-x_{i,j}} = \theta_A^{\sum_{j=1}^{5}x_{i,j}}(1-\theta_A)^{\sum_{j=1}^{5}(1-x_{i,j})}
+	p({\mathbf{x}^{(i)}}) = \prod_{j=1}^{5}\theta_A^{x_{i,j}}(1-\theta_A)^{1-x_{i,j}} = \theta_A^{\sum_{j=1}^{5}x_{i,j}}(1-\theta_A)^{\sum_{j=1}^{5}(1-x_{i,j})}
 	$$
 </center>
 Therefore, the log likelihood of the joint distribution of $$n$$ observations is:
@@ -69,17 +69,17 @@ Therefore, we have
 This is actually equivalent to compute the average value of all tossing results. 
 For example, if we have 10 observations as below:
 
- | $$\mathbf{x}_1$$ | 01011 |$$\mathbf{x}_6$$ | 01110 |
- | $$\mathbf{x}_2$$ | 01111 |$$\mathbf{x}_7$$ | 01110 |
- | $$\mathbf{x}_3$$ | 11011 |$$\mathbf{x}_8$$ | 11011 |
- | $$\mathbf{x}_4$$ | 00011 |$$\mathbf{x}_9$$ | 00100 |
- | $$\mathbf{x}_5$$ | 01010 |$$\mathbf{x}_{10}$$ | 01001 |
+ | $$\mathbf{x}^{(1)}$$ | 01011 |$$\mathbf{x}^{(6)}$$ | 01110 |
+ | $$\mathbf{x}^{(2)}$$ | 01111 |$$\mathbf{x}^{(7)}$$ | 01110 |
+ | $$\mathbf{x}^{(3)}$$ | 11011 |$$\mathbf{x}^{(8)}$$ | 11011 |
+ | $$\mathbf{x}^{(4)}$$ | 00011 |$$\mathbf{x}^{(9)}$$ | 00100 |
+ | $$\mathbf{x}^{(5)}$$ | 01010 |$$\mathbf{x}^{(10)}$$ | 01001 |
 
 The sum of all tossing is 28, and the total number of tossing is 50, so MLE of $$\theta_A$$ is $$\frac{28}{50}=\frac{14}{25}$$
 
 **MLE with hidden variables**
 
-Now things become more complicated. Suppose we have two coins: A and B. The likelihood of a heads of coin A and B are $$\theta_A$$ and $$\theta_B$$ respectively. We want to find the MLE of $$\theta_A, \theta_B$$ using $$n$$ observations $$\{\mathbf{x}_ i\},\ i=1,\dots,n$$. Each observation has the same form as above. The challenging part is that for each observation $$\mathbf{x}_ i$$, we don't know which coin it comes from. For example, $$n=10$$, the observation set is the same as the table above. In this case how to find the MLE of $$\theta_A$$ and $$\theta_B$$?
+Now things become more complicated. Suppose we have two coins: A and B. The likelihood of a heads of coin A and B are $$\theta_A$$ and $$\theta_B$$ respectively. We want to find the MLE of $$\theta_A, \theta_B$$ using $$n$$ observations $$\{\mathbf{x}^{(i)}\},\ i=1,\dots,n$$. Each observation has the same form as above. The challenging part is that for each observation $$\mathbf{x}^{(i)}$$, we don't know which coin it comes from. For example, $$n=10$$, the observation set is the same as the table above. In this case how to find the MLE of $$\theta_A$$ and $$\theta_B$$?
 
 This is an simple example where our observation is closely related with some hidden (unknown) variables. In other words, the information of the data is incomplete. The Expectation-Maximization algorithm can be used to solve these problems.
 
@@ -106,56 +106,56 @@ Now we have a powerful tool, and we will use it to deduce the EM algorithm.
 Recall the MLE problem:
 <center>
 	$$
-	\theta_\text{MLE} = \arg \max_{\theta} \sum_{i=1}^{n} \log{p_\theta(\mathbf{x}_i)}
+	\theta_\text{MLE} = \arg \max_{\theta} \sum_{i=1}^{n} \log{p_\theta(\mathbf{x}^{(i)})}
 	$$
 </center>
 If $$\mathbf{x}$$ is related with a latent variable $$\mathbf{z}$$, we write $$p_\theta$$ as the marginal likelihood of the joint distribution:
 <center>
 	$$
-	p_\theta(\mathbf{x}_i) = \sum_{z} p_\theta(\mathbf{x}_i, \mathbf{z})
+	p_\theta(\mathbf{x}^{(i)}) = \sum_{z} p_\theta(\mathbf{x}^{(i)}, \mathbf{z})
 	$$
 </center>
 Now our log-likelihood function $$l(\theta)$$ becomes:
 <center>
 	$$
-	l(\theta) = \sum_{i=1}^{n}\log \sum_{z} p_\theta(\mathbf{x}_i, \mathbf{z})
+	l(\theta) = \sum_{i=1}^{n}\log \sum_{z} p_\theta(\mathbf{x}^{(i)}, \mathbf{z})
 	$$
 </center>
-The expression of the joint distribution is not known to us. To solve this maximization problem we introduce a distribution $$Q(\mathbf{z})$$, and rewrite the log-likelihood function as:
+The expression of the joint distribution is not known to us. To solve this maximization problem we introduce a distribution $$Q^{(i)}(\mathbf{z})$$, and rewrite the log-likelihood function as:
 <center>
 	$$
 	\begin{align}
-	l(\theta) &= \sum_{i=1}^{n} \log \sum_{z} Q(z) \frac{p_\theta(\mathbf{x}_i,\mathbf{z}))}{Q(\mathbf{z})}\\
-	&= \sum_{i=1}^{n} \log E_{z\in Q(z)} \left[ \frac{p_\theta(\mathbf{x}_i,\mathbf{z}))}{Q(\mathbf{z})}\right]
+	l(\theta) &= \sum_{i=1}^{n} \log \sum_{z} Q^{(i)}(z) \frac{p_\theta(\mathbf{x}^{(i)},\mathbf{z}))}{Q^{(i)}(\mathbf{z})}\\
+	&= \sum_{i=1}^{n} \log E_{z\in Q^{(i)}(z)} \left[ \frac{p_\theta(\mathbf{x}^{(i)},\mathbf{z}))}{Q^{(i)}(\mathbf{z})}\right]
 	\end{align}
 	$$
 </center>
 We know that the function $$f(x)=\log(x)$$ is strictly concave, so according to the Jensen-Shannon inequality, we have the following inequality:
 <center>
 	$$
-	l(\theta) \geq L(\theta, Q) =\sum_{i=1}^{n} E_{z \in Q(z)}\left[ \log{\frac{p_\theta(\mathbf{x}_i,\mathbf{z}))} {Q(\mathbf{z})}} \right]
+	l(\theta) \geq L(\theta, Q^{(i)}) =\sum_{i=1}^{n} E_{z \in Q^{(i)}(z)}\left[ \log{\frac{p_\theta(\mathbf{x}^{(i)},\mathbf{z}))} {Q^{(i)}(\mathbf{z})}} \right]
 	$$
 </center>
-The equality holds if and only if $$\frac{p_\theta(\mathbf{x}_i,\mathbf{z}))} {Q(\mathbf{z})}$$ is a constant (with respect to variable $$\mathbf{z}$$). To achieve this we can set $$Q(\mathbf{z})= \frac{p_\theta(\mathbf{x}_i,\mathbf{z})}{\sum_{z}p_\theta(\mathbf{x}_i,\mathbf{z})}= \frac{ p_\theta(\mathbf{x}_i,\mathbf{z}) }{p_\theta(\mathbf{x}_i)}= p_\theta(\mathbf{z}\vert \mathbf{x}_i) $$. This means $$Q(\mathbf{z})$$ is the posterior of $$\mathbf{z}$$ given $$\mathbf{x}_i$$.
+The equality holds if and only if $$\frac{p_\theta(\mathbf{x}^{(i)},\mathbf{z}))} {Q^{(i)}(\mathbf{z})}$$ is a constant (with respect to variable $$\mathbf{z}$$). To achieve this we can set $$Q^{(i)}(\mathbf{z})= \frac{p_\theta(\mathbf{x}^{(i)},\mathbf{z})}{\sum_{z}p_\theta(\mathbf{x}^{(i)},\mathbf{z})}= \frac{ p_\theta(\mathbf{x}^{(i)},\mathbf{z}) }{p_\theta(\mathbf{x}^{(i)})}= p_\theta(\mathbf{z}\vert \mathbf{x}^{(i)}) $$. This means $$Q^{(i)}(\mathbf{z})$$ is the posterior of $$\mathbf{z}$$ given $$\mathbf{x}^{(i)}$$.
 
-People may ask: why do we try to find a proper $$Q(\mathbf{z})$$ to make the equality hold?
-> Our initial goal is to find the MLE of $\theta$ w.r.t $l(\theta)$. However, the original expression of $l(\theta)$ is not explicit, so we take advantage of the Jensen-Shannon inequality, by selecting a proper distribution of $Q(\mathbf{z})$, to make $l(\theta)=L(\theta, Q)$. Then we can instead maximize $L(\theta, Q)$ w.r.t $\theta$ to find the MLE in an iterative way.
+People may ask: why do we try to find a proper $$Q^{(i)}(\mathbf{z})$$ to make the equality hold?
+> Our initial goal is to find the MLE of $\theta$ w.r.t $l(\theta)$. However, the original expression of $l(\theta)$ is not explicit, so we take advantage of the Jensen-Shannon inequality, by selecting a proper distribution of $Q^{(i)}(\mathbf{z})$, to make $l(\theta)=L(\theta, Q^{(i)})$. Then we can instead maximize $L(\theta, Q^{(i)})$ w.r.t $\theta$ to find the MLE in an iterative way.
 
 Now, we can summarize the EM algorithm:
 
 1. Heuristically (or randomly) initialize parameters $$\theta$$
 2. Repeat:\\
 * Expectation (**E**) step:\\
-Based on current parameter $$\theta$$ and $$\mathbf{x}_ i$$, set $$Q(\mathbf{z})=p_\theta(\mathbf{z}\vert \mathbf{x}_ i)$$.
+Based on current parameter $$\theta$$ and $$\mathbf{x}^{(i)}$$, set $$Q^{(i)}(\mathbf{z})=p_\theta(\mathbf{z}\vert \mathbf{x}^{(i)})$$.
 * Maximization (**M**) step:\\
-Update $$\theta \leftarrow \arg \max_{\theta} \sum_{i=1}^{n}\sum_z Q(\mathbf{z}) \log \frac{p_\theta(\mathbf{x}_ i, \mathbf{z})}{Q(\mathbf{z})} $$
+Update $$\theta \leftarrow \arg \max_{\theta} \sum_{i=1}^{n}\sum_z Q^{(i)}(\mathbf{z}) \log \frac{p_\theta(\mathbf{x}^{(i)}, \mathbf{z})}{Q^{(i)}(\mathbf{z})} $$
 
 $$\ \ \ \ \ \ \ \ $$Until: $$\theta$$ converges
 
-In [Andrew Ng's lecture notes](http://cs229.stanford.edu/notes/), it is proven that can guarantee that $$l(\theta)$$ is steadily maximized. Suppose that after $$l-1$$ iterations we have the log-likelihood $$l(\theta_{l-1})$$. At the $$l^\text{th}$$ iteration, after the **E** step, we have $$L(\theta_{l-1}, Q_l)= l(\theta_{l-1})$$; After the **M** step, updated $$\theta_{l}$$ is selected such that $$L(\theta_l, Q_l)\geq L(\theta_{l-1}, Q_l)$$. Then at the $$l+1$$ iteration, by selecting $$Q_{l+1}$$ as the posterior of $$\mathbf{z}$$, we have $$l(\theta_l)=L(\theta_l, Q_{l+1})$$. Therefore, we have
+In [Andrew Ng's lecture notes](http://cs229.stanford.edu/notes/), it is proven that can guarantee that $$l(\theta)$$ is steadily maximized. Suppose that after $$l-1$$ iterations we have the log-likelihood $$l(\theta_{l-1})$$. At the $$l^\text{th}$$ iteration, after the **E** step, we have $$L(\theta_{l-1}, Q^{(i)}_l)= l(\theta_{l-1})$$; After the **M** step, updated $$\theta_{l}$$ is selected such that $$L(\theta_l, Q^{(i)}_l)\geq L(\theta_{l-1}, Q^{(i)}_l)$$. Then at the $$l+1$$ iteration, by selecting $$Q^{(i)}_{l+1}$$ as the posterior of $$\mathbf{z}$$, we have $$l(\theta_l)=L(\theta_l, Q^{(i)}_{l+1})$$. Therefore, we have
 <center>
 	$$
-	l(\theta_l) = L(\theta_l, Q_{l+1}) \geq L(\theta_l, Q_{l}) \geq L(\theta_{l-1}, Q_{l}) = l(\theta_{l-1})
+	l(\theta_l) = L(\theta_l, Q^{(i)}_{l+1}) \geq L(\theta_l, Q^{(i)}_{l}) \geq L(\theta_{l-1}, Q^{(i)}_{l}) = l(\theta_{l-1})
 	$$
 </center>
 So we have $$l(\theta_{l})\geq l(\theta_{l-1})$$. This guarantees that the overall log-likelihood can only keep increasing or stay unchanged, but not decrease.
@@ -167,3 +167,32 @@ Moreover, the EM algorithm is sensitive to the initialization. Different initial
 As shown in this figure, if the initialization is at point $$A$$, then EM will converge at point $$C_A$$, while the EM will converge at point $$C_B$$ if initialization is $$B$$. Obviously $$C_B$$ is the global optimum and $$C_A$$ not.
 
 So how to make EM algorithm less sensitive to initialization and be more likely to find the global optimum? One simple, straight-forward but effective way is to randomly initialize the parameters and rum EM algorithm multiple times, and choose the parameters with the largest converged log-likelihood (objective function).
+
+## Apply EM algorithm to practical questions
+**Tossing two coins with different heads probability**
+
+Let recall the question raised in the first section:
+>Suppose we have two coins: A and B. The likelihood of a heads of coin A and B are $$\theta_A$$ and $$\theta_B$$ respectively. We want to find the MLE of $$\theta_A, \theta_B$$ using $$n$$ observations $$\{\mathbf{x}^{(i)}\},\ i=1,\dots,n$$. Each observation has the same form as above. The challenging part is that for each observation $$\mathbf{x}^{(i)}$$, we don't know which coin it comes from. For example, $$n=10$$, the observation set is the same as the table above. In this case how to find the MLE of $$\theta_A$$ and $$\theta_B$$? Furthermore, the 10 observations are the same as above:
+
+ | $$\mathbf{x}^{(1)}$$ | 01011 |$$\mathbf{x}^{(6)}$$ | 01110 |
+ | $$\mathbf{x}^{(2)}$$ | 01111 |$$\mathbf{x}^{(7)}$$ | 01110 |
+ | $$\mathbf{x}^{(3)}$$ | 11011 |$$\mathbf{x}^{(8)}$$ | 11011 |
+ | $$\mathbf{x}^{(4)}$$ | 00011 |$$\mathbf{x}^{(9)}$$ | 00100 |
+ | $$\mathbf{x}^{(5)}$$ | 01010 |$$\mathbf{x}^{(10)}$$ | 01001 |
+
+In this case, $$\mathbf{x}$$ is related with a hidden variable $$z$$. $$z$$ can only have 2 values: $$z=A$$ for coin $$A$$ and $$z=B$$ for coin $$B$$. We want to apply EM algorithm to this case.
+
+1. Randomly initialization: let $$\theta_{A,0}=0.4$$ and $$\theta_{B,0}=0.5$$, and the prior distribution of $$z$$ is $$P(z=A)=0.5$$ and $$P(z=B)=0.5$$. 
+>Note that here we choose such a prior distribution since it is easier to express the posterior. For such a simple case, the choice of prior may not influence the final learned parameters very much (proof?). Moreover, we can also select the prior of current iteration as the posterior of previous iteration. This is commonly used when data comes as a sequence.
+2. Repeat:\\
+at the $$l^\text{th}$$ iteration:
+* **E** step: \\
+We need to compute the posterior:<center>$$Q^{(i)}_l(z) = P(z|\mathbf{x}^{(i)}; \theta_{l-1}) = \frac{P(\mathbf{x}^{(i)}\vert z; \theta_{l-1}) P(z) }{ P(\mathbf{x}^{(i)}) }$$</center> 
+Here $$\theta_{l-1}$$ represents the parameter set $$\{\theta_{A,l-1}, \theta_{B, l-1}\}$$. 
+Furthermore, we known that $$P(z=A|\mathbf{x}^{(i)}; \theta_{l-1})+P(z=A|\mathbf{x}^{(i)}; \theta_{l-1})=1$$. Moreover we have the prior $$P(z=A)=0.5$$ and $$P(z=B)=0.5$$. Therefore, we have<center>$$\begin{align} &  Q^{(i)}_{A,l}= Q^{(i)}_ l(z=A)\\=&\frac{P(\mathbf{x}^{(i)}\vert z=A; \theta_{l-1})P(z=A) }{ P(\mathbf{x}^{(i)}\vert z=A; \theta_{l-1})P(z=A) +P(\mathbf{x}^{(i)}\vert z=B; \theta_{l-1})  P(z=B) }\\
+=&\frac{P(\mathbf{x}^{(i)}\vert z=A; \theta_{l-1})}{ P(\mathbf{x}^{(i)}\vert z=A; \theta_{l-1}) +P(\mathbf{x}^{(i)}\vert z=B; \theta_{l-1})  } \end{align}$$</center> and <center>$$\begin{align} &Q^{(i)}_{B,l}=Q^{(i)}_ l(z=B)\\=&\frac{P(\mathbf{x}^{(i)}\vert z=B; \theta_{l-1}) }{ P(\mathbf{x}^{(i)}\vert z=A; \theta_{l-1}) +P(\mathbf{x}^{(i)}\vert z=B; \theta_{l-1})   }\end{align}$$</center>
+* **M** step:\\
+The objective function is <center>$$\begin{align}&L(\theta_{l-1}, Q^{(i)}_l)\\ =& \sum_{i=1}^{n} \sum_z Q^{(i)}_l(z) \log \frac{P(\mathbf{x}^{(i)},z;\theta_{l-1})}{Q^{(i)}_ l(z)}\\ =& \sum_{i=1}^{n}\Big( Q_l^{(i)}(z=A)\log \frac{ P(\mathbf{x}^{(i)}|z=A; \theta_{l-1} )P(z=A) }{Q_l^{(i)}(z=A)  } +\\ &\ \ \ Q_l^{(i)}(z=B)\log \frac{ P(\mathbf{x}^{(i)}|z=B; \theta_{l-1} )P(z=B) }{Q_l^{(i)}(z=B)  }\Big)\\ =& \sum_{i=1}^{n}  \sum_{j=1}^{5}\Big[Q_{A,l}^{(i)}\Big(x_{i,j}\log \theta_{A,l-1} +(1-x_{i,j})\log (1-\theta_{A,l-1})  \Big)+\\ &\ \ \ Q_{B,l}^{(i)}\Big(x_{i,j}\log \theta_{B,l-1} +(1-x_{i,j})\log (1-\theta_{B,l-1})  \Big)\Big]+C     \end{align}$$</center> Where $$C$$ is a term which is not related with $$\theta_A$$ or $$\theta_B$$. To update $$\theta$$, we need to compute the partial derivate ad set them to 0: <center>$$\begin{align} \frac{\partial{L(\theta_{l-1}, Q_l^{(i)})}}{\partial{ \theta_{A,l-1} }}= \frac{\sum_{i=1}^{n}\sum_{j=1}^{5}Q_{A,l}^{(i)}x_{i,j}}{\theta_{A,l-1}} + \frac{\sum_{i=1}^{n}\sum_{j=1}^{5}Q_{A,l}^{(i)}(x_{i,j}-1)}{1-\theta_{A,l-1}} =0 \\ \frac{\partial{L(\theta_{l-1}, Q_l^{(i)})}}{\partial{ \theta_{B,l-1} }}= \frac{\sum_{i=1}^{n}\sum_{j=1}^{5}Q_{B,l}^{(i)}x_{i,j}}{\theta_{B,l-1}} + \frac{\sum_{i=1}^{n}\sum_{j=1}^{5}Q_{B,l}^{(i)}(x_{i,j}-1)}{1-\theta_{B,l-1}} =0  \end{align}$$</center> By solving these two equations, we get the update rule: <center>$$
+\theta_{A,l} = \frac{ \sum_{i}^{n} \sum_{j=1}^5 Q_{A,l}^{(i)} x_{i,j} }{ \sum_{i}^{n}5Q_{A,l}^{(i)}}\\
+\theta_{B,l} = \frac{ \sum_{i}^{n} \sum_{j=1}^5 Q_{B,l}^{(i)} x_{i,j} }{ \sum_{i}^{n}5Q_{B,l}^{(i)}}
+$$</center>
