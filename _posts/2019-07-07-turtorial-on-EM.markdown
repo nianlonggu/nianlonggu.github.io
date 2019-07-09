@@ -172,18 +172,12 @@ So how to make EM algorithm less sensitive to initialization and be more likely 
 **Tossing two coins with different heads probability**
 
 Let recall the question raised in the first section:
->Suppose we have two coins: A and B. The likelihood of a heads of coin A and B are $$\theta_A$$ and $$\theta_B$$ respectively. We want to find the MLE of $$\theta_A, \theta_B$$ using $$n$$ observations $$\{\mathbf{x}^{(i)}\},\ i=1,\dots,n$$. Each observation has the same form as above. The challenging part is that for each observation $$\mathbf{x}^{(i)}$$, we don't know which coin it comes from. For example, $$n=10$$, the observation set is the same as the table above. In this case how to find the MLE of $$\theta_A$$ and $$\theta_B$$? Furthermore, the 10 observations are the same as above:
-
- | $$\mathbf{x}^{(1)}$$ | 01011 |$$\mathbf{x}^{(6)}$$ | 01110 |
- | $$\mathbf{x}^{(2)}$$ | 01111 |$$\mathbf{x}^{(7)}$$ | 01110 |
- | $$\mathbf{x}^{(3)}$$ | 11011 |$$\mathbf{x}^{(8)}$$ | 11011 |
- | $$\mathbf{x}^{(4)}$$ | 00011 |$$\mathbf{x}^{(9)}$$ | 00100 |
- | $$\mathbf{x}^{(5)}$$ | 01010 |$$\mathbf{x}^{(10)}$$ | 01001 |
+>Suppose we have two coins: A and B. The likelihood of a heads of coin A and B are $$\theta_A$$ and $$\theta_B$$ respectively. We want to find the MLE of $$\theta_A, \theta_B$$ using $$n$$ observations $$\{\mathbf{x}^{(i)}\in \{0,1\}^d\},\ i=1,\dots,n$$. Each observation has $$d$$ dimension, which means $$d$$ times of tossing for each observation. The challenging part is that for each observation $$\mathbf{x}^{(i)}$$, we don't know which coin it comes from. In this case how to find the MLE of $$\theta_A$$ and $$\theta_B$$? 
 
 In this case, $$\mathbf{x}$$ is related with a hidden variable $$z$$. $$z$$ can only have 2 values: $$z=A$$ for coin $$A$$ and $$z=B$$ for coin $$B$$. We want to apply EM algorithm to this case.
 
-1. Randomly initialization: let $$\theta_{A,0}=0.4$$ and $$\theta_{B,0}=0.5$$, and the prior distribution of $$z$$ is $$P(z=A)=0.5$$ and $$P(z=B)=0.5$$. 
->Note that here we choose such a prior distribution since it is easier to express the posterior. For such a simple case, the choice of prior may not influence the final learned parameters very much (proof?). Moreover, we can also select the prior of current iteration as the posterior of previous iteration. This is commonly used when data comes as a sequence.
+1. Randomly initialize $$\theta_{A,0}$$, $$\theta_{B,0}$$, and the prior distribution of $$z$$ is $$P(z=A)$$ , $$P(z=B)$$. 
+>Note that the choice of prior distribution of $$z$$ will influence the final learned parameters very much. If the chosen prior is pretty different from the real prior, the estimated parameters will be inaccurate. To solve this problem, we can update the prior by setting the prior of current iteration as the posterior of previous iteration, averaged over all observations. This is commonly used when data comes as a sequence.
 2. Repeat:\\
 at the $$l^\text{th}$$ iteration:
 * **E** step: \\
@@ -192,7 +186,159 @@ Here $$\theta_{l-1}$$ represents the parameter set $$\{\theta_{A,l-1}, \theta_{B
 Furthermore, we known that $$P(z=A|\mathbf{x}^{(i)}; \theta_{l-1})+P(z=A|\mathbf{x}^{(i)}; \theta_{l-1})=1$$. Moreover we have the prior $$P(z=A)=0.5$$ and $$P(z=B)=0.5$$. Therefore, we have<center>$$\begin{align} &  Q^{(i)}_{A,l}= Q^{(i)}_ l(z=A)\\=&\frac{P(\mathbf{x}^{(i)}\vert z=A; \theta_{l-1})P(z=A) }{ P(\mathbf{x}^{(i)}\vert z=A; \theta_{l-1})P(z=A) +P(\mathbf{x}^{(i)}\vert z=B; \theta_{l-1})  P(z=B) }\\
 =&\frac{P(\mathbf{x}^{(i)}\vert z=A; \theta_{l-1})}{ P(\mathbf{x}^{(i)}\vert z=A; \theta_{l-1}) +P(\mathbf{x}^{(i)}\vert z=B; \theta_{l-1})  } \end{align}$$</center> and <center>$$\begin{align} &Q^{(i)}_{B,l}=Q^{(i)}_ l(z=B)\\=&\frac{P(\mathbf{x}^{(i)}\vert z=B; \theta_{l-1}) }{ P(\mathbf{x}^{(i)}\vert z=A; \theta_{l-1}) +P(\mathbf{x}^{(i)}\vert z=B; \theta_{l-1})   }\end{align}$$</center>
 * **M** step:\\
-The objective function is <center>$$\begin{align}&L(\theta_{l-1}, Q^{(i)}_l)\\ =& \sum_{i=1}^{n} \sum_z Q^{(i)}_l(z) \log \frac{P(\mathbf{x}^{(i)},z;\theta_{l-1})}{Q^{(i)}_ l(z)}\\ =& \sum_{i=1}^{n}\Big( Q_l^{(i)}(z=A)\log \frac{ P(\mathbf{x}^{(i)}|z=A; \theta_{l-1} )P(z=A) }{Q_l^{(i)}(z=A)  } +\\ &\ \ \ Q_l^{(i)}(z=B)\log \frac{ P(\mathbf{x}^{(i)}|z=B; \theta_{l-1} )P(z=B) }{Q_l^{(i)}(z=B)  }\Big)\\ =& \sum_{i=1}^{n}  \sum_{j=1}^{5}\Big[Q_{A,l}^{(i)}\Big(x_{i,j}\log \theta_{A,l-1} +(1-x_{i,j})\log (1-\theta_{A,l-1})  \Big)+\\ &\ \ \ Q_{B,l}^{(i)}\Big(x_{i,j}\log \theta_{B,l-1} +(1-x_{i,j})\log (1-\theta_{B,l-1})  \Big)\Big]+C     \end{align}$$</center> Where $$C$$ is a term which is not related with $$\theta_A$$ or $$\theta_B$$. To update $$\theta$$, we need to compute the partial derivate ad set them to 0: <center>$$\begin{align} \frac{\partial{L(\theta_{l-1}, Q_l^{(i)})}}{\partial{ \theta_{A,l-1} }}= \frac{\sum_{i=1}^{n}\sum_{j=1}^{5}Q_{A,l}^{(i)}x_{i,j}}{\theta_{A,l-1}} + \frac{\sum_{i=1}^{n}\sum_{j=1}^{5}Q_{A,l}^{(i)}(x_{i,j}-1)}{1-\theta_{A,l-1}} =0 \\ \frac{\partial{L(\theta_{l-1}, Q_l^{(i)})}}{\partial{ \theta_{B,l-1} }}= \frac{\sum_{i=1}^{n}\sum_{j=1}^{5}Q_{B,l}^{(i)}x_{i,j}}{\theta_{B,l-1}} + \frac{\sum_{i=1}^{n}\sum_{j=1}^{5}Q_{B,l}^{(i)}(x_{i,j}-1)}{1-\theta_{B,l-1}} =0  \end{align}$$</center> By solving these two equations, we get the update rule: <center>$$
-\theta_{A,l} = \frac{ \sum_{i}^{n} \sum_{j=1}^5 Q_{A,l}^{(i)} x_{i,j} }{ \sum_{i}^{n}5Q_{A,l}^{(i)}}\\
-\theta_{B,l} = \frac{ \sum_{i}^{n} \sum_{j=1}^5 Q_{B,l}^{(i)} x_{i,j} }{ \sum_{i}^{n}5Q_{B,l}^{(i)}}
+The objective function is <center>$$\begin{align}&L(\theta_{l-1}, Q^{(i)}_l)\\ =& \sum_{i=1}^{n} \sum_z Q^{(i)}_l(z) \log \frac{P(\mathbf{x}^{(i)},z;\theta_{l-1})}{Q^{(i)}_ l(z)}\\ =& \sum_{i=1}^{n}\Big( Q_l^{(i)}(z=A)\log \frac{ P(\mathbf{x}^{(i)}|z=A; \theta_{l-1} )P(z=A) }{Q_l^{(i)}(z=A)  } +\\ &\ \ \ Q_l^{(i)}(z=B)\log \frac{ P(\mathbf{x}^{(i)}|z=B; \theta_{l-1} )P(z=B) }{Q_l^{(i)}(z=B)  }\Big)\\ =& \sum_{i=1}^{n}  \sum_{j=1}^{d}\Big[Q_{A,l}^{(i)}\Big(x_{i,j}\log \theta_{A,l-1} +(1-x_{i,j})\log (1-\theta_{A,l-1})  \Big)+\\ &\ \ \ Q_{B,l}^{(i)}\Big(x_{i,j}\log \theta_{B,l-1} +(1-x_{i,j})\log (1-\theta_{B,l-1})  \Big)\Big]+C     \end{align}$$</center> Where $$C$$ is a term which is not related with $$\theta_A$$ or $$\theta_B$$. To update $$\theta$$, we need to compute the partial derivate ad set them to 0: <center>$$\begin{align} \frac{\partial{L(\theta_{l-1}, Q_l^{(i)})}}{\partial{ \theta_{A,l-1} }}= \frac{\sum_{i=1}^{n}\sum_{j=1}^{d}Q_{A,l}^{(i)}x_{i,j}}{\theta_{A,l-1}} + \frac{\sum_{i=1}^{n}\sum_{j=1}^{d}Q_{A,l}^{(i)}(x_{i,j}-1)}{1-\theta_{A,l-1}} =0 \\ \frac{\partial{L(\theta_{l-1}, Q_l^{(i)})}}{\partial{ \theta_{B,l-1} }}= \frac{\sum_{i=1}^{n}\sum_{j=1}^{d}Q_{B,l}^{(i)}x_{i,j}}{\theta_{B,l-1}} + \frac{\sum_{i=1}^{n}\sum_{j=1}^{d}Q_{B,l}^{(i)}(x_{i,j}-1)}{1-\theta_{B,l-1}} =0  \end{align}$$</center> By solving these two equations, we get the update rule: <center>$$
+\theta_{A,l} = \frac{ \sum_{i}^{n} \sum_{j=1}^d Q_{A,l}^{(i)} x_{i,j} }{ \sum_{i}^{n}Q_{A,l}^{(i)}d}\\
+\theta_{B,l} = \frac{ \sum_{i}^{n} \sum_{j=1}^d Q_{B,l}^{(i)} x_{i,j} }{ \sum_{i}^{n}Q_{B,l}^{(i)}d}
 $$</center>
+* **Update prior $$P(z)$$**: 
+$$P(z=A)=\frac{1}{n}Q_{A,l}^{(i)} $$, $$P(z=B)=\frac{1}{n}Q_{B,l}^{(i)} $$
+
+$$\ \ \ \ \ \ \ \ $$Until $$\theta_A,\theta_B$$ converges.
+
+## Implementation and Analysis
+To test the effectiveness of the EM algorithm, I wrote a small demo for the coin tossing problem:
+
+
+```python
+import numpy as np
+
+## Define a tossing function, to generate our observations
+## theta is the head likelihood; num is the number of tossing for a single observation
+def tossing( theta, num ):
+	return (np.random.uniform(size=num)<theta).astype(np.int32)
+
+## the load data is used to generate a set of observations
+## prior_coin_A is the prior of the hidden variable z;
+## theta_A, theta_B is heads probability of coin A and B separately. 
+## this method return a dataset X, without any explicit information about  prior_coin_A, theta_A, theta_B
+def load_data(  num_samples, prior_coin_A = 0.8 , theta_A=0.2, theta_B = 0.7, num_tossing_per_sample = 5 ):
+	X=[]
+	for _ in range(num_samples):
+		random_v = np.random.uniform()
+		if random_v < prior_coin_A:
+			##generate a tossing observation using coin A
+			X.append( tossing( theta_A, num_tossing_per_sample) )
+		else:
+			##generate a tossing observation using coin B
+			X.append( tossing( theta_B, num_tossing_per_sample ) )
+
+	X = np.asarray(X)
+	return X
+
+## The task of EM is to found the MLE of theta_A, theta_B using only obtained observations X
+def EM( X, epsilon = 1e-8, update_prior = True , is_return_prior_list = False):
+	## initialization
+	prior_coin_A = 0.5
+	prior_coin_B = 1- prior_coin_A
+	theta_A = np.random.uniform()
+	theta_B = np.random.uniform()
+	prior_coin_A_list=[prior_coin_A]
+	prev_theta_A = theta_A
+	prev_theta_B = theta_B
+	count = 0
+	while True:
+		## E step:		
+		P_X_with_z_eq_A = theta_A**( np.sum(X, axis=1) )* (1-theta_A)**(np.sum( 1-X, axis=1 ))
+		P_X_with_z_eq_B = theta_B**( np.sum(X, axis=1) )* (1-theta_B)**(np.sum( 1-X, axis=1 ))
+		Q_A = P_X_with_z_eq_A*prior_coin_A/(P_X_with_z_eq_A*prior_coin_A+P_X_with_z_eq_B*prior_coin_B)
+		Q_B = P_X_with_z_eq_B*prior_coin_B/(P_X_with_z_eq_A*prior_coin_A+P_X_with_z_eq_B*prior_coin_B)
+		## M step:
+		theta_A =  np.sum( Q_A * np.sum(X,axis=1))/np.sum( X.shape[1]*Q_A)
+		theta_B =  np.sum( Q_B * np.sum(X,axis=1))/np.sum(X.shape[1]*Q_B)
+		if abs(theta_A- prev_theta_A) + abs(theta_B- prev_theta_B) < epsilon:
+			break
+		prev_theta_A = theta_A
+		prev_theta_B = theta_B
+		## update prior
+		if update_prior:
+			prior_coin_A= np.mean(Q_A)
+			prior_coin_B = np.mean(Q_B)
+		prior_coin_A_list.append(prior_coin_A)
+	if is_return_prior_list:
+		return theta_A, theta_B, {"prior_coin_A_list":np.array(prior_coin_A_list),"prior_coin_B_list":1-np.array(prior_coin_A_list)}
+	else:
+		return theta_A, theta_B
+```
+
+First, let's load the coin tossing data.
+The true prior distribution of $z$ is $P(z=A)=0.8$ and $P(z=B)=0.2$. For coin A, the true heads probability is 0.2; for coin B, the true heads probability is 0.7. For each observation, there are 10 tossing results.
+
+
+```python
+true_prior_coin_A = 0.7
+true_theta_A = 0.2
+true_theta_B = 0.7
+X = load_data(1000, prior_coin_A = true_prior_coin_A , theta_A=true_theta_A , theta_B = true_theta_B, num_tossing_per_sample = 10)
+```
+
+We can have a look at the loaded data (the first 10 observations)
+
+
+```python
+print(X[:10])
+```
+
+    [[0 1 1 1 1 1 1 1 1 0]
+     [1 1 1 1 1 1 1 1 0 1]
+     [0 1 1 0 1 1 1 1 1 1]
+     [0 0 0 0 0 0 0 0 0 1]
+     [0 0 0 1 0 1 0 0 0 0]
+     [0 0 0 1 1 0 0 1 1 1]
+     [0 0 0 0 0 0 0 0 1 0]
+     [0 1 0 0 1 0 0 1 1 1]
+     [1 1 0 1 0 1 0 0 0 1]
+     [0 0 0 0 0 0 0 1 0 1]]
+
+
+### The influence of whether dynamically updating the prior or not
+
+**EM algorithm with dynamically updated prior distribution of $z$**
+
+
+```python
+estimated_theta_A,estimated_theta_B, params = EM(X, update_prior=True, is_return_prior_list=True)
+## This problem is (strictly) concave, 
+print("Estimated theta_A: %.4f, Estimated theta_B: %.4f"%( estimated_theta_A, estimated_theta_B))
+```
+
+    Estimated theta_A: 0.1923, Estimated theta_B: 0.7053
+
+
+Wow, the estimated theta_A is almost equal to the true theta_A (0.2), and the same holds for estimated theta_B. Note that the EM output may sometimes be "Estimated theta_A: 0.7, Estimated theta_B: 0.2". This is OK because EM doesn't know estimated theta_A is corresponding to coin A literally. It only knows that there are two coins, one with heads prob 0.7 and another on with 0.2.
+
+**EM algorithm with fixed prior distribution of $z$**: $P(z=A)=0.5$ and $P(z=B)=0.5$.
+
+
+```python
+estimated_theta_A,estimated_theta_B = EM(X, update_prior=False)
+print("Estimated theta_A: %.4f, Estimated theta_B: %.4f"%( estimated_theta_A, estimated_theta_B))
+```
+
+    Estimated theta_A: 0.6621, Estimated theta_B: 0.1762
+
+
+From this result it's obvious that if we use a fixed prior distribution of $z$ which is pretty different from the true prior, the final estimate of model parameters will be less accurate. 
+
+In fact, if we choose to dynamically update prior we check how the prior distribution changes, we will see the prior distribution will gradually approach the true prior. This can be shown by plotting the prior_coin_A_list variable: 
+
+
+```python
+import matplotlib.pyplot as plt
+plt.plot( params["prior_coin_A_list"] )
+plt.plot( np.ones_like( params["prior_coin_A_list"])*true_prior_coin_A )
+plt.legend(["dynamically updated prior","true prior"])
+plt.ylabel("$p(z=A)$")
+plt.xlabel("iteration")
+plt.show()
+```
+
+
+![dynamically update prior](https://nianlonggu.github.io/img/2019-07-07-EM/coin-tossing_11_0.png)
+
+
+We can see that the prior gradually approachs the true prior as we expected. However, we also notice that there always exists some gap. This might be analytically explained. I will try to think about this in the future.
+
+## Conclusion
+
+1. EM algorithm does work on this example.
+2. To better estimate the parameters, it's advisable to dynamically update the prior distribution of the hidden variables.
