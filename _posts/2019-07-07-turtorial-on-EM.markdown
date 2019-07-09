@@ -1,16 +1,13 @@
 ---
 layout:     post
-title:      "An Introduction to Expectation-Maximization (EM) Algorithm and Gaussian Mixture Model (GMM) for Clustering"
-subtitle:   " EM 算法与高斯混合模型"
+title:      "An Introduction to Expectation-Maximization (EM) Algorithm"
+subtitle:   " EM算法详解"
 date:       2019-07-07 21:09:00
 author:     "Gu"
 header-img: "img/post-bg-2019-07-07.jpg"
 catalog: true
 tags:
     - EM Algorithm
-    - GMM
-    - Clustering
-    - 聚类
     - Machine Learning
     - 机器学习
 ---
