@@ -11,14 +11,13 @@
     <meta name="theme-color" content="#000000">
     
     <!-- Open Graph -->
-    <meta property="og:title" content="An Introduction to Support Vector Machines (SVM): kernel functions - Gu Blog">
+    <meta property="og:title" content="An Introduction to Support Vector Machines (SVM): Basics - Gu Blog">
     
     <meta property="og:type" content="article">
-    <meta property="og:description" content="Recall of the Slack SVM dual problem:
-
-">
+    <meta property="og:description" content="
+  Just to clarify, these contents are mainly summarized from the course I took: “Fundamental of Big Data Analytics”, taught by Prof. Mathar Rudolf. For for information please visit: https://www.ti...">
     
-    <meta property="article:published_time" content="2019-06-27T17:10:00Z">
+    <meta property="article:published_time" content="2019-05-23T19:00:00Z">
     
     
     <meta property="article:author" content="Gu">
@@ -34,10 +33,10 @@
     
     
     <meta property="og:image" content="http://localhost:4000/img/avatar-gu.jpg">
-    <meta property="og:url" content="http://localhost:4000/2019/06/27/turtorial-on-SVM/">
+    <meta property="og:url" content="http://localhost:4000/2019/05/23/tutorial-on-SVM/">
     <meta property="og:site_name" content="Gu Blog">
     
-    <title>An Introduction to Support Vector Machines (SVM): kernel functions - Gu Blog</title>
+    <title>An Introduction to Support Vector Machines (SVM): Basics - Gu Blog</title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/pwa/manifest.json">
@@ -46,7 +45,7 @@
     <link rel="shortcut icon" href="/img/favicon.ico">
     
     <!-- Canonical URL -->
-    <link rel="canonical" href="http://localhost:4000/2019/06/27/turtorial-on-SVM/">
+    <link rel="canonical" href="http://localhost:4000/2019/05/23/tutorial-on-SVM/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -245,10 +244,10 @@
                         <a class="tag" href="/archive/?tag=Machine+Learning" title="Machine Learning">Machine Learning</a>
                         
                     </div>
-                    <h1>An Introduction to Support Vector Machines (SVM): kernel functions</h1>
+                    <h1>An Introduction to Support Vector Machines (SVM): Basics</h1>
                     
-                    <h2 class="subheading"> 支持向量机(SVM)概述：核函数</h2>
-                    <span class="meta">Posted by Gu on June 27, 2019</span>
+                    <h2 class="subheading"> 支持向量机(SVM)概述：线性支持向量机</h2>
+                    <span class="meta">Posted by Gu on May 23, 2019</span>
                 </div>
             </div>
         </div>
@@ -274,152 +273,94 @@
                 <!-- Multi-Lingual -->
                 
 
-				<p>Recall of the Slack SVM dual problem:<br /></p>
-
-<p><strong>Dual Problem</strong></p>
-<center>
-	$$
-	\max_{\lambda, \mu} \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j\\
-	\begin{align}
-		s.t.\ &amp; 0 \leq \lambda_i \leq C \\
-		 &amp;\sum_{i=1}^{n} \lambda_i y_i =0
-	\end{align}
-	$$
-</center>
-
-<p>Suppose that we have solved the dual problem and get the dual optimum. Let <script type="math/tex">% <![CDATA[
-S_w=\{ i \vert 0<\lambda_i^\star \leq C \} %]]></script> represent the support set related with <script type="math/tex">\mathbf{w}</script>; <script type="math/tex">% <![CDATA[
-S_b=\{ i \vert 0<\lambda_i^\star < C \} %]]></script> represent the support set related with <script type="math/tex">b</script>. Meanwhile, we define <script type="math/tex">S_b^+ =\{ i \vert i\in S_b \  \text{and}\ y_i = +1 \}</script> and <script type="math/tex">S_b^-=\{ i \vert i\in S_b\ \text{and}\ y_i = -1 \}</script>. Then we can compute the primal optimum:</p>
-<center>
-	$$
-	\mathbf{w}^\star = \sum_{i\in S_w}\lambda_i^\star y_i \mathbf{x}_i\\
-	b^\star= y_j - {\mathbf{w}^\star}^T\mathbf{x}_j = y_j - \sum_{i\in S_w}\lambda_i^\star y_i \mathbf{x}_i^T \mathbf{x}_j \ , \ j\in S_b\\
-	$$
-</center>
-<p>Given a new point <script type="math/tex">\mathbf{x}</script>, we can perform classification by computing:</p>
-<center>
-	$$
-	\begin{align}
-	\hat{y} &amp;= {\mathbf{w}^\star}^T \mathbf{x} + b^\star\\
-			&amp;=\sum_{i\in S_w} \lambda^\star_i y_i \mathbf{x}_i^T \mathbf{x} + b^\star\\
-	\end{align}
-	$$
-</center>
-
-<p>According to the formulas above, we notice that in the dual problem, computation of <script type="math/tex">\mathbf{w}^\star</script> and classification of new points, <script type="math/tex">\mathbf{x}_ i^T\mathbf{x}_ j</script> always appears as a whole.</p>
-
-<h2 id="svm-with-kernel-functions">SVM with kernel functions</h2>
-<p><strong>Mapping points to a higher dimensional space</strong></p>
-
-<p>In some cases, if the points is not linearly separable in current space, they are possibly linearly separable if we map them into the higher dimension.</p>
-
-<p><a name="2d-3d-mapping"></a>
-<img src="https://nianlonggu.github.io/img/2019-06-27-SVM/2d-3d-mapping.svg" width="400" hegiht="203" />
-<em><center>Mapping points from 2d to 3d to make them linearly separable.</center></em></p>
-
-<p>We define <script type="math/tex">\phi(\mathbf{x}): R^p \rightarrow R^d\ ,\ d>p</script> as a mapping function which maps low dimensional data to a high dimensional data. We can first map our data <script type="math/tex">\mathbf{x}_ i \rightarrow \phi(\mathbf{x}_ i)</script>, then solve the dual problem:</p>
-<center>
-	$$
-	\max_{\lambda, \mu} \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \phi(\mathbf{x}_i)^T \phi(\mathbf{x}_j)\\
-	\begin{align}
-		s.t.\ &amp; 0 \leq \lambda_i \leq C \\
-		 &amp;\sum_{i=1}^{n} \lambda_i y_i =0
-	\end{align}
-	$$
-</center>
-
-<p>We notice that in the dual problem, computing <script type="math/tex">\mathbf{w}^\star</script> and performing classification, <script type="math/tex">\phi(\mathbf{x}_ i)^T\phi(\mathbf{x}_ j)</script> always appears as a whole. Therefore, we can avoid computing the exact form of <script type="math/tex">\phi(\mathbf{x})</script>, but instead directly explore the function for the inner product of two mapped points <script type="math/tex">K: R^p \times R^p \rightarrow R</script>:</p>
-<center>
-	$$
-	K_{i,j}=K(\mathbf{x}_i, \mathbf{x}_j)=&lt;\phi(\mathbf{x}_i), \phi(\mathbf{x}_j)&gt; 
-	$$
-</center>
-<p>We call <script type="math/tex">K(\mathbf{x}_i, \mathbf{x}_j)</script> as the <strong>kernel function</strong>.</p>
-
-<p>What is a valid kernel function?</p>
-<blockquote>
-  <p>A kernel function <script type="math/tex">K(\mathbf{x}_ i, \mathbf{x}_ j)</script> is valid if there exists a mapping function <script type="math/tex">\phi</script>, such that it holds <script type="math/tex">% <![CDATA[
-K_{i,j} = <\phi(\mathbf{x}_ i), \phi(\mathbf{x}_ j)> %]]></script> for any <script type="math/tex">\mathbf{x}_ i, \mathbf{x}_ j\in R^p</script>.</p>
+				<blockquote>
+  <p>Just to clarify, these contents are mainly summarized from the course I took: “Fundamental of Big Data Analytics”, taught by Prof. Mathar Rudolf. For for information please visit: <a href="https://www.ti.rwth-aachen.de">https://www.ti.rwth-aachen.de</a></p>
 </blockquote>
 
-<p>Moreover, there is an equivalent conclusion on the validness of a kernel function.</p>
+<!-- ## Contents
+[What is SVM?](#what-is-SVM)<br>
+[SVM in Linearly Separable Case](#SVM-in-Linearly-Separable-Case) -->
+
+<p id="what-is-SVM"></p>
+
+<h2 id="what-is-svm">What is SVM?</h2>
+<p>Support Vector Machine (SVM) is a method for classification (and possibly for regression). Here we mainly discuss the most common application: <strong>binary classification problem</strong>.</p>
 <blockquote>
-  <p>A kernel function <script type="math/tex">K(\mathbf{x}_ i, \mathbf{x}_ j)</script> is valid if for any <script type="math/tex">n</script> samples <script type="math/tex">\{ \mathbf{x}_ i \vert \mathbf{x}_ i \in R^p \}, i=1,\dots, n</script>, the kernel matrix <script type="math/tex">\mathbf{K}=\begin{bmatrix}K_{1,1}, \dots, K_{1,n}\\\dots \\ K_{n,1},\dots, K_{n,n} \end{bmatrix}</script> is non-negative definite.</p>
+  <p>Given a training dataset with binary classes {+1, -1}, SVM means to find a separating hyperplane which can maximize the margin.</p>
 </blockquote>
 
-<p><strong>Examples of Kernel functions</strong></p>
+<p>Here the margin represents the minimum distance from points of both classes to the hyperplane. <strong>Support vectors</strong> represent the points which are closest to the hyperplane. These points determine the position and direction of the hyperplane, so they are called “support vectors”.
+ <br />
+ <!-- <center><img src="https://nianlonggu.github.io/img/2019-05-23-SVM/what-is-svm.svg"> </center> -->
+<!-- <center>![what is svm](https://nianlonggu.github.io/img/2019-05-23-SVM/what-is-svm.svg) </center> center here will make it not work --></p>
+<center><a name="linear-svm"></a></center>
+<p><img src="https://nianlonggu.github.io/img/2019-05-23-SVM/what-is-svm.svg" alt="what is svm" />
+<em><center>Linear SVM</center></em></p>
+
+<p>In the series of SVMs, following aspects will be discusses:<br /></p>
 <ol>
-  <li>
-    <p>Polynomial kernel function</p>
-
-    <script type="math/tex; mode=display">K(\mathbf{x}, \mathbf{y}) = ( \mathbf{x}^T\mathbf{y} +c )^d</script>
-
-    <p>It can be proven that this function is equivalent to first mapping points to higher dimensional space and then computing the inner product.</p>
-  </li>
-  <li>
-    <p>Gaussian Kernel</p>
-
-    <script type="math/tex; mode=display">K(\mathbf{x}, \mathbf{y}) = \exp\{ -\frac{ \|\mathbf{x}-\mathbf{y}\|^2 }{2{\epsilon}^2} \}</script>
-
-    <p>Applying Gaussian kernel is equivalent to first mapping points to a infinitely high dimensional space and then computing the inner product. This can be understood by the Taylor expansion of the exponential function. For detailed explanation please see <a href="https://www.zhihu.com/question/35602879">SVM中，高斯核为什么会把原始维度映射到无穷多维？</a></p>
-  </li>
+  <li>The optimization problem of SVM in linearly separable case</li>
+  <li>Using gradient descent algorithm to solve the SVM optimization problem</li>
+  <li>Lagrangian dual optimization and Karush-Kuhn-Tucker (KKT) condition</li>
+  <li>Dual problem of SVM and analysis</li>
+  <li>Solve the dual problem using Sequential Minimal Optimization (SMO)</li>
+  <li>The optimization problem of SVM with penalty term</li>
+  <li>Kernel SVM for nonlinear cases</li>
 </ol>
 
-<h2 id="dual-problem-with-kernel-function">Dual problem with kernel function</h2>
-<p>With the definition of the kernel function, we can rewrite the dual problem and classification task as following.</p>
+<p id="SVM-in-Linearly-Separable-Case"></p>
 
-<p><strong>Dual Problem</strong></p>
-<center>
-	$$
-	\max_{\lambda, \mu} \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j K(\mathbf{x}_i, \mathbf{x}_j) \\
-	\begin{align}
-		s.t.\ &amp; 0 \leq \lambda_i \leq C \\
-		 &amp;\sum_{i=1}^{n} \lambda_i y_i =0
-	\end{align}
-	$$
-</center>
+<h3 id="svm-in-linearly-separable-case">SVM in Linearly Separable Case</h3>
+<p>The linearly separable case means that in the training dataset, points with two different classes can be linearly separated by a hyperplane $H:\{\mathbf{x}|\mathbf{w}^{T}\mathbf{x}+b=0 \}$. The goal of SVM is to find the optimal parameters of $\hat{\mathbf{w}}$ and $\hat{b}$ which maximize the margin. See figure <a href="#linear-svm">Linear-SVM</a>.</p>
 
-<p>Suppose that we have solved the dual problem and get the dual optimum. Let <script type="math/tex">% <![CDATA[
-S_w=\{ i \vert 0<\lambda_i^\star \leq C \} %]]></script> represent the support set related with <script type="math/tex">\mathbf{w}</script>; <script type="math/tex">% <![CDATA[
-S_b=\{ i \vert 0<\lambda_i^\star < C \} %]]></script> represent the support set related with <script type="math/tex">b</script>. Meanwhile, we define <script type="math/tex">S_b^+ =\{ i \vert i\in S_b \  \text{and}\ y_i = +1 \}</script> and <script type="math/tex">S_b^-=\{ i \vert i\in S_b\ \text{and}\ y_i = -1 \}</script>. Then we can compute the primal optimum:</p>
-<center>
-	$$
-	\mathbf{w}^\star = \sum_{i\in S_w}\lambda_i^\star y_i \phi(\mathbf{x}_i)\\
-	b^\star= y_j - {\mathbf{w}^\star}^T\phi(\mathbf{x}_j) = y_j - \sum_{i\in S_w}\lambda_i^\star y_i K(\mathbf{x}_i, \mathbf{x}_j) \ , \ j\in S_b\\
-	$$
-</center>
-<p>Given a new point <script type="math/tex">\mathbf{x}</script>, we can perform classification by computing:</p>
-<center>
-	$$
-	\begin{align}
-	\hat{y} &amp;= {\mathbf{w}^\star}^T \phi(\mathbf{x}) + b^\star\\
-			&amp;=\sum_{i\in S_w} \lambda^\star_i y_i K(\mathbf{x}_i, \mathbf{x}) + b^\star\\
-	\end{align}
-	$$
-</center>
-<p>See, in fact <script type="math/tex">\mathbf{w}^\star</script> is never really computed, since we are only interested in the kernel function!</p>
+<p>Given a training dataset $\{(\mathbf{x}_i,\ y_i)\}, i=1,\dots,n$, where $\mathbf{x}\in{R^p}$ and $y\in\{-1,+1\}$. If such a separating hyperplane exists as shown in figure <a href="#linear-svm">Linear-SVM</a>, there exists a positive value, $\gamma&gt;0$, which satisfies that</p>
+<ul>
+  <li>for any $y_i=+1$, $\mathbf{w}^T\mathbf{x}_i+b\geq \gamma$</li>
+  <li>for any $y_i=-1$, $\mathbf{w}^T\mathbf{x}_i+b\leq -\gamma$</li>
+</ul>
 
-<h2 id="solve-the-dual-problem-using-gradient-descent-algorithm">Solve the dual problem using Gradient Descent Algorithm</h2>
-<p>We can solve the dual problem using gradient descent algorithm as introduced in the post <a href="http://nianlonggu.github.io/2019/05/27/turtorial-on-SVM/">An Introduction to Support Vector Machines (SVM): Dual problem solution using GD</a>. Just simply select a kernel function, such as polynomial or Gaussian, compte the Kernel matrix <script type="math/tex">\mathbf{K}</script> for the training dataset, compute the gradient and then perform back propagation to get the dual optimum <script type="math/tex">\lambda^\star</script>. After getting <script type="math/tex">\lambda^\star</script>, we can compute the primal optimum <script type="math/tex">b^\star</script> and perform classification on new points using the equations above.</p>
+<p>Those two conditions can be summarized into one condition by considering $y_i$ and $\mathbf{x}_ {i}$ jointly:</p>
+<ul>
+  <li>$y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq \gamma \ \ \ $ for any $i=1,\dots,n$</li>
+</ul>
 
-<p>In the next post, I will introduce how to solve the dual problem using Sequential Minimal Optimization (SMO).</p>
+<p>The equality holds for <strong>marginal points</strong> (like the blue square, and red circles in figure <a href="#linear-svm">Linear-SVM</a>). This condition ensures that the hyperplane can correctly classify two classes in the training dataset, yet we have another condition in SVM which is to maximize the margin.</p>
+
+<p><strong>How is the margin is defined?</strong> <br />
+The margin is defined by the Euclidean distance between the closest points (marginal points) to the hyperplane. Since for marginal points $(\mathbf{x}, y)$ it holds $\mathbf{w}^T\mathbf{x}+b = \gamma$ or $\mathbf{w}^T\mathbf{x}+b = -\gamma$, and the hyperplane satisfies $\mathbf{w}^T\mathbf{x}+b = 0$, computing the margin is equivalent to computing the distance between two parallel hyperplane $h_1:\{\mathbf{x}|\mathbf{w}^T\mathbf{x}+b = \gamma\}$ and $h_2:\{\mathbf{w}^T\mathbf{x}+b = 0\}$. Therefore, the margin is <script type="math/tex">\frac{\gamma}{\|\mathbf{w}\|}</script>. <script type="math/tex">\|\mathbf{w}\|</script> represent the norm of the vector <script type="math/tex">\mathbf{w}</script>.</p>
+<blockquote>
+  <p>Recall of linear algebra:<br /></p>
+  <ul>
+    <li>the normal vector of hyperplane $h_1:\{\mathbf{x}|\mathbf{w}^T\mathbf{x}+b_1=0\}$ is <script type="math/tex">\frac{\mathbf{w}}{\|\mathbf{w}\|}</script></li>
+    <li>the distance from origin $\mathbf{0}$ to hyperplane <script type="math/tex">h_1:\{\mathbf{x}\mid\mathbf{w}^T\mathbf{x}+b_1=0\}</script> is <script type="math/tex">\frac{\vert b_1\vert}{\| \mathbf{w} \|}</script>. <br />This can be proved by simply solve the equation:
+<script type="math/tex">\mathbf{w}^T(\alpha \frac{\mathbf{w}}{\|\mathbf{w}\|})+b_1=0</script>, where <script type="math/tex">\vert\alpha\vert</script> is the distance</li>
+    <li>the distance between two parallel hyperplanes <script type="math/tex">h_1:\{\mathbf{x}\vert\mathbf{w}^T\mathbf{x}+b_1=0\}</script> and <script type="math/tex">h_2:\{\mathbf{x}\vert\mathbf{w}^T\mathbf{x}+b_2=0\}</script> is <script type="math/tex">\frac{\vert b_1-b_2\vert}{\|\mathbf{w}\|}</script></li>
+  </ul>
+</blockquote>
+
+<p>Therefore, the SVM optimization problem is:</p>
+<center>$$\text{max} \frac{\gamma}{\|\mathbf{w}\|},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq\gamma\ ,\ \ i=1,\dots,n$$</center>
+
+<blockquote>
+  <p>note that here we cannot just maximize <script type="math/tex">\gamma</script>, since the definition of a hyperplane <script type="math/tex">h:\{\mathbf{x}\vert\mathbf{w}^T\mathbf{x}+b=\gamma\}</script> is scale invariant. <script type="math/tex">\{\mathbf{x}\vert\mathbf{w}^T\mathbf{x}+b=\gamma\}</script> and <script type="math/tex">\{\mathbf{x}\vert\alpha\mathbf{w}^T\mathbf{x}+\alpha b=\alpha\gamma\}</script> represent the same hyperplane. Therefore, maximizing <script type="math/tex">\gamma</script> may make the magnitude of <script type="math/tex">\mathbf{w}</script> and <script type="math/tex">b</script> reach infinity, and has no contribution to maximizing the real margin.</p>
+</blockquote>
+
+<p>It is the geodesic margin <script type="math/tex">\frac{\gamma}{\|\mathbf{w}\|}</script> that matters, not the functional margin <script type="math/tex">\gamma</script>. Therefore, we can select an arbitrary positive value for <script type="math/tex">\gamma</script>. This will only influence the scale of final optimal <script type="math/tex">\hat{\mathbf{w}}</script> and <script type="math/tex">\hat{b}</script>, but the optimal separating hyperplane remains the same. For simplicity, we can set <script type="math/tex">\gamma=1</script>. Then the SVM optimization problem is:</p>
+<center> $$\text{max} \frac{1}{\|\mathbf{w}\|},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1\ ,\ \ i=1,\dots,n$$ </center>
+<p>We can convert this problem into a convex optimization problem by reforming the objective function. The the final form of the SVM optimization problem is:</p>
+<center> $$\text{min} \frac{1}{2}{\|\mathbf{w}\|^2},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1\ ,\ \ i=1,\dots,n$$ </center>
+
+<p>This is the standard expression of the linear SVM. In the next post I will introduce how to solve this optimization problem and get the optimal separating hyperplane <script type="math/tex">\{\mathbf{x}\vert\hat{\mathbf{w}}^T\mathbf{x}+\hat{b}=0\}</script>.</p>
 
 
                 <hr style="visibility: hidden;">
                 <ul class="pager">
                     
-                    <li class="previous">
-                        <a href="/2019/06/07/turtorial-on-SVM/" data-toggle="tooltip" data-placement="top" title="An Introduction to Support Vector Machines (SVM): SVM with slack variables">
-                        Previous<br>
-                        <span>An Introduction to Support Vector Machines (SVM): SVM with slack variables</span>
-                        </a>
-                    </li>
-                    
                     
                     <li class="next">
-                        <a href="/2019/06/28/turtorial-on-SVM/" data-toggle="tooltip" data-placement="top" title="An Introduction to Support Vector Machines (SVM): Sequential Minimal Optimization (SMO)">
+                        <a href="/2019/05/24/tutorial-on-SVM/" data-toggle="tooltip" data-placement="top" title="An Introduction to Support Vector Machines (SVM): Gradient Descent Solution">
                         Next<br>
-                        <span>An Introduction to Support Vector Machines (SVM): Sequential Minimal Optimization (SMO)</span>
+                        <span>An Introduction to Support Vector Machines (SVM): Gradient Descent Solution</span>
                         </a>
                     </li>
                     
@@ -476,7 +417,7 @@ S_b=\{ i \vert 0<\lambda_i^\star < C \} %]]></script> represent the support set 
         </a>
         
         
-                <a data-sort="0001" 
+                <a data-sort="0002" 
                     href="/archive/?tag=%E6%94%AF%E6%8C%81%E5%90%91%E9%87%8F%E6%9C%BA"
                     title="支持向量机"
                     rel="8">支持向量机</a>
@@ -484,17 +425,22 @@ S_b=\{ i \vert 0<\lambda_i^\star < C \} %]]></script> represent the support set 
                 <a data-sort="0000" 
                     href="/archive/?tag=%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0"
                     title="机器学习"
-                    rel="9">机器学习</a>
+                    rel="10">机器学习</a>
         
                 <a data-sort="0000" 
                     href="/archive/?tag=Machine+Learning"
                     title="Machine Learning"
-                    rel="9">Machine Learning</a>
+                    rel="10">Machine Learning</a>
         
-                <a data-sort="0001" 
+                <a data-sort="0002" 
                     href="/archive/?tag=SVM"
                     title="SVM"
-                    rel="8">SVM
+                    rel="8">SVM</a>
+        
+                <a data-sort="0008" 
+                    href="/archive/?tag=EM+Algorithm"
+                    title="EM Algorithm"
+                    rel="2">EM Algorithm
     </div>
 </section>
 
@@ -523,8 +469,8 @@ S_b=\{ i \vert 0<\lambda_i^\star < C \} %]]></script> represent the support set 
 <script type="text/javascript">
     /* * * CONFIGURATION VARIABLES * * */
     var disqus_shortname = "nlgu";
-    var disqus_identifier = "/2019/06/27/turtorial-on-SVM";
-    var disqus_url = "http://localhost:4000/2019/06/27/turtorial-on-SVM/";
+    var disqus_identifier = "/2019/05/23/tutorial-on-SVM";
+    var disqus_url = "http://localhost:4000/2019/05/23/tutorial-on-SVM/";
 
     (function() {
         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

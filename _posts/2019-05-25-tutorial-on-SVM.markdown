@@ -97,7 +97,7 @@ Therefore, if strong duality holds, we can first solve the dual problem and get 
 
 ## Apply Lagrangian Duality to SVM
 Now we are able to solve the SVM optimization problem using Lagrangian duality. 
-As introduced in the first post [An Introduction to Support Vector Machines (SVM): Basics](https://nianlonggu.github.io/2019/05/23/turtorial-on-SVM/), the SVM optimization problem is:
+As introduced in the first post [An Introduction to Support Vector Machines (SVM): Basics](https://nianlonggu.github.io/2019/05/23/tutorial-on-SVM/), the SVM optimization problem is:
 <center>
 	$$
 	\min_{\mathbf{w},b}\frac{1}{2}\|\mathbf{w}\|^2\\
@@ -187,7 +187,7 @@ In practice, in order to avoid influence of noise, we may use a more stable way 
 </center>
 
 ## Use SVM for Classification
-Given a new point $$\mathbf{x}$$, we can compute the value $${\mathbf{w}^\star}^T\mathbf{x}+b^\star$$, and predict the label $$\hat{y}$$ using hard decision or soft decision as shown in [An Introduction to Support Vector Machines (SVM): Gradient Descent Solution](https://nianlonggu.github.io/2019/05/24/turtorial-on-SVM/#use-svm-for-classification). 
+Given a new point $$\mathbf{x}$$, we can compute the value $${\mathbf{w}^\star}^T\mathbf{x}+b^\star$$, and predict the label $$\hat{y}$$ using hard decision or soft decision as shown in [An Introduction to Support Vector Machines (SVM): Gradient Descent Solution](https://nianlonggu.github.io/2019/05/24/tutorial-on-SVM/#use-svm-for-classification). 
 Substitute the expression of $${\mathbf{w}^\star}$$, we have:
 <center>
 	$$

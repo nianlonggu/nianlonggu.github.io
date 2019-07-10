@@ -34,7 +34,7 @@
     
     
     <meta property="og:image" content="http://localhost:4000/img/avatar-gu.jpg">
-    <meta property="og:url" content="http://localhost:4000/2019/06/28/turtorial-on-SVM/">
+    <meta property="og:url" content="http://localhost:4000/2019/06/28/tutorial-on-SVM/">
     <meta property="og:site_name" content="Gu Blog">
     
     <title>An Introduction to Support Vector Machines (SVM): Sequential Minimal Optimization (SMO) - Gu Blog</title>
@@ -46,7 +46,7 @@
     <link rel="shortcut icon" href="/img/favicon.ico">
     
     <!-- Canonical URL -->
-    <link rel="canonical" href="http://localhost:4000/2019/06/28/turtorial-on-SVM/">
+    <link rel="canonical" href="http://localhost:4000/2019/06/28/tutorial-on-SVM/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -330,7 +330,7 @@ $$
 	\end{align}
 	$$
 </center>
-<p><script type="math/tex">L(\lambda)</script> is concave with respect to <script type="math/tex">\lambda_a</script>, since <script type="math/tex">\frac{\partial^2{L}}{\partial{\lambda_a^2}}= -( K_{a,a} + K_{b,b} - 2K_{a,b} )=-(e_a - e_b)^T \mathbf{K} (e_a - e_b) \leq 0</script> due to the fact that the kernel matrix <script type="math/tex">\mathbf{K}</script> is nonnegative definite (see last post <a href="http://nianlonggu.github.io/2019/06/27/turtorial-on-SVM/">An Introduction to Support Vector Machines (SVM): kernel functions</a> ). Therefore, we can find the optimal value of <script type="math/tex">\lambda_a</script> which maximizes <script type="math/tex">L(\lambda)</script> by computing the gradient and set it to 0.</p>
+<p><script type="math/tex">L(\lambda)</script> is concave with respect to <script type="math/tex">\lambda_a</script>, since <script type="math/tex">\frac{\partial^2{L}}{\partial{\lambda_a^2}}= -( K_{a,a} + K_{b,b} - 2K_{a,b} )=-(e_a - e_b)^T \mathbf{K} (e_a - e_b) \leq 0</script> due to the fact that the kernel matrix <script type="math/tex">\mathbf{K}</script> is nonnegative definite (see last post <a href="http://nianlonggu.github.io/2019/06/27/tutorial-on-SVM/">An Introduction to Support Vector Machines (SVM): kernel functions</a> ). Therefore, we can find the optimal value of <script type="math/tex">\lambda_a</script> which maximizes <script type="math/tex">L(\lambda)</script> by computing the gradient and set it to 0.</p>
 <center>
 	$$
 	\begin{align}
@@ -520,7 +520,7 @@ In the deduction above, we can see <script type="math/tex">\xi</script> is used 
                 <ul class="pager">
                     
                     <li class="previous">
-                        <a href="/2019/06/27/turtorial-on-SVM/" data-toggle="tooltip" data-placement="top" title="An Introduction to Support Vector Machines (SVM): kernel functions">
+                        <a href="/2019/06/27/tutorial-on-SVM/" data-toggle="tooltip" data-placement="top" title="An Introduction to Support Vector Machines (SVM): kernel functions">
                         Previous<br>
                         <span>An Introduction to Support Vector Machines (SVM): kernel functions</span>
                         </a>
@@ -528,7 +528,7 @@ In the deduction above, we can see <script type="math/tex">\xi</script> is used 
                     
                     
                     <li class="next">
-                        <a href="/2019/07/04/turtorial-on-SVM/" data-toggle="tooltip" data-placement="top" title="An Introduction to Support Vector Machines (SVM): A Python Implementation">
+                        <a href="/2019/07/04/tutorial-on-SVM/" data-toggle="tooltip" data-placement="top" title="An Introduction to Support Vector Machines (SVM): A Python Implementation">
                         Next<br>
                         <span>An Introduction to Support Vector Machines (SVM): A Python Implementation</span>
                         </a>
@@ -587,7 +587,7 @@ In the deduction above, we can see <script type="math/tex">\xi</script> is used 
         </a>
         
         
-                <a data-sort="0001" 
+                <a data-sort="0002" 
                     href="/archive/?tag=%E6%94%AF%E6%8C%81%E5%90%91%E9%87%8F%E6%9C%BA"
                     title="支持向量机"
                     rel="8">支持向量机</a>
@@ -595,17 +595,22 @@ In the deduction above, we can see <script type="math/tex">\xi</script> is used 
                 <a data-sort="0000" 
                     href="/archive/?tag=%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0"
                     title="机器学习"
-                    rel="9">机器学习</a>
+                    rel="10">机器学习</a>
         
                 <a data-sort="0000" 
                     href="/archive/?tag=Machine+Learning"
                     title="Machine Learning"
-                    rel="9">Machine Learning</a>
+                    rel="10">Machine Learning</a>
         
-                <a data-sort="0001" 
+                <a data-sort="0002" 
                     href="/archive/?tag=SVM"
                     title="SVM"
-                    rel="8">SVM
+                    rel="8">SVM</a>
+        
+                <a data-sort="0008" 
+                    href="/archive/?tag=EM+Algorithm"
+                    title="EM Algorithm"
+                    rel="2">EM Algorithm
     </div>
 </section>
 
@@ -634,8 +639,8 @@ In the deduction above, we can see <script type="math/tex">\xi</script> is used 
 <script type="text/javascript">
     /* * * CONFIGURATION VARIABLES * * */
     var disqus_shortname = "nlgu";
-    var disqus_identifier = "/2019/06/28/turtorial-on-SVM";
-    var disqus_url = "http://localhost:4000/2019/06/28/turtorial-on-SVM/";
+    var disqus_identifier = "/2019/06/28/tutorial-on-SVM";
+    var disqus_url = "http://localhost:4000/2019/06/28/tutorial-on-SVM/";
 
     (function() {
         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

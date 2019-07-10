@@ -130,7 +130,7 @@ The objective function for gradient descent is:<center>
 	\min_{\lambda} L(\lambda) = -\sum_{i=1}^{n} \lambda_i + \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_ i^T \mathbf{x}_ j + \frac{c}{2}(\sum_{i=1}^{n}\lambda_i y_i)^2 \\
 	s.t.\ 0\leq \lambda_i \leq C \ , \ i=1,\dots,n
 	$$</center>
-Compared with the post [An Introduction to Support Vector Machines (SVM): Dual problem solution using GD](https://nianlonggu.github.io/2019/05/27/turtorial-on-SVM/), the objective function is the same. The only difference is that here the constraints are $$0\leq \lambda_i \leq C$$. To achieve this constraints, we can clip the value of $$\lambda_i$$ in the range $$[0,C]$$ after each gradient descent back propagation. For the detail of the gradient form, please have a look at that post. 
+Compared with the post [An Introduction to Support Vector Machines (SVM): Dual problem solution using GD](https://nianlonggu.github.io/2019/05/27/tutorial-on-SVM/), the objective function is the same. The only difference is that here the constraints are $$0\leq \lambda_i \leq C$$. To achieve this constraints, we can clip the value of $$\lambda_i$$ in the range $$[0,C]$$ after each gradient descent back propagation. For the detail of the gradient form, please have a look at that post. 
 
 2. Sequential Minimal Optimization (SMO), which will be discussed in the following posts.
 

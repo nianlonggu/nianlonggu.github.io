@@ -11,13 +11,13 @@
     <meta name="theme-color" content="#000000">
     
     <!-- Open Graph -->
-    <meta property="og:title" content="An Introduction to Support Vector Machines (SVM): Dual problem solution using GD - Gu Blog">
+    <meta property="og:title" content="An Introduction to Support Vector Machines (SVM): Convex Optimization and Lagrangian Duality Principle - Gu Blog">
     
     <meta property="og:type" content="article">
     <meta property="og:description" content="
   Just to clarify, these contents are mainly summarized from the course I took: “Fundamental of Big Data Analytics”, taught by Prof. Mathar Rudolf. For for information please visit: https://www.ti...">
     
-    <meta property="article:published_time" content="2019-05-27T10:58:00Z">
+    <meta property="article:published_time" content="2019-05-25T21:43:00Z">
     
     
     <meta property="article:author" content="Gu">
@@ -33,10 +33,10 @@
     
     
     <meta property="og:image" content="http://localhost:4000/img/avatar-gu.jpg">
-    <meta property="og:url" content="http://localhost:4000/2019/05/27/turtorial-on-SVM/">
+    <meta property="og:url" content="http://localhost:4000/2019/05/25/tutorial-on-SVM/">
     <meta property="og:site_name" content="Gu Blog">
     
-    <title>An Introduction to Support Vector Machines (SVM): Dual problem solution using GD - Gu Blog</title>
+    <title>An Introduction to Support Vector Machines (SVM): Convex Optimization and Lagrangian Duality Principle - Gu Blog</title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/pwa/manifest.json">
@@ -45,7 +45,7 @@
     <link rel="shortcut icon" href="/img/favicon.ico">
     
     <!-- Canonical URL -->
-    <link rel="canonical" href="http://localhost:4000/2019/05/27/turtorial-on-SVM/">
+    <link rel="canonical" href="http://localhost:4000/2019/05/25/tutorial-on-SVM/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -244,10 +244,10 @@
                         <a class="tag" href="/archive/?tag=Machine+Learning" title="Machine Learning">Machine Learning</a>
                         
                     </div>
-                    <h1>An Introduction to Support Vector Machines (SVM): Dual problem solution using GD</h1>
+                    <h1>An Introduction to Support Vector Machines (SVM): Convex Optimization and Lagrangian Duality Principle</h1>
                     
-                    <h2 class="subheading"> 支持向量机(SVM)概述：使用梯度下降求解对偶问题</h2>
-                    <span class="meta">Posted by Gu on May 27, 2019</span>
+                    <h2 class="subheading"> 支持向量机(SVM)概述：凸优化与拉格朗日对偶问题</h2>
+                    <span class="meta">Posted by Gu on May 25, 2019</span>
                 </div>
             </div>
         </div>
@@ -277,126 +277,217 @@
   <p>Just to clarify, these contents are mainly summarized from the course I took: “Fundamental of Big Data Analytics”, taught by Prof. Mathar Rudolf. For for information please visit: <a href="https://www.ti.rwth-aachen.de">https://www.ti.rwth-aachen.de</a></p>
 </blockquote>
 
-<p>Recall of the SVM primal problem and dual problem:<br />
-<strong>Primal Problem</strong></p>
+<p>In the last post we have conquered how to use gradient descent algorithm to train a SVM. So,</p>
+<blockquote>
+  <p>is this the end of the story?</p>
+</blockquote>
+
+<p>Not really. Although using GD can solve the SVM optimization, GD has some shortcomings:</p>
+<ul>
+  <li>Gradient procedure is time consuming and the solution may be suboptimal.</li>
+  <li>GD method cannot explicitly identify support vectors (points) which determine the hyperplane.</li>
+</ul>
+
+<p>To overcome these shortcomings, we can take advantage of the Lagrangian duality. First we convert original SVM optimization problem into a primal (convex) optimization problem, then we can get the Lagrangian dual problem. Luckily we can solve the dual problem based on KKT condition using more efficient methods.</p>
+
+<p>First of all, we need to briefly introduce Lagrangian duality and Karush-Kuhn-Tucker (KKT) condition.</p>
+
+<h2 id="lagrangian-duality-principle">Lagrangian Duality Principle</h2>
+<p><strong>Primal Problem</strong><br />
+A primal convex optimization problem has the following expression:</p>
 <center>
 	$$
-	\min_{\mathbf{w},b}\ \frac{1}{2}\|\mathbf{w}\|^2\\
+	\min_{\mathbf{x}}  f_0(\mathbf{x})\\
+	s.t. \ \ f_i(\mathbf{x}) \leq 0, \ i=1,\dots,n \\
+	\ \ \ \ \ \ \ h_j(\mathbf{x}) = 0, \ j=1,\dots,p
+	$$
+</center>
+<p>where $f_i(\mathbf{x}) _{(i=0,1,\dots,n)}$ are convex, and $h_j(\mathbf{x}) _{(j=1,\dots,p)}$ are linear (or affine).</p>
+
+<p>We can get the Lagrangian function:</p>
+<center>
+	$$
+	L(\mathbf{x}, \mathbf{\lambda}, \mathbf{\mu}) = f_0(\mathbf{x}) + \sum_{i=1}^{n}\lambda_{i}f_i(\mathbf{x}) + \sum_{j=1}^{p}\mu_jh_j(\mathbf{x})
+	$$
+</center>
+<p>Since $f_i(\mathbf{x})$ are convex, and $h_j(\mathbf{x})$ are linear, <script type="math/tex">L(\mathbf{x}, \mathbf{\lambda}, \mathbf{\mu})</script> is also convex w.r.t <script type="math/tex">\mathbf{x}</script>. Therefore, we can get the infimum of <script type="math/tex">L(\mathbf{x}, \mathbf{\lambda}, \mathbf{\mu})</script>, which is called the Lagrangian dual function:</p>
+<center>
+	$$
+	g(\mathbf{\lambda},\mathbf{\mu})= \inf_\mathbf{x} \ L(\mathbf{x},\mathbf{\lambda},\mathbf{\mu})
+	$$
+</center>
+
+<blockquote>
+  <p>The difference between minimum and infimum: <br /></p>
+  <ul>
+    <li><script type="math/tex">\min(S)</script> means the smallest element in set <script type="math/tex">S</script>;<br /></li>
+    <li><script type="math/tex">inf(S)</script> means the largest value which is less than or equal to any element in <script type="math/tex">S</script>.<br /></li>
+    <li>In the case where the minimum value is reachable, infimum = minimum. e.g. <script type="math/tex">S=\{\text{all natural number}\}</script>, then <script type="math/tex">\inf(S) = \min(S) = 0</script></li>
+    <li>In the case where the minimum is not reachable, infimum may still exist. e.g. <script type="math/tex">S=\{f(x)\vert f(x)=1/x, x>0\}</script>, <script type="math/tex">\inf(S)=0</script></li>
+  </ul>
+</blockquote>
+
+<p><strong>Dual Problem</strong>
+Based on the dual function we can get the dual optimization problem:</p>
+<center>
+	$$
+		\max_{\mathbf{\lambda},\mathbf{\mu}}\ g(\mathbf{\lambda},\mathbf{\mu})\\
+		s.t. \ \ \lambda_i \geq 0, \ \ i=1,\dots,n\\
+		\small\text{and other constraints introduced by computing the dual function}
+	$$
+</center>
+
+<p><strong>Strong Duality and Slater’s Condition</strong><br />
+Let $f_0^\star(x)$ and $g^\star(\mathbf{\lambda},\mathbf{\mu})$ be the primal optimum and dual optimum respectively. 
+<strong>Weak duality</strong> means that
+<script type="math/tex">g^\star(\mathbf{\lambda},\mathbf{\mu}) \leq f_0^\star(x)</script> 
+The difference <script type="math/tex">f_0^\star(x)-g^\star(\mathbf{\lambda},\mathbf{\mu})</script> is called <strong>duality gap</strong>.</p>
+
+<p>Under certain circumstances, the duality gap can be 0, which means the <strong>strong duality</strong> holds. This condition is called <strong>Slater’s condition</strong>:<br /></p>
+<ul>
+  <li>Apart from the constraints in primal problem, Slater’s condition requires that the constraints <script type="math/tex">f_i(\mathbf{x}) _ {(i=1,\dots,n)}</script> are linear (or affine).</li>
+</ul>
+
+<p>If Slater’s condition is satisfied, strong duality holds, and furthermore for the optimal value <script type="math/tex">\mathbf{x}^\star</script>, <script type="math/tex">\mathbf{\lambda}^\star</script> and <script type="math/tex">\mathbf{\mu}^\star</script>, the <strong>Karush-Kuhn-Tucker (KKT)</strong> conditions also holds.</p>
+
+<p><strong>Karush-Kuhn-Tucker (KKT) Conditions</strong><br />
+KKT conditions contain four conditions:<br /></p>
+<ol>
+  <li><em>primal constraints</em> <center>$$f_i(\mathbf{x}^\star)\leq 0, \ i=1,\dots,n  \\ h_j(\mathbf{x}^\star)=0, \ j=1,\dots,p$$ </center></li>
+  <li><em>compute the infimum of <script type="math/tex">L</script> w.r.t <script type="math/tex">\mathbf{x}</script></em> <center>$$\Delta_{\mathbf{x}} L(\mathbf{x}^\star, \mathbf{\lambda}^\star, \mathbf{\mu}^\star) = 0$$</center></li>
+  <li><em>dual constraints</em> <center>
+ $$
+ \lambda_i^\star\geq 0, \ i=1,\dots,n
+ $$</center></li>
+  <li><strong><em>Complementary Slackness</em></strong> <center>
+ $$
+ \lambda_i^\star f_i(\mathbf{x}^\star) = 0, \ i=1,\dots,n
+ $$</center></li>
+</ol>
+
+<p>Therefore, if strong duality holds, we can first solve the dual problem and get the optimal <script type="math/tex">\mathbf{\lambda}^\star</script>, <script type="math/tex">\mathbf{\mu}^\star</script>. Then we can substitute the dual optimum into the KKT conditions (especially KKT condition 2) to get the primal optimum <script type="math/tex">\mathbf{x}^\star</script>. Then the primal convex optimization problem can be solved.</p>
+
+<h2 id="apply-lagrangian-duality-to-svm">Apply Lagrangian Duality to SVM</h2>
+<p>Now we are able to solve the SVM optimization problem using Lagrangian duality. 
+As introduced in the first post <a href="https://nianlonggu.github.io/2019/05/23/tutorial-on-SVM/">An Introduction to Support Vector Machines (SVM): Basics</a>, the SVM optimization problem is:</p>
+<center>
+	$$
+	\min_{\mathbf{w},b}\frac{1}{2}\|\mathbf{w}\|^2\\
+	s.t. \ \ y_i(\mathbf{w}^T\mathbf{x}_i+b) \geq 1
+	$$
+</center>
+<p>The Lagrangian dual function is</p>
+<center>
+	$$
+	L(\mathbf{w}, b , \mathbf{\lambda}) = \frac{1}{2}\|\mathbf{w}\|^2 + \sum_{i=1}^{n}\lambda_i(1-y_i(\mathbf{w}^T\mathbf{x}_i+b))
+	$$
+</center>
+<p>To compute the Lagrangian dual function, we can compute the partial derivative of $L$ w.r.t <script type="math/tex">\mathbf{w},b</script> and set them to 0 (see KKT condition 2)</p>
+<center>
+	$$
+	\frac{\partial{L}}{\partial{\mathbf{w}}} = \mathbf{w} - \sum_{i=1}^{n}\lambda_i y_i \mathbf{x}_i = 0\\
+	\frac{\partial{L}}{\partial{b}} = -\sum_{i=1}^{n}\lambda_i y_i =0
+	$$
+</center>
+<p>Then we get</p>
+<center>
+	$$
+	\mathbf{w}^\star = \sum_{i=1}^{n}\lambda_i y_i \mathbf{x}_i\\
+	\sum_{i=1}^{n}\lambda_i y_i = 0
+	$$
+</center>
+<p>Substitute these two constraint equations into <script type="math/tex">L(\mathbf{w},b,\mathbf{\lambda})</script>, we get the Lagrangian dual function:</p>
+<center>
+	$$
 	\begin{align}
-	s.t.\ \ &amp; y_i(\mathbf{w}^T\mathbf{x}_i+b)\geq 1,\ i=1,\dots,n
+	g(\mathbf{\lambda}) &amp; = \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j + \sum_{i=1}^{n}\lambda_i(1-y_i( \sum_{j=1}^{n}\lambda_j y_j \mathbf{x_j}^T\mathbf{x}_i +b  ))\\
+	&amp; = \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j  - \sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j + \sum_{i=1}^{n}\lambda_i - (\sum_{i=1}^{n}\lambda_i y_i)b \\
+	&amp;= \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j
 	\end{align}
 	$$
 </center>
-<p><strong>Dual Problem</strong></p>
+<p>Then the dual problem is:</p>
 <center>
 	$$
-	\max_{\lambda}\ \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j\\
+	\max_{\lambda} \ \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i\lambda_j y_i y_j \mathbf{x}_i^T \mathbf{x}_j\\
 	\begin{align}
-	s.t.\ \ &amp; \lambda_i \geq 0,\ i=1,\dots,n\\
-	&amp; \sum_{i=1}^{n}\lambda_i y_i = 0
-	\end{align} 
+	s.t. \ \ &amp;\lambda_i \geq 0, \ \ i=1,\dots,n\\
+	&amp;\sum_{i=1}^{n} \lambda_i y_i = 0
+	\end{align}
 	$$
 </center>
-<p>The the last post we introduced how to apply Lagrangian duality to SVM and how to get the primal optimum once we get the dual optimum. In this post we mainly discuss how to solve the dual problem and get the dual optimum.</p>
+<p>We can solve this dual problem using Gradient descent algorithm or <strong>Sequential Minimal Optimization (SMO)</strong>. This will be discussed in the next post.</p>
 
-<h2 id="gradient-descent-algorithm-for-dual-problem">Gradient Descent Algorithm for Dual Problem</h2>
-<p>To apply GD to SVM, we need to reformulate the objective function of the dual problem. Our new objective function will be:</p>
+<p>Once we get the dual optimum <script type="math/tex">\lambda^\star</script>, we can get the primal optimum <script type="math/tex">\mathbf{w}^\star=\sum_{i=1}^{n} \lambda_i^\star y_i\mathbf{x}_ i</script>. But wait, how to get the optimal <script type="math/tex">b^\star</script>? To further understand this, we need analyze the KKT conditions for SVM optimization problem.</p>
+
+<h2 id="kkt-conditions-for-svm">KKT conditions for SVM</h2>
+<p>Since the primal constraints <script type="math/tex">1-y_i(\mathbf{w}^T\mathbf{x}_ i+b)\leq 0</script> is obviously linear, so the Slater’s condition holds, strong duality holds, and the KKT conditions are satisfied for the primal optimum and dual optimum of the SVM. Therefore, we have the complementary slackness:</p>
 <center>
 	$$
-	\min_{\lambda}L(\lambda)=-\sum_{i=1}^{n}\lambda_i + \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j + \frac{c}{2}(\sum_{i=1}^{n}\lambda_i y_i)^2 \\
-	s.t. \ \ \lambda_i\geq 0
+	\lambda_i^\star (1-y_i({\mathbf{w}^\star}^T\mathbf{x}_i+b^\star))=0, \ \ i=1,\dots,n
 	$$
 </center>
-<p>where <script type="math/tex">c>0</script> is the weighting factor for the constraint <script type="math/tex">\sum_{i=1}^{n}\lambda_i y_i = 0</script>. For the constraint <script type="math/tex">\lambda_i\geq 0</script>, we can satisfy this constraint by clipping <script type="math/tex">\lambda</script> into the region <script type="math/tex">[0,\infty)</script> after each back propagation during gradient descent.</p>
+<p>This looks interesting. From dual constraints we know that <script type="math/tex">\lambda^\star\geq 0</script>. Together with this complementary slackness, we will know that if <script type="math/tex">\lambda_i>0</script>, then it must hold <script type="math/tex">y_i({\mathbf{w}^\star}^T\mathbf{x}_i+b^\star)=1</script>. This means <script type="math/tex">\mathbf{x}_i</script> is exactly one of the support vectors (the points which have a margin distance to the separating hyperplane)!</p>
 
-<blockquote>
-  <p>Discussion: why not also put the constraints <script type="math/tex">\lambda_i\geq 0</script> also into the loss function by introducing an extra hinge loss term? Then the final loss function will be:
-<script type="math/tex">\min_{\lambda}L(\lambda)=-\sum_{i=1}^{n}\lambda_i + \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j + \frac{c}{2}(\sum_{i=1}^{n}\lambda_i y_i)^2  + d \sum_{i=1}^{n}\text{max}\{-\lambda_i,0\}</script><br />
-<br />
-This is reasonable in theory but not so feasible in practice. This will introduce one extra hyper parameter <script type="math/tex">d</script>, and we will be lost in endlessly fine tuning and balancing the hyper parameters <script type="math/tex">c</script> and <script type="math/tex">d</script>. Test results also show that achieving the constraint <script type="math/tex">\lambda_i\geq 0</script> using clipping is efficient and this method also easily support more general cases of <strong>SVM with penalty terms</strong>. This will be discussed later.</p>
-</blockquote>
+<p>Therefore, we find a way to <strong>identify support vectors</strong> using Lagrangian duality:</p>
+<ul>
+  <li>Compute the dual optimum, if <script type="math/tex">\lambda_i^\star>0</script>, then <script type="math/tex">\mathbf{x}_ i</script> is a support vector.</li>
+</ul>
 
-<p>Based on the loss function, We can compute the gradient:</p>
-
-<center>
-$$
-\begin{align}
-\frac{\partial{L}}{\partial{\lambda_i}} &amp;= -1 +   y_i \sum_{j=1}^{n}\lambda_j y_j \mathbf{x}_i^T\mathbf{x}_j + {c}\sum_{j=1}^{n}\lambda_j y_j y_i 
-\end{align}
-$$
-</center>
-<p>We define a function <script type="math/tex">K(\mathbf{x}_i, \mathbf{x}_j)= \mathbf{x}_i^T\mathbf{x}_j</script>. To maintain the consistence with future posts, we can this function as <strong>kernel function</strong>. Given a training dataset <script type="math/tex">\{\mathbf{x}_i\}, i=1,\dots,n</script>, we can get a <strong>kernel matrix</strong>:</p>
+<p>Let <script type="math/tex">S=\{i\vert \lambda^\star_i > 0\}</script> represent the support vector set, <script type="math/tex">S_+=\{i\vert i\in S\ \text{and}\ y_i=+1\}</script> represent the subset whose labels are <script type="math/tex">+1</script>, and <script type="math/tex">S_-=\{i\vert i\in S\ \text{and}\ y_i=-1 \}</script> represent the subset whose labels are -1.
+Then the primal optimum will be:</p>
 <center>
 	$$
-	\mathbf{K} = \begin{bmatrix}K_{1,1}\dots K_{1,n}\\ \dots \\ K_{n,1}\dots   {K_{n,n}} \end{bmatrix}
+	\mathbf{w}^\star = \sum_{i\in S} \lambda_i^\star y_i \mathbf{x}_i\\
 	$$
 </center>
-<p>where <script type="math/tex">K_{i,j}=K(\mathbf{x}_i, \mathbf{x}_j)</script>.<br />
-Then the gradient <script type="math/tex">\frac{\partial{L}}{\partial{\lambda_i}}</script> can be expressed by the kernel matrix:</p>
+<p>Since we know for support vectors <script type="math/tex">\mathbf{x}_i,\ i\in S</script>, it holds <script type="math/tex">y_i({\mathbf{w}^\star}^T\mathbf{x}_i+b^\star)=1</script>. <script type="math/tex">y_i \in \{-1,+1\}</script>, so we get <script type="math/tex">{\mathbf{w}^\star}^T\mathbf{x}_i + b^\star= y_i</script>. Therefore, the primal optimum of <script type="math/tex">b</script> is:</p>
 <center>
 	$$
-	\frac{\partial{L}}{\partial{\lambda_i}} = -1 + y_i \mathbf{e}_i^T \mathbf{K}  ( \lambda \circ \mathbf{y} ) + c y_i \lambda ^T \mathbf{y}
+	b^\star = y_i - {\mathbf{w}^\star}^T\mathbf{x}_i, \ \ i\in S
 	$$
 </center>
-<p>where <script type="math/tex">\mathbf{e}_i=[0,\dots,0,1,0,\dots,0]</script>, with the <script type="math/tex">i^{th}</script> element being 1 and other elements being 0. The sign <script type="math/tex">\lambda \circ \mathbf{y}</script> represents the element-wise multiplication two vectors <script type="math/tex">\lambda</script> and <script type="math/tex">\mathbf{y}</script>.</p>
-
-<p>We can also write the expression of the gradient of <script type="math/tex">L</script> with respect to the whole vector <script type="math/tex">\lambda</script>:</p>
+<p>or</p>
 <center>
 	$$
-	\frac{\partial{L}}{\partial{\lambda}} = -\mathbf{1}_n + (\mathbf{K}(\lambda \circ \mathbf{y}))\circ \mathbf{y} + c(\lambda^T\mathbf{y})\mathbf{y}
+	b^\star = -\frac{1}{2}({\mathbf{w}^\star}^T\mathbf{x}_i + {\mathbf{w}^\star}^T\mathbf{x}_j ), \ \ i\in S_+,\ j \in S_-
 	$$
 </center>
-<p>In practice, when we implement the gradient descent algorithm, we don’t need to compute <script type="math/tex">\mathbf{K}</script> in each iteration, since <script type="math/tex">\mathbf{K}</script> does not rely on <script type="math/tex">\lambda</script>. Instead, we can simply compute <script type="math/tex">\mathbf{K}</script> before applying gradient descent and store it in the memory, and call it each time when computing the gradient.</p>
-
-<p>Another implicit advantage of using such a kernel matrix expression is that such a definition can be extended into a broader definition of SVM – <strong>SVM with kernels</strong>, where we can give a more sophisticated definition to the kernel function <script type="math/tex">K(\mathbf{x}_ i, \mathbf{x}_ j)</script>, instead of just vector dot product. But even in that case, the expression of the gradient still remains the same. We just simply pre-calculate the kernel matrix <script type="math/tex">\mathbf{K}</script> based on the new definition of kernel function, and then apply gradient descent algorithm to find the optimal solution. We will discuss <strong>kernel SVM</strong> in the future posts.</p>
-
-<!-- We can also use the [denominator layout](https://en.wikipedia.org/wiki/Matrix_calculus) to express the gradient of $$L$$ with respect to the vector of $$\mathbf{\lambda}=(\lambda_1, \lambda_2,\dots,\lambda_n)^T$$. Let $$\mathbf{X}=(\mathbf{x}_ 1,\dots,\mathbf{x}_ n)^T\in R^{nxp}$$ and $$\mathbf{y}=(y_1,\dots, y_n)^T\in R_n$$. Then we have:
+<p>In practice, in order to avoid influence of noise, we may use a more stable way to compute <script type="math/tex">b^\star</script>:</p>
 <center>
 	$$
-	\frac{\partial{L}}{\partial{\lambda}} = -  \mathbf{1}_n +( (\mathbf{y}\mathbf{1}_p^T)\circ\mathbf{X})\mathbf{X}^T(\mathbf{y}\circ\lambda)+ c(\lambda^T\mathbf{y})\mathbf{y}
+	b^\star = \frac{1}{\vert S\vert} \sum_{i} \{ y_i - {\mathbf{w}^\star}^T\mathbf{x}_i \}, \ \ i\in S
 	$$
 </center>
-where $$\circ$$ stands for **element-wise product** and $$\mu(-\lambda)=( \mu(-\lambda_1),\dots,\mu(-\lambda_n))^T$$
 
-The update rule of $$\lambda$$ is:
+<h2 id="use-svm-for-classification">Use SVM for Classification</h2>
+<p>Given a new point <script type="math/tex">\mathbf{x}</script>, we can compute the value <script type="math/tex">{\mathbf{w}^\star}^T\mathbf{x}+b^\star</script>, and predict the label <script type="math/tex">\hat{y}</script> using hard decision or soft decision as shown in <a href="https://nianlonggu.github.io/2019/05/24/tutorial-on-SVM/#use-svm-for-classification">An Introduction to Support Vector Machines (SVM): Gradient Descent Solution</a>. 
+Substitute the expression of <script type="math/tex">{\mathbf{w}^\star}</script>, we have:</p>
 <center>
 	$$
-	\lambda \leftarrow \lambda - \alpha \frac{\partial{L}}{\partial{\lambda}}
+	{\mathbf{w}^\star}^T\mathbf{x} + b^\star = \sum_{i\in S}\lambda_i^\star y_i \mathbf{x}_i^T\mathbf{x} +b^\star
 	$$
 </center>
-where $$\alpha$$ is the learning rate.
- -->
+<p>This implies that we only need the support vectors to determine the separating hyperplane and classify new points. Furthermore, we notice that either in the dual problem or in the classification, <script type="math/tex">\mathbf{x}_i^T\mathbf{x}_j</script> always appears as a whole. This feature can be used for Kernel SVM, which will be discussed in the following posts.</p>
 
-<p><strong>Implementation and Experiments</strong></p>
-
-<p>I implement the Gradient Descent algorithm to compute the dual optimum and use it to solve the original SVM optimization problem. The code is available in my github <a href="https://github.com/nianlonggu/SupportVectorMachine/blob/master/gd-dual-svm.py">SupportVectorMachine/gd-dual-svm.py</a>. The change of the hyperplane over iterations is shown in figure <a href="#hyperplane-over-iteration">Hyperplane Over Iteration</a>
-<a name="hyperplane-over-iteration"></a>
-<img src="https://nianlonggu.github.io/img/2019-05-27-SVM/hyperplane-over-iteration.gif" width="400" hegiht="203" />
-<em><center>Hyperplane Over Iteration</center></em></p>
-
-<p>In the above figure, the points with solid color are the support vectors. As the training goes on, more and more points are excluded from the support vector set. Finally there are only 3 support vectors. The finally separating hyperplane is obviously the optimal separating hyperplane with maximized margin.</p>
-
-<h2 id="other-solutions">Other Solutions?</h2>
-<p>One important feature of the Gradient Descent Algorithm is that in each iteration there is a matrix vector multiplication <script type="math/tex">\mathbf{K}(\lambda \circ \mathbf{y})</script>, with a time complexity <script type="math/tex">O(n^2)</script>. This might be computationally challenging if <script type="math/tex">n</script> is large.</p>
-
-<p>Apart from the gradient descent method, there is another method called <strong>Sequential Minimal Optimization (SMO)</strong>, which is a more efficient and specialized solution. We will discuss that in the following posts. Before we go further, I would like to introduce the SVM in more general cases.</p>
+<p>In the next post I will introduce how to solve the dual problem.</p>
 
 
                 <hr style="visibility: hidden;">
                 <ul class="pager">
                     
                     <li class="previous">
-                        <a href="/2019/05/25/turtorial-on-SVM/" data-toggle="tooltip" data-placement="top" title="An Introduction to Support Vector Machines (SVM): Convex Optimization and Lagrangian Duality Principle">
+                        <a href="/2019/05/24/tutorial-on-SVM/" data-toggle="tooltip" data-placement="top" title="An Introduction to Support Vector Machines (SVM): Gradient Descent Solution">
                         Previous<br>
-                        <span>An Introduction to Support Vector Machines (SVM): Convex Optimization and Lagrangian Duality Principle</span>
+                        <span>An Introduction to Support Vector Machines (SVM): Gradient Descent Solution</span>
                         </a>
                     </li>
                     
                     
                     <li class="next">
-                        <a href="/2019/06/07/turtorial-on-SVM/" data-toggle="tooltip" data-placement="top" title="An Introduction to Support Vector Machines (SVM): SVM with slack variables">
+                        <a href="/2019/05/27/tutorial-on-SVM/" data-toggle="tooltip" data-placement="top" title="An Introduction to Support Vector Machines (SVM): Dual problem solution using GD">
                         Next<br>
-                        <span>An Introduction to Support Vector Machines (SVM): SVM with slack variables</span>
+                        <span>An Introduction to Support Vector Machines (SVM): Dual problem solution using GD</span>
                         </a>
                     </li>
                     
@@ -453,7 +544,7 @@ where $$\alpha$$ is the learning rate.
         </a>
         
         
-                <a data-sort="0001" 
+                <a data-sort="0002" 
                     href="/archive/?tag=%E6%94%AF%E6%8C%81%E5%90%91%E9%87%8F%E6%9C%BA"
                     title="支持向量机"
                     rel="8">支持向量机</a>
@@ -461,17 +552,22 @@ where $$\alpha$$ is the learning rate.
                 <a data-sort="0000" 
                     href="/archive/?tag=%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0"
                     title="机器学习"
-                    rel="9">机器学习</a>
+                    rel="10">机器学习</a>
         
                 <a data-sort="0000" 
                     href="/archive/?tag=Machine+Learning"
                     title="Machine Learning"
-                    rel="9">Machine Learning</a>
+                    rel="10">Machine Learning</a>
         
-                <a data-sort="0001" 
+                <a data-sort="0002" 
                     href="/archive/?tag=SVM"
                     title="SVM"
-                    rel="8">SVM
+                    rel="8">SVM</a>
+        
+                <a data-sort="0008" 
+                    href="/archive/?tag=EM+Algorithm"
+                    title="EM Algorithm"
+                    rel="2">EM Algorithm
     </div>
 </section>
 
@@ -500,8 +596,8 @@ where $$\alpha$$ is the learning rate.
 <script type="text/javascript">
     /* * * CONFIGURATION VARIABLES * * */
     var disqus_shortname = "nlgu";
-    var disqus_identifier = "/2019/05/27/turtorial-on-SVM";
-    var disqus_url = "http://localhost:4000/2019/05/27/turtorial-on-SVM/";
+    var disqus_identifier = "/2019/05/25/tutorial-on-SVM";
+    var disqus_url = "http://localhost:4000/2019/05/25/tutorial-on-SVM/";
 
     (function() {
         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

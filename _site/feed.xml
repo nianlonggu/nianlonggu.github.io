@@ -5,9 +5,30 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Tue, 09 Jul 2019 21:31:37 +0200</pubDate>
-    <lastBuildDate>Tue, 09 Jul 2019 21:31:37 +0200</lastBuildDate>
+    <pubDate>Wed, 10 Jul 2019 15:38:55 +0200</pubDate>
+    <lastBuildDate>Wed, 10 Jul 2019 15:38:55 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
+    
+      <item>
+        <title>EM Algorithm and Gaussian Mixture Model for Clustering</title>
+        <description>&lt;p&gt;In the last post on &lt;a href=&quot;https://nianlonggu.github.io/2019/07/07/tutorial-on-EM/&quot;&gt;EM algorithm&lt;/a&gt;&lt;/p&gt;
+</description>
+        <pubDate>Wed, 10 Jul 2019 17:23:00 +0200</pubDate>
+        <link>http://localhost:4000/2019/07/10/tutorial-on-EM/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/07/10/tutorial-on-EM/</guid>
+        
+        <category>EM Algorithm</category>
+        
+        <category>GMM</category>
+        
+        <category>Clustering</category>
+        
+        <category>Machine Learning</category>
+        
+        <category>机器学习</category>
+        
+        
+      </item>
     
       <item>
         <title>An Introduction to Expectation-Maximization (EM) Algorithm</title>
@@ -461,8 +482,8 @@ The true prior distribution of $z$ is $P(z=A)=0.8$ and $P(z=B)=0.2$. For coin A,
 &lt;/ol&gt;
 </description>
         <pubDate>Sun, 07 Jul 2019 23:09:00 +0200</pubDate>
-        <link>http://localhost:4000/2019/07/07/turtorial-on-EM/</link>
-        <guid isPermaLink="true">http://localhost:4000/2019/07/07/turtorial-on-EM/</guid>
+        <link>http://localhost:4000/2019/07/07/tutorial-on-EM/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/07/07/tutorial-on-EM/</guid>
         
         <category>EM Algorithm</category>
         
@@ -1361,8 +1382,8 @@ Iteration: 420000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Object
 &lt;/ol&gt;
 </description>
         <pubDate>Thu, 04 Jul 2019 17:36:00 +0200</pubDate>
-        <link>http://localhost:4000/2019/07/04/turtorial-on-SVM/</link>
-        <guid isPermaLink="true">http://localhost:4000/2019/07/04/turtorial-on-SVM/</guid>
+        <link>http://localhost:4000/2019/07/04/tutorial-on-SVM/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/07/04/tutorial-on-SVM/</guid>
         
         <category>支持向量机</category>
         
@@ -1433,7 +1454,7 @@ $$
 	\end{align}
 	$$
 &lt;/center&gt;
-&lt;p&gt;&lt;script type=&quot;math/tex&quot;&gt;L(\lambda)&lt;/script&gt; is concave with respect to &lt;script type=&quot;math/tex&quot;&gt;\lambda_a&lt;/script&gt;, since &lt;script type=&quot;math/tex&quot;&gt;\frac{\partial^2{L}}{\partial{\lambda_a^2}}= -( K_{a,a} + K_{b,b} - 2K_{a,b} )=-(e_a - e_b)^T \mathbf{K} (e_a - e_b) \leq 0&lt;/script&gt; due to the fact that the kernel matrix &lt;script type=&quot;math/tex&quot;&gt;\mathbf{K}&lt;/script&gt; is nonnegative definite (see last post &lt;a href=&quot;http://nianlonggu.github.io/2019/06/27/turtorial-on-SVM/&quot;&gt;An Introduction to Support Vector Machines (SVM): kernel functions&lt;/a&gt; ). Therefore, we can find the optimal value of &lt;script type=&quot;math/tex&quot;&gt;\lambda_a&lt;/script&gt; which maximizes &lt;script type=&quot;math/tex&quot;&gt;L(\lambda)&lt;/script&gt; by computing the gradient and set it to 0.&lt;/p&gt;
+&lt;p&gt;&lt;script type=&quot;math/tex&quot;&gt;L(\lambda)&lt;/script&gt; is concave with respect to &lt;script type=&quot;math/tex&quot;&gt;\lambda_a&lt;/script&gt;, since &lt;script type=&quot;math/tex&quot;&gt;\frac{\partial^2{L}}{\partial{\lambda_a^2}}= -( K_{a,a} + K_{b,b} - 2K_{a,b} )=-(e_a - e_b)^T \mathbf{K} (e_a - e_b) \leq 0&lt;/script&gt; due to the fact that the kernel matrix &lt;script type=&quot;math/tex&quot;&gt;\mathbf{K}&lt;/script&gt; is nonnegative definite (see last post &lt;a href=&quot;http://nianlonggu.github.io/2019/06/27/tutorial-on-SVM/&quot;&gt;An Introduction to Support Vector Machines (SVM): kernel functions&lt;/a&gt; ). Therefore, we can find the optimal value of &lt;script type=&quot;math/tex&quot;&gt;\lambda_a&lt;/script&gt; which maximizes &lt;script type=&quot;math/tex&quot;&gt;L(\lambda)&lt;/script&gt; by computing the gradient and set it to 0.&lt;/p&gt;
 &lt;center&gt;
 	$$
 	\begin{align}
@@ -1619,8 +1640,8 @@ In the deduction above, we can see &lt;script type=&quot;math/tex&quot;&gt;\xi&l
 &lt;/blockquote&gt;
 </description>
         <pubDate>Fri, 28 Jun 2019 02:00:00 +0200</pubDate>
-        <link>http://localhost:4000/2019/06/28/turtorial-on-SVM/</link>
-        <guid isPermaLink="true">http://localhost:4000/2019/06/28/turtorial-on-SVM/</guid>
+        <link>http://localhost:4000/2019/06/28/tutorial-on-SVM/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/06/28/tutorial-on-SVM/</guid>
         
         <category>支持向量机</category>
         
@@ -1761,13 +1782,13 @@ S_b=\{ i \vert 0&lt;\lambda_i^\star &lt; C \} %]]&gt;&lt;/script&gt; represent t
 &lt;p&gt;See, in fact &lt;script type=&quot;math/tex&quot;&gt;\mathbf{w}^\star&lt;/script&gt; is never really computed, since we are only interested in the kernel function!&lt;/p&gt;
 
 &lt;h2 id=&quot;solve-the-dual-problem-using-gradient-descent-algorithm&quot;&gt;Solve the dual problem using Gradient Descent Algorithm&lt;/h2&gt;
-&lt;p&gt;We can solve the dual problem using gradient descent algorithm as introduced in the post &lt;a href=&quot;http://nianlonggu.github.io/2019/05/27/turtorial-on-SVM/&quot;&gt;An Introduction to Support Vector Machines (SVM): Dual problem solution using GD&lt;/a&gt;. Just simply select a kernel function, such as polynomial or Gaussian, compte the Kernel matrix &lt;script type=&quot;math/tex&quot;&gt;\mathbf{K}&lt;/script&gt; for the training dataset, compute the gradient and then perform back propagation to get the dual optimum &lt;script type=&quot;math/tex&quot;&gt;\lambda^\star&lt;/script&gt;. After getting &lt;script type=&quot;math/tex&quot;&gt;\lambda^\star&lt;/script&gt;, we can compute the primal optimum &lt;script type=&quot;math/tex&quot;&gt;b^\star&lt;/script&gt; and perform classification on new points using the equations above.&lt;/p&gt;
+&lt;p&gt;We can solve the dual problem using gradient descent algorithm as introduced in the post &lt;a href=&quot;http://nianlonggu.github.io/2019/05/27/tutorial-on-SVM/&quot;&gt;An Introduction to Support Vector Machines (SVM): Dual problem solution using GD&lt;/a&gt;. Just simply select a kernel function, such as polynomial or Gaussian, compte the Kernel matrix &lt;script type=&quot;math/tex&quot;&gt;\mathbf{K}&lt;/script&gt; for the training dataset, compute the gradient and then perform back propagation to get the dual optimum &lt;script type=&quot;math/tex&quot;&gt;\lambda^\star&lt;/script&gt;. After getting &lt;script type=&quot;math/tex&quot;&gt;\lambda^\star&lt;/script&gt;, we can compute the primal optimum &lt;script type=&quot;math/tex&quot;&gt;b^\star&lt;/script&gt; and perform classification on new points using the equations above.&lt;/p&gt;
 
 &lt;p&gt;In the next post, I will introduce how to solve the dual problem using Sequential Minimal Optimization (SMO).&lt;/p&gt;
 </description>
         <pubDate>Thu, 27 Jun 2019 17:10:00 +0200</pubDate>
-        <link>http://localhost:4000/2019/06/27/turtorial-on-SVM/</link>
-        <guid isPermaLink="true">http://localhost:4000/2019/06/27/turtorial-on-SVM/</guid>
+        <link>http://localhost:4000/2019/06/27/tutorial-on-SVM/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/06/27/tutorial-on-SVM/</guid>
         
         <category>支持向量机</category>
         
@@ -1910,7 +1931,7 @@ The objective function for gradient descent is:&lt;center&gt;
  \min_{\lambda} L(\lambda) = -\sum_{i=1}^{n} \lambda_i + \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_ i^T \mathbf{x}_ j + \frac{c}{2}(\sum_{i=1}^{n}\lambda_i y_i)^2 \\
  s.t.\ 0\leq \lambda_i \leq C \ , \ i=1,\dots,n
  $$&lt;/center&gt;
-Compared with the post &lt;a href=&quot;https://nianlonggu.github.io/2019/05/27/turtorial-on-SVM/&quot;&gt;An Introduction to Support Vector Machines (SVM): Dual problem solution using GD&lt;/a&gt;, the objective function is the same. The only difference is that here the constraints are &lt;script type=&quot;math/tex&quot;&gt;0\leq \lambda_i \leq C&lt;/script&gt;. To achieve this constraints, we can clip the value of &lt;script type=&quot;math/tex&quot;&gt;\lambda_i&lt;/script&gt; in the range &lt;script type=&quot;math/tex&quot;&gt;[0,C]&lt;/script&gt; after each gradient descent back propagation. For the detail of the gradient form, please have a look at that post.&lt;/p&gt;
+Compared with the post &lt;a href=&quot;https://nianlonggu.github.io/2019/05/27/tutorial-on-SVM/&quot;&gt;An Introduction to Support Vector Machines (SVM): Dual problem solution using GD&lt;/a&gt;, the objective function is the same. The only difference is that here the constraints are &lt;script type=&quot;math/tex&quot;&gt;0\leq \lambda_i \leq C&lt;/script&gt;. To achieve this constraints, we can clip the value of &lt;script type=&quot;math/tex&quot;&gt;\lambda_i&lt;/script&gt; in the range &lt;script type=&quot;math/tex&quot;&gt;[0,C]&lt;/script&gt; after each gradient descent back propagation. For the detail of the gradient form, please have a look at that post.&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;Sequential Minimal Optimization (SMO), which will be discussed in the following posts.&lt;/p&gt;
@@ -2096,8 +2117,8 @@ Here I also check the maximum of &lt;script type=&quot;math/tex&quot;&gt;\lambda
 
 </description>
         <pubDate>Fri, 07 Jun 2019 18:06:00 +0200</pubDate>
-        <link>http://localhost:4000/2019/06/07/turtorial-on-SVM/</link>
-        <guid isPermaLink="true">http://localhost:4000/2019/06/07/turtorial-on-SVM/</guid>
+        <link>http://localhost:4000/2019/06/07/tutorial-on-SVM/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/06/07/tutorial-on-SVM/</guid>
         
         <category>支持向量机</category>
         
@@ -2221,8 +2242,8 @@ where $$\alpha$$ is the learning rate.
 &lt;p&gt;Apart from the gradient descent method, there is another method called &lt;strong&gt;Sequential Minimal Optimization (SMO)&lt;/strong&gt;, which is a more efficient and specialized solution. We will discuss that in the following posts. Before we go further, I would like to introduce the SVM in more general cases.&lt;/p&gt;
 </description>
         <pubDate>Mon, 27 May 2019 10:58:00 +0200</pubDate>
-        <link>http://localhost:4000/2019/05/27/turtorial-on-SVM/</link>
-        <guid isPermaLink="true">http://localhost:4000/2019/05/27/turtorial-on-SVM/</guid>
+        <link>http://localhost:4000/2019/05/27/tutorial-on-SVM/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/05/27/tutorial-on-SVM/</guid>
         
         <category>支持向量机</category>
         
@@ -2333,7 +2354,7 @@ KKT conditions contain four conditions:&lt;br /&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;apply-lagrangian-duality-to-svm&quot;&gt;Apply Lagrangian Duality to SVM&lt;/h2&gt;
 &lt;p&gt;Now we are able to solve the SVM optimization problem using Lagrangian duality. 
-As introduced in the first post &lt;a href=&quot;https://nianlonggu.github.io/2019/05/23/turtorial-on-SVM/&quot;&gt;An Introduction to Support Vector Machines (SVM): Basics&lt;/a&gt;, the SVM optimization problem is:&lt;/p&gt;
+As introduced in the first post &lt;a href=&quot;https://nianlonggu.github.io/2019/05/23/tutorial-on-SVM/&quot;&gt;An Introduction to Support Vector Machines (SVM): Basics&lt;/a&gt;, the SVM optimization problem is:&lt;/p&gt;
 &lt;center&gt;
 	$$
 	\min_{\mathbf{w},b}\frac{1}{2}\|\mathbf{w}\|^2\\
@@ -2425,7 +2446,7 @@ Then the primal optimum will be:&lt;/p&gt;
 &lt;/center&gt;
 
 &lt;h2 id=&quot;use-svm-for-classification&quot;&gt;Use SVM for Classification&lt;/h2&gt;
-&lt;p&gt;Given a new point &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}&lt;/script&gt;, we can compute the value &lt;script type=&quot;math/tex&quot;&gt;{\mathbf{w}^\star}^T\mathbf{x}+b^\star&lt;/script&gt;, and predict the label &lt;script type=&quot;math/tex&quot;&gt;\hat{y}&lt;/script&gt; using hard decision or soft decision as shown in &lt;a href=&quot;https://nianlonggu.github.io/2019/05/24/turtorial-on-SVM/#use-svm-for-classification&quot;&gt;An Introduction to Support Vector Machines (SVM): Gradient Descent Solution&lt;/a&gt;. 
+&lt;p&gt;Given a new point &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}&lt;/script&gt;, we can compute the value &lt;script type=&quot;math/tex&quot;&gt;{\mathbf{w}^\star}^T\mathbf{x}+b^\star&lt;/script&gt;, and predict the label &lt;script type=&quot;math/tex&quot;&gt;\hat{y}&lt;/script&gt; using hard decision or soft decision as shown in &lt;a href=&quot;https://nianlonggu.github.io/2019/05/24/tutorial-on-SVM/#use-svm-for-classification&quot;&gt;An Introduction to Support Vector Machines (SVM): Gradient Descent Solution&lt;/a&gt;. 
 Substitute the expression of &lt;script type=&quot;math/tex&quot;&gt;{\mathbf{w}^\star}&lt;/script&gt;, we have:&lt;/p&gt;
 &lt;center&gt;
 	$$
@@ -2437,8 +2458,8 @@ Substitute the expression of &lt;script type=&quot;math/tex&quot;&gt;{\mathbf{w}
 &lt;p&gt;In the next post I will introduce how to solve the dual problem.&lt;/p&gt;
 </description>
         <pubDate>Sat, 25 May 2019 21:43:00 +0200</pubDate>
-        <link>http://localhost:4000/2019/05/25/turtorial-on-SVM/</link>
-        <guid isPermaLink="true">http://localhost:4000/2019/05/25/turtorial-on-SVM/</guid>
+        <link>http://localhost:4000/2019/05/25/tutorial-on-SVM/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/05/25/tutorial-on-SVM/</guid>
         
         <category>支持向量机</category>
         
@@ -2566,8 +2587,8 @@ z, &amp; \text{if}\ -1 \leq z &lt; 1\\
 &lt;/blockquote&gt;
 </description>
         <pubDate>Fri, 24 May 2019 20:00:00 +0200</pubDate>
-        <link>http://localhost:4000/2019/05/24/turtorial-on-SVM/</link>
-        <guid isPermaLink="true">http://localhost:4000/2019/05/24/turtorial-on-SVM/</guid>
+        <link>http://localhost:4000/2019/05/24/tutorial-on-SVM/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/05/24/tutorial-on-SVM/</guid>
         
         <category>支持向量机</category>
         
@@ -2662,8 +2683,8 @@ The margin is defined by the Euclidean distance between the closest points (marg
 &lt;p&gt;This is the standard expression of the linear SVM. In the next post I will introduce how to solve this optimization problem and get the optimal separating hyperplane &lt;script type=&quot;math/tex&quot;&gt;\{\mathbf{x}\vert\hat{\mathbf{w}}^T\mathbf{x}+\hat{b}=0\}&lt;/script&gt;.&lt;/p&gt;
 </description>
         <pubDate>Thu, 23 May 2019 19:00:00 +0200</pubDate>
-        <link>http://localhost:4000/2019/05/23/turtorial-on-SVM/</link>
-        <guid isPermaLink="true">http://localhost:4000/2019/05/23/turtorial-on-SVM/</guid>
+        <link>http://localhost:4000/2019/05/23/tutorial-on-SVM/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/05/23/tutorial-on-SVM/</guid>
         
         <category>支持向量机</category>
         

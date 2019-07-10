@@ -70,7 +70,7 @@ So we have
 	\end{align}
 	$$
 </center>
-$$L(\lambda)$$ is concave with respect to $$\lambda_a$$, since $$\frac{\partial^2{L}}{\partial{\lambda_a^2}}= -( K_{a,a} + K_{b,b} - 2K_{a,b} )=-(e_a - e_b)^T \mathbf{K} (e_a - e_b) \leq 0 $$ due to the fact that the kernel matrix $$\mathbf{K}$$ is nonnegative definite (see last post [An Introduction to Support Vector Machines (SVM): kernel functions](http://nianlonggu.github.io/2019/06/27/turtorial-on-SVM/) ). Therefore, we can find the optimal value of $$\lambda_a$$ which maximizes $$L(\lambda)$$ by computing the gradient and set it to 0.
+$$L(\lambda)$$ is concave with respect to $$\lambda_a$$, since $$\frac{\partial^2{L}}{\partial{\lambda_a^2}}= -( K_{a,a} + K_{b,b} - 2K_{a,b} )=-(e_a - e_b)^T \mathbf{K} (e_a - e_b) \leq 0 $$ due to the fact that the kernel matrix $$\mathbf{K}$$ is nonnegative definite (see last post [An Introduction to Support Vector Machines (SVM): kernel functions](http://nianlonggu.github.io/2019/06/27/tutorial-on-SVM/) ). Therefore, we can find the optimal value of $$\lambda_a$$ which maximizes $$L(\lambda)$$ by computing the gradient and set it to 0.
 <center>
 	$$
 	\begin{align}

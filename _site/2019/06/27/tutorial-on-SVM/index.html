@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="">
+    <meta name="keywords"  content="">
+    <meta name="theme-color" content="#000000">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="An Introduction to Support Vector Machines (SVM): kernel functions - Gu Blog">
+    
+    <meta property="og:type" content="article">
+    <meta property="og:description" content="Recall of the Slack SVM dual problem:
+
+">
+    
+    <meta property="article:published_time" content="2019-06-27T17:10:00Z">
+    
+    
+    <meta property="article:author" content="Gu">
+    
+    
+    <meta property="article:tag" content="支持向量机">
+    
+    <meta property="article:tag" content="机器学习">
+    
+    <meta property="article:tag" content="SVM">
+    
+    <meta property="article:tag" content="Machine Learning">
+    
+    
+    <meta property="og:image" content="http://localhost:4000/img/avatar-gu.jpg">
+    <meta property="og:url" content="http://localhost:4000/2019/06/27/tutorial-on-SVM/">
+    <meta property="og:site_name" content="Gu Blog">
+    
+    <title>An Introduction to Support Vector Machines (SVM): kernel functions - Gu Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="http://localhost:4000/2019/06/27/tutorial-on-SVM/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+<!-- MathJax Support -->
+  <!-- Use '$' for inline math mode -->
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: { 
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      processEscapes: true
+    }
+  });
+  </script>
+  <!-- Use cdnjs as CDN provider -->
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+</head>
+
+
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Gu's Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    
+                    
+                    
+                    <li>
+                        <a href="/about/">About Me</a>
+                    </li>
+                    
+                    
+                    
+                    <li>
+                        <a href="/archive/">Archive</a>
+                    </li>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-140680151-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-140680151-1');
+</script>
+
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-2019-05-23.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+
+
+
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-2019-05-23.jpg');
+        background: ;
+    }
+
+    
+</style>
+
+<header class="intro-header" >
+
+    <div class="header-mask"></div>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/archive/?tag=%E6%94%AF%E6%8C%81%E5%90%91%E9%87%8F%E6%9C%BA" title="支持向量机">支持向量机</a>
+                        
+                        <a class="tag" href="/archive/?tag=%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0" title="机器学习">机器学习</a>
+                        
+                        <a class="tag" href="/archive/?tag=SVM" title="SVM">SVM</a>
+                        
+                        <a class="tag" href="/archive/?tag=Machine+Learning" title="Machine Learning">Machine Learning</a>
+                        
+                    </div>
+                    <h1>An Introduction to Support Vector Machines (SVM): kernel functions</h1>
+                    
+                    <h2 class="subheading"> 支持向量机(SVM)概述：核函数</h2>
+                    <span class="meta">Posted by Gu on June 27, 2019</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <!-- Multi-Lingual -->
+                
+
+				<p>Recall of the Slack SVM dual problem:<br /></p>
+
+<p><strong>Dual Problem</strong></p>
+<center>
+	$$
+	\max_{\lambda, \mu} \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j\\
+	\begin{align}
+		s.t.\ &amp; 0 \leq \lambda_i \leq C \\
+		 &amp;\sum_{i=1}^{n} \lambda_i y_i =0
+	\end{align}
+	$$
+</center>
+
+<p>Suppose that we have solved the dual problem and get the dual optimum. Let <script type="math/tex">% <![CDATA[
+S_w=\{ i \vert 0<\lambda_i^\star \leq C \} %]]></script> represent the support set related with <script type="math/tex">\mathbf{w}</script>; <script type="math/tex">% <![CDATA[
+S_b=\{ i \vert 0<\lambda_i^\star < C \} %]]></script> represent the support set related with <script type="math/tex">b</script>. Meanwhile, we define <script type="math/tex">S_b^+ =\{ i \vert i\in S_b \  \text{and}\ y_i = +1 \}</script> and <script type="math/tex">S_b^-=\{ i \vert i\in S_b\ \text{and}\ y_i = -1 \}</script>. Then we can compute the primal optimum:</p>
+<center>
+	$$
+	\mathbf{w}^\star = \sum_{i\in S_w}\lambda_i^\star y_i \mathbf{x}_i\\
+	b^\star= y_j - {\mathbf{w}^\star}^T\mathbf{x}_j = y_j - \sum_{i\in S_w}\lambda_i^\star y_i \mathbf{x}_i^T \mathbf{x}_j \ , \ j\in S_b\\
+	$$
+</center>
+<p>Given a new point <script type="math/tex">\mathbf{x}</script>, we can perform classification by computing:</p>
+<center>
+	$$
+	\begin{align}
+	\hat{y} &amp;= {\mathbf{w}^\star}^T \mathbf{x} + b^\star\\
+			&amp;=\sum_{i\in S_w} \lambda^\star_i y_i \mathbf{x}_i^T \mathbf{x} + b^\star\\
+	\end{align}
+	$$
+</center>
+
+<p>According to the formulas above, we notice that in the dual problem, computation of <script type="math/tex">\mathbf{w}^\star</script> and classification of new points, <script type="math/tex">\mathbf{x}_ i^T\mathbf{x}_ j</script> always appears as a whole.</p>
+
+<h2 id="svm-with-kernel-functions">SVM with kernel functions</h2>
+<p><strong>Mapping points to a higher dimensional space</strong></p>
+
+<p>In some cases, if the points is not linearly separable in current space, they are possibly linearly separable if we map them into the higher dimension.</p>
+
+<p><a name="2d-3d-mapping"></a>
+<img src="https://nianlonggu.github.io/img/2019-06-27-SVM/2d-3d-mapping.svg" width="400" hegiht="203" />
+<em><center>Mapping points from 2d to 3d to make them linearly separable.</center></em></p>
+
+<p>We define <script type="math/tex">\phi(\mathbf{x}): R^p \rightarrow R^d\ ,\ d>p</script> as a mapping function which maps low dimensional data to a high dimensional data. We can first map our data <script type="math/tex">\mathbf{x}_ i \rightarrow \phi(\mathbf{x}_ i)</script>, then solve the dual problem:</p>
+<center>
+	$$
+	\max_{\lambda, \mu} \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \phi(\mathbf{x}_i)^T \phi(\mathbf{x}_j)\\
+	\begin{align}
+		s.t.\ &amp; 0 \leq \lambda_i \leq C \\
+		 &amp;\sum_{i=1}^{n} \lambda_i y_i =0
+	\end{align}
+	$$
+</center>
+
+<p>We notice that in the dual problem, computing <script type="math/tex">\mathbf{w}^\star</script> and performing classification, <script type="math/tex">\phi(\mathbf{x}_ i)^T\phi(\mathbf{x}_ j)</script> always appears as a whole. Therefore, we can avoid computing the exact form of <script type="math/tex">\phi(\mathbf{x})</script>, but instead directly explore the function for the inner product of two mapped points <script type="math/tex">K: R^p \times R^p \rightarrow R</script>:</p>
+<center>
+	$$
+	K_{i,j}=K(\mathbf{x}_i, \mathbf{x}_j)=&lt;\phi(\mathbf{x}_i), \phi(\mathbf{x}_j)&gt; 
+	$$
+</center>
+<p>We call <script type="math/tex">K(\mathbf{x}_i, \mathbf{x}_j)</script> as the <strong>kernel function</strong>.</p>
+
+<p>What is a valid kernel function?</p>
+<blockquote>
+  <p>A kernel function <script type="math/tex">K(\mathbf{x}_ i, \mathbf{x}_ j)</script> is valid if there exists a mapping function <script type="math/tex">\phi</script>, such that it holds <script type="math/tex">% <![CDATA[
+K_{i,j} = <\phi(\mathbf{x}_ i), \phi(\mathbf{x}_ j)> %]]></script> for any <script type="math/tex">\mathbf{x}_ i, \mathbf{x}_ j\in R^p</script>.</p>
+</blockquote>
+
+<p>Moreover, there is an equivalent conclusion on the validness of a kernel function.</p>
+<blockquote>
+  <p>A kernel function <script type="math/tex">K(\mathbf{x}_ i, \mathbf{x}_ j)</script> is valid if for any <script type="math/tex">n</script> samples <script type="math/tex">\{ \mathbf{x}_ i \vert \mathbf{x}_ i \in R^p \}, i=1,\dots, n</script>, the kernel matrix <script type="math/tex">\mathbf{K}=\begin{bmatrix}K_{1,1}, \dots, K_{1,n}\\\dots \\ K_{n,1},\dots, K_{n,n} \end{bmatrix}</script> is non-negative definite.</p>
+</blockquote>
+
+<p><strong>Examples of Kernel functions</strong></p>
+<ol>
+  <li>
+    <p>Polynomial kernel function</p>
+
+    <script type="math/tex; mode=display">K(\mathbf{x}, \mathbf{y}) = ( \mathbf{x}^T\mathbf{y} +c )^d</script>
+
+    <p>It can be proven that this function is equivalent to first mapping points to higher dimensional space and then computing the inner product.</p>
+  </li>
+  <li>
+    <p>Gaussian Kernel</p>
+
+    <script type="math/tex; mode=display">K(\mathbf{x}, \mathbf{y}) = \exp\{ -\frac{ \|\mathbf{x}-\mathbf{y}\|^2 }{2{\epsilon}^2} \}</script>
+
+    <p>Applying Gaussian kernel is equivalent to first mapping points to a infinitely high dimensional space and then computing the inner product. This can be understood by the Taylor expansion of the exponential function. For detailed explanation please see <a href="https://www.zhihu.com/question/35602879">SVM中，高斯核为什么会把原始维度映射到无穷多维？</a></p>
+  </li>
+</ol>
+
+<h2 id="dual-problem-with-kernel-function">Dual problem with kernel function</h2>
+<p>With the definition of the kernel function, we can rewrite the dual problem and classification task as following.</p>
+
+<p><strong>Dual Problem</strong></p>
+<center>
+	$$
+	\max_{\lambda, \mu} \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j K(\mathbf{x}_i, \mathbf{x}_j) \\
+	\begin{align}
+		s.t.\ &amp; 0 \leq \lambda_i \leq C \\
+		 &amp;\sum_{i=1}^{n} \lambda_i y_i =0
+	\end{align}
+	$$
+</center>
+
+<p>Suppose that we have solved the dual problem and get the dual optimum. Let <script type="math/tex">% <![CDATA[
+S_w=\{ i \vert 0<\lambda_i^\star \leq C \} %]]></script> represent the support set related with <script type="math/tex">\mathbf{w}</script>; <script type="math/tex">% <![CDATA[
+S_b=\{ i \vert 0<\lambda_i^\star < C \} %]]></script> represent the support set related with <script type="math/tex">b</script>. Meanwhile, we define <script type="math/tex">S_b^+ =\{ i \vert i\in S_b \  \text{and}\ y_i = +1 \}</script> and <script type="math/tex">S_b^-=\{ i \vert i\in S_b\ \text{and}\ y_i = -1 \}</script>. Then we can compute the primal optimum:</p>
+<center>
+	$$
+	\mathbf{w}^\star = \sum_{i\in S_w}\lambda_i^\star y_i \phi(\mathbf{x}_i)\\
+	b^\star= y_j - {\mathbf{w}^\star}^T\phi(\mathbf{x}_j) = y_j - \sum_{i\in S_w}\lambda_i^\star y_i K(\mathbf{x}_i, \mathbf{x}_j) \ , \ j\in S_b\\
+	$$
+</center>
+<p>Given a new point <script type="math/tex">\mathbf{x}</script>, we can perform classification by computing:</p>
+<center>
+	$$
+	\begin{align}
+	\hat{y} &amp;= {\mathbf{w}^\star}^T \phi(\mathbf{x}) + b^\star\\
+			&amp;=\sum_{i\in S_w} \lambda^\star_i y_i K(\mathbf{x}_i, \mathbf{x}) + b^\star\\
+	\end{align}
+	$$
+</center>
+<p>See, in fact <script type="math/tex">\mathbf{w}^\star</script> is never really computed, since we are only interested in the kernel function!</p>
+
+<h2 id="solve-the-dual-problem-using-gradient-descent-algorithm">Solve the dual problem using Gradient Descent Algorithm</h2>
+<p>We can solve the dual problem using gradient descent algorithm as introduced in the post <a href="http://nianlonggu.github.io/2019/05/27/tutorial-on-SVM/">An Introduction to Support Vector Machines (SVM): Dual problem solution using GD</a>. Just simply select a kernel function, such as polynomial or Gaussian, compte the Kernel matrix <script type="math/tex">\mathbf{K}</script> for the training dataset, compute the gradient and then perform back propagation to get the dual optimum <script type="math/tex">\lambda^\star</script>. After getting <script type="math/tex">\lambda^\star</script>, we can compute the primal optimum <script type="math/tex">b^\star</script> and perform classification on new points using the equations above.</p>
+
+<p>In the next post, I will introduce how to solve the dual problem using Sequential Minimal Optimization (SMO).</p>
+
+
+                <hr style="visibility: hidden;">
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2019/06/07/tutorial-on-SVM/" data-toggle="tooltip" data-placement="top" title="An Introduction to Support Vector Machines (SVM): SVM with slack variables">
+                        Previous<br>
+                        <span>An Introduction to Support Vector Machines (SVM): SVM with slack variables</span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/2019/06/28/tutorial-on-SVM/" data-toggle="tooltip" data-placement="top" title="An Introduction to Support Vector Machines (SVM): Sequential Minimal Optimization (SMO)">
+                        Next<br>
+                        <span>An Introduction to Support Vector Machines (SVM): Sequential Minimal Optimization (SMO)</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+                <hr style="visibility: hidden;">
+
+                
+                <!-- disqus 评论框 start -->
+                <div class="comment">
+                    <div id="disqus_thread" class="disqus-thread"></div>
+                </div>
+                <!-- disqus 评论框 end -->
+                
+
+                
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+
+
+<section>
+    
+        <hr class="hidden-sm hidden-xs">
+    
+    <h5><a href="/archive/">FEATURED TAGS</a></h5>
+    <div class="tags">
+        
+        
+        
+        </a>
+        
+        
+                <a data-sort="0002" 
+                    href="/archive/?tag=%E6%94%AF%E6%8C%81%E5%90%91%E9%87%8F%E6%9C%BA"
+                    title="支持向量机"
+                    rel="8">支持向量机</a>
+        
+                <a data-sort="0000" 
+                    href="/archive/?tag=%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0"
+                    title="机器学习"
+                    rel="10">机器学习</a>
+        
+                <a data-sort="0000" 
+                    href="/archive/?tag=Machine+Learning"
+                    title="Machine Learning"
+                    rel="10">Machine Learning</a>
+        
+                <a data-sort="0002" 
+                    href="/archive/?tag=SVM"
+                    title="SVM"
+                    rel="8">SVM</a>
+        
+                <a data-sort="0008" 
+                    href="/archive/?tag=EM+Algorithm"
+                    title="EM Algorithm"
+                    rel="2">EM Algorithm
+    </div>
+</section>
+
+
+                <!-- Friends Blog -->
+                
+<hr>
+<h5>FRIENDS</h5>
+<ul class="list-inline">
+  
+</ul>
+
+            </div>
+        </div>
+    </div>
+</article>
+
+<!-- add support for mathjax by voleking-->
+
+
+
+
+
+
+<!-- disqus 公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "nlgu";
+    var disqus_identifier = "/2019/06/27/tutorial-on-SVM";
+    var disqus_url = "http://localhost:4000/2019/06/27/tutorial-on-SVM/";
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus 公共JS代码 end -->
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'always',
+          placement: 'right',
+          icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <!-- SNS Link -->
+                
+
+
+<ul class="list-inline text-center">
+
+
+  
+  
+  
+  
+  
+  <li>
+    <a target="_blank" href="https://www.facebook.com/nianlonggu">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+      </span>
+    </a>
+  </li>
+  
+  
+  <li>
+    <a target="_blank" href="https://github.com/nianlonggu">
+      <span class="fa-stack fa-lg">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+      </span>
+    </a>
+  </li>
+  
+  
+</ul>
+
+                <p class="copyright text-muted">
+                    Copyright &copy; Gu's Blog 2019
+                    <a href="mailto:nianlonggu@gmail.com"><span class="glyphicon glyphicon-envelope"></span></a>
+                    <br>
+                    Powered by <a href="http://huangxuan.me">Hux Blog</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=huxpro&repo=huxpro.github.io&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js "></script>
+
+<!-- Bootstrap Core JavaScript -->
+<!-- Currently, only navbar scroll-down effect at desktop still depends on this -->
+<script src="/js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js "></script>
+
+<!-- Service Worker -->
+
+<script src="/js/snackbar.js "></script>
+<script src="/js/sw-registration.js "></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!--
+     Because of the native support for backtick-style fenced code blocks
+     right within the Markdown is landed in Github Pages,
+     From V1.6, There is no need for Highlight.js,
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+
+
+
+<!--fastClick.js -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+
+
+<!-- Baidu Tongji -->
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+
+        // interop with multilangual 
+        if ('' == 'true') {
+            _containerSelector = 'div.post-container.active'
+        } else {
+            _containerSelector = 'div.post-container'
+        }
+
+        // init
+        var P = $(_containerSelector),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+
+        // clean
+        $(selector).html('')
+
+        // appending
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+<!-- Multi-Lingual -->
+
+
+
+
+<!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0" /> -->
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>
