@@ -5,13 +5,65 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Wed, 10 Jul 2019 15:38:55 +0200</pubDate>
-    <lastBuildDate>Wed, 10 Jul 2019 15:38:55 +0200</lastBuildDate>
+    <pubDate>Wed, 10 Jul 2019 23:27:18 +0200</pubDate>
+    <lastBuildDate>Wed, 10 Jul 2019 23:27:18 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
         <title>EM Algorithm and Gaussian Mixture Model for Clustering</title>
-        <description>&lt;p&gt;In the last post on &lt;a href=&quot;https://nianlonggu.github.io/2019/07/07/tutorial-on-EM/&quot;&gt;EM algorithm&lt;/a&gt;&lt;/p&gt;
+        <description>&lt;p&gt;In the last post on &lt;a href=&quot;https://nianlonggu.github.io/2019/07/07/tutorial-on-EM/&quot;&gt;EM algorithm&lt;/a&gt;, we introduced the deduction of the EM algorithm and use it to solve the MLE of the heads probability of two coins. In this post, we will apply EM algorithm to more practical and useful problem, the Gaussian Mixture Model (GMM), and discuss about using GMM for clustering.&lt;/p&gt;
+
+&lt;p&gt;First, let’s recall the EM algorithm:&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;Suppose that we have the observations &lt;script type=&quot;math/tex&quot;&gt;\{\mathbf{x}^{(i)}\}, i=1,\dots,n&lt;/script&gt;. &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(i)}&lt;/script&gt; is related with a hidden variable &lt;script type=&quot;math/tex&quot;&gt;\mathbf{z}&lt;/script&gt; which is unknown to us. The task is to find the MLE of &lt;script type=&quot;math/tex&quot;&gt;\theta&lt;/script&gt;: &lt;center&gt;$$
+	\theta_\text{MLE} = \arg \max_{\theta} \sum_{i=1}^{n}\log \sum_{\mathbf{z}} p_\theta(\mathbf{z}, \mathbf{x}^{(i)})	
+	$$&lt;/center&gt;
+The EM algorithm works as follows:&lt;/p&gt;
+  &lt;ol&gt;
+    &lt;li&gt;Randomly initialize &lt;script type=&quot;math/tex&quot;&gt;\theta&lt;/script&gt;, set the &lt;script type=&quot;math/tex&quot;&gt;\mathbf{z}&lt;/script&gt; prior &lt;script type=&quot;math/tex&quot;&gt;p(\mathbf{z})&lt;/script&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;strong&gt;Repeat:&lt;/strong&gt;&lt;br /&gt;
+At the &lt;script type=&quot;math/tex&quot;&gt;l^\text{th}&lt;/script&gt; iteration:
+      &lt;ul&gt;
+        &lt;li&gt;&lt;strong&gt;E&lt;/strong&gt; step:&lt;br /&gt;
+set &lt;script type=&quot;math/tex&quot;&gt;Q_{l}^{(i)}(\mathbf{z})=p_{\theta_{l-1}}(\mathbf{z}\vert \mathbf{x}_ i)&lt;/script&gt; for &lt;script type=&quot;math/tex&quot;&gt;i=1,\dots,n&lt;/script&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;strong&gt;M&lt;/strong&gt; step:&lt;br /&gt;
+update &lt;script type=&quot;math/tex&quot;&gt;\theta_{l}=\arg \max_{\theta} \sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log \frac{p_{\theta_{l-1}}(\mathbf{z}, \mathbf{x}^{(i)})}{Q_{l}^{(i)}(\mathbf{z})}&lt;/script&gt;&lt;/li&gt;
+        &lt;li&gt;Update the prior &lt;script type=&quot;math/tex&quot;&gt;p(\mathbf{z})&lt;/script&gt; (optional)
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;strong&gt;Until&lt;/strong&gt; &lt;script type=&quot;math/tex&quot;&gt;\theta&lt;/script&gt; converges.&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Based on the experience on solving coin tossing problem using EM, we can further deform the EM algorithm:&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;In the E step, according to Bayes Theorem, we have &lt;script type=&quot;math/tex&quot;&gt;Q_{l}^{(i)}(\mathbf{z})=p_{\theta_{l-1}}(\mathbf{z}\vert \mathbf{x}^{(i)})=\frac{p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z})}{p_{\theta_{l-1}}(\mathbf{x}^{(i)})}=\frac{ p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z}) }{ \sum_{\mathbf{z}}p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z}) }&lt;/script&gt;.&lt;br /&gt;
+Here &lt;script type=&quot;math/tex&quot;&gt;p(\mathbf{z})&lt;/script&gt; is the prior of the latent variable &lt;script type=&quot;math/tex&quot;&gt;\mathbf{z}&lt;/script&gt;. Either we initialize it as fixed distribution, or we dynamically update it over each iteration. If &lt;strong&gt;the number of the value of the variable &lt;script type=&quot;math/tex&quot;&gt;\mathbf{z}&lt;/script&gt; is finite and traversable&lt;/strong&gt;, we can directly compute the sum &lt;script type=&quot;math/tex&quot;&gt;\sum_{\mathbf{z}}p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z})&lt;/script&gt;, and then compute the posterior &lt;script type=&quot;math/tex&quot;&gt;Q_{l}^{(i)}(\mathbf{z})&lt;/script&gt;. For example, in two coin tossing problem, &lt;script type=&quot;math/tex&quot;&gt;\mathbf{z}&lt;/script&gt; can only be coin A (1) or coin B (0).&lt;/li&gt;
+  &lt;li&gt;In the M step, the objective function &lt;center&gt;$$\begin{align}
+ L(\theta_{l-1}, Q_{l}^{(i)} ) &amp;amp;= \sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log \frac{p_{\theta_{l-1}}(\mathbf{z},\mathbf{x}^{(i)})}{Q_{l}^{(\mathbf{z})}}\\
+ &amp;amp;= \sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log \frac{p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z})}{Q_{l}^{(i)}(\mathbf{z})}\\
+ &amp;amp;= \sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z}) + \sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log \frac{p(\mathbf{z})}{Q_{l}^{(i)}(\mathbf{z})}
+\end{align}
+$$&lt;/center&gt;
+Since &lt;script type=&quot;math/tex&quot;&gt;Q_{l}^{(i)}&lt;/script&gt; is computed in the E step, in the M step it is treated as something which is independent of &lt;script type=&quot;math/tex&quot;&gt;\theta&lt;/script&gt;. Moreover, the prior &lt;script type=&quot;math/tex&quot;&gt;p(\mathbf{z})&lt;/script&gt; is also assumed to be independent of &lt;script type=&quot;math/tex&quot;&gt;\theta&lt;/script&gt;. Therefore, the term &lt;script type=&quot;math/tex&quot;&gt;\sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log \frac{p(\mathbf{z})}{Q_{l}^{(i)}(\mathbf{z})}&lt;/script&gt; is irrelevant to &lt;script type=&quot;math/tex&quot;&gt;\theta&lt;/script&gt;, and the equivalent updating rule of &lt;script type=&quot;math/tex&quot;&gt;\theta&lt;/script&gt; can be written as: &lt;center&gt;$$\theta_{l}= \arg \max_{\theta} \sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z}) $$&lt;/center&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;gaussian-mixture-model-gmm&quot;&gt;Gaussian Mixture Model (GMM)&lt;/h2&gt;
+&lt;p&gt;As indicated by its name, the GMM is a mixture (actually a linear combination) of multiple Gaussian distributions. The probability density function of a GMM is (&lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}\in R^p&lt;/script&gt;):&lt;/p&gt;
+&lt;center&gt;
+	$$
+	\begin{align}
+	p(\mathbf{x}; \phi, \mu, \Sigma) 
+	&amp;amp;= \sum_{m=1}^{M}\phi_{m} N(\mathbf{x};\mu_m, \Sigma_m)\\
+	&amp;amp;= \sum_{m=1}^{M}\phi_{m} \frac{1}{(2\pi)^{\frac{p}{2}}\vert\Sigma_m\vert^{\frac{1}{2}} } \exp\{-\frac{1}{2}{(\mathbf{x}-\mu_m)^T \Sigma_m^{-1} (\mathbf{x}-\mu_m)}\}
+	\end{align}
+	$$
+&lt;/center&gt;
+&lt;p&gt;where &lt;script type=&quot;math/tex&quot;&gt;M&lt;/script&gt; is the number of Gaussian models. &lt;script type=&quot;math/tex&quot;&gt;\phi_m&lt;/script&gt; is the weight factor of the Gaussian model &lt;script type=&quot;math/tex&quot;&gt;N(\mu_m,\Sigma_m)&lt;/script&gt;.&lt;/p&gt;
+
+&lt;p&gt;GMM is very suitable to be used to fit the dataset which contains multiple clusters, and each cluster has circular or elliptical shape. For example, the data distribution shown in the following figure can be modeled by GMM.&lt;/p&gt;
 </description>
         <pubDate>Wed, 10 Jul 2019 17:23:00 +0200</pubDate>
         <link>http://localhost:4000/2019/07/10/tutorial-on-EM/</link>

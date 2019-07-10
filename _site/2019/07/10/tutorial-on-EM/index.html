@@ -14,8 +14,7 @@
     <meta property="og:title" content="EM Algorithm and Gaussian Mixture Model for Clustering - Gu Blog">
     
     <meta property="og:type" content="article">
-    <meta property="og:description" content="In the last post on EM algorithm
-">
+    <meta property="og:description" content="In the last post on EM algorithm, we introduced the deduction of the EM algorithm and use it to solve the MLE of the heads probability of two coins. In this post, we will apply EM algorithm to more...">
     
     <meta property="article:published_time" content="2019-07-10T17:23:00Z">
     
@@ -277,7 +276,59 @@
                 <!-- Multi-Lingual -->
                 
 
-				<p>In the last post on <a href="https://nianlonggu.github.io/2019/07/07/tutorial-on-EM/">EM algorithm</a></p>
+				<p>In the last post on <a href="https://nianlonggu.github.io/2019/07/07/tutorial-on-EM/">EM algorithm</a>, we introduced the deduction of the EM algorithm and use it to solve the MLE of the heads probability of two coins. In this post, we will apply EM algorithm to more practical and useful problem, the Gaussian Mixture Model (GMM), and discuss about using GMM for clustering.</p>
+
+<p>First, let’s recall the EM algorithm:</p>
+<blockquote>
+  <p>Suppose that we have the observations <script type="math/tex">\{\mathbf{x}^{(i)}\}, i=1,\dots,n</script>. <script type="math/tex">\mathbf{x}^{(i)}</script> is related with a hidden variable <script type="math/tex">\mathbf{z}</script> which is unknown to us. The task is to find the MLE of <script type="math/tex">\theta</script>: <center>$$
+	\theta_\text{MLE} = \arg \max_{\theta} \sum_{i=1}^{n}\log \sum_{\mathbf{z}} p_\theta(\mathbf{z}, \mathbf{x}^{(i)})	
+	$$</center>
+The EM algorithm works as follows:</p>
+  <ol>
+    <li>Randomly initialize <script type="math/tex">\theta</script>, set the <script type="math/tex">\mathbf{z}</script> prior <script type="math/tex">p(\mathbf{z})</script></li>
+    <li><strong>Repeat:</strong><br />
+At the <script type="math/tex">l^\text{th}</script> iteration:
+      <ul>
+        <li><strong>E</strong> step:<br />
+set <script type="math/tex">Q_{l}^{(i)}(\mathbf{z})=p_{\theta_{l-1}}(\mathbf{z}\vert \mathbf{x}_ i)</script> for <script type="math/tex">i=1,\dots,n</script></li>
+        <li><strong>M</strong> step:<br />
+update <script type="math/tex">\theta_{l}=\arg \max_{\theta} \sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log \frac{p_{\theta_{l-1}}(\mathbf{z}, \mathbf{x}^{(i)})}{Q_{l}^{(i)}(\mathbf{z})}</script></li>
+        <li>Update the prior <script type="math/tex">p(\mathbf{z})</script> (optional)
+<br />
+<br />
+<strong>Until</strong> <script type="math/tex">\theta</script> converges.</li>
+      </ul>
+    </li>
+  </ol>
+</blockquote>
+
+<p>Based on the experience on solving coin tossing problem using EM, we can further deform the EM algorithm:</p>
+<ol>
+  <li>In the E step, according to Bayes Theorem, we have <script type="math/tex">Q_{l}^{(i)}(\mathbf{z})=p_{\theta_{l-1}}(\mathbf{z}\vert \mathbf{x}^{(i)})=\frac{p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z})}{p_{\theta_{l-1}}(\mathbf{x}^{(i)})}=\frac{ p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z}) }{ \sum_{\mathbf{z}}p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z}) }</script>.<br />
+Here <script type="math/tex">p(\mathbf{z})</script> is the prior of the latent variable <script type="math/tex">\mathbf{z}</script>. Either we initialize it as fixed distribution, or we dynamically update it over each iteration. If <strong>the number of the value of the variable <script type="math/tex">\mathbf{z}</script> is finite and traversable</strong>, we can directly compute the sum <script type="math/tex">\sum_{\mathbf{z}}p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z})</script>, and then compute the posterior <script type="math/tex">Q_{l}^{(i)}(\mathbf{z})</script>. For example, in two coin tossing problem, <script type="math/tex">\mathbf{z}</script> can only be coin A (1) or coin B (0).</li>
+  <li>In the M step, the objective function <center>$$\begin{align}
+ L(\theta_{l-1}, Q_{l}^{(i)} ) &amp;= \sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log \frac{p_{\theta_{l-1}}(\mathbf{z},\mathbf{x}^{(i)})}{Q_{l}^{(\mathbf{z})}}\\
+ &amp;= \sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log \frac{p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z})}{Q_{l}^{(i)}(\mathbf{z})}\\
+ &amp;= \sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z}) + \sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log \frac{p(\mathbf{z})}{Q_{l}^{(i)}(\mathbf{z})}
+\end{align}
+$$</center>
+Since <script type="math/tex">Q_{l}^{(i)}</script> is computed in the E step, in the M step it is treated as something which is independent of <script type="math/tex">\theta</script>. Moreover, the prior <script type="math/tex">p(\mathbf{z})</script> is also assumed to be independent of <script type="math/tex">\theta</script>. Therefore, the term <script type="math/tex">\sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log \frac{p(\mathbf{z})}{Q_{l}^{(i)}(\mathbf{z})}</script> is irrelevant to <script type="math/tex">\theta</script>, and the equivalent updating rule of <script type="math/tex">\theta</script> can be written as: <center>$$\theta_{l}= \arg \max_{\theta} \sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z}) $$</center></li>
+</ol>
+
+<h2 id="gaussian-mixture-model-gmm">Gaussian Mixture Model (GMM)</h2>
+<p>As indicated by its name, the GMM is a mixture (actually a linear combination) of multiple Gaussian distributions. The probability density function of a GMM is (<script type="math/tex">\mathbf{x}\in R^p</script>):</p>
+<center>
+	$$
+	\begin{align}
+	p(\mathbf{x}; \phi, \mu, \Sigma) 
+	&amp;= \sum_{m=1}^{M}\phi_{m} N(\mathbf{x};\mu_m, \Sigma_m)\\
+	&amp;= \sum_{m=1}^{M}\phi_{m} \frac{1}{(2\pi)^{\frac{p}{2}}\vert\Sigma_m\vert^{\frac{1}{2}} } \exp\{-\frac{1}{2}{(\mathbf{x}-\mu_m)^T \Sigma_m^{-1} (\mathbf{x}-\mu_m)}\}
+	\end{align}
+	$$
+</center>
+<p>where <script type="math/tex">M</script> is the number of Gaussian models. <script type="math/tex">\phi_m</script> is the weight factor of the Gaussian model <script type="math/tex">N(\mu_m,\Sigma_m)</script>.</p>
+
+<p>GMM is very suitable to be used to fit the dataset which contains multiple clusters, and each cluster has circular or elliptical shape. For example, the data distribution shown in the following figure can be modeled by GMM.</p>
 
 
                 <hr style="visibility: hidden;">
