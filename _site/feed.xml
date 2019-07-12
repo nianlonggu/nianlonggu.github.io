@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Wed, 10 Jul 2019 23:27:18 +0200</pubDate>
-    <lastBuildDate>Wed, 10 Jul 2019 23:27:18 +0200</lastBuildDate>
+    <pubDate>Thu, 11 Jul 2019 23:58:58 +0200</pubDate>
+    <lastBuildDate>Thu, 11 Jul 2019 23:58:58 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -42,12 +42,12 @@ update &lt;script type=&quot;math/tex&quot;&gt;\theta_{l}=\arg \max_{\theta} \su
   &lt;li&gt;In the E step, according to Bayes Theorem, we have &lt;script type=&quot;math/tex&quot;&gt;Q_{l}^{(i)}(\mathbf{z})=p_{\theta_{l-1}}(\mathbf{z}\vert \mathbf{x}^{(i)})=\frac{p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z})}{p_{\theta_{l-1}}(\mathbf{x}^{(i)})}=\frac{ p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z}) }{ \sum_{\mathbf{z}}p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z}) }&lt;/script&gt;.&lt;br /&gt;
 Here &lt;script type=&quot;math/tex&quot;&gt;p(\mathbf{z})&lt;/script&gt; is the prior of the latent variable &lt;script type=&quot;math/tex&quot;&gt;\mathbf{z}&lt;/script&gt;. Either we initialize it as fixed distribution, or we dynamically update it over each iteration. If &lt;strong&gt;the number of the value of the variable &lt;script type=&quot;math/tex&quot;&gt;\mathbf{z}&lt;/script&gt; is finite and traversable&lt;/strong&gt;, we can directly compute the sum &lt;script type=&quot;math/tex&quot;&gt;\sum_{\mathbf{z}}p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z})&lt;/script&gt;, and then compute the posterior &lt;script type=&quot;math/tex&quot;&gt;Q_{l}^{(i)}(\mathbf{z})&lt;/script&gt;. For example, in two coin tossing problem, &lt;script type=&quot;math/tex&quot;&gt;\mathbf{z}&lt;/script&gt; can only be coin A (1) or coin B (0).&lt;/li&gt;
   &lt;li&gt;In the M step, the objective function &lt;center&gt;$$\begin{align}
- L(\theta_{l-1}, Q_{l}^{(i)} ) &amp;amp;= \sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log \frac{p_{\theta_{l-1}}(\mathbf{z},\mathbf{x}^{(i)})}{Q_{l}^{(\mathbf{z})}}\\
- &amp;amp;= \sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log \frac{p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z})}{Q_{l}^{(i)}(\mathbf{z})}\\
- &amp;amp;= \sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z}) + \sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log \frac{p(\mathbf{z})}{Q_{l}^{(i)}(\mathbf{z})}
+ L(\theta_{l-1}, Q_{l}^{(i)} ) &amp;amp;= \sum_{i=1}^{n}\sum_{\mathbf{z}}Q_{l}^{(i)}(\mathbf{z})\log \frac{p_{\theta_{l-1}}(\mathbf{z},\mathbf{x}^{(i)})}{Q_{l}^{(\mathbf{z})}}\\
+ &amp;amp;= \sum_{i=1}^{n}\sum_{\mathbf{z}}Q_{l}^{(i)}(\mathbf{z})\log \frac{p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z})}{Q_{l}^{(i)}(\mathbf{z})}\\
+ &amp;amp;= \sum_{i=1}^{n}\sum_{\mathbf{z}}Q_{l}^{(i)}(\mathbf{z})\log p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z}) + \sum_{i=1}^{n}\sum_{\mathbf{z}}Q_{l}^{(i)}(\mathbf{z})\log \frac{p(\mathbf{z})}{Q_{l}^{(i)}(\mathbf{z})}
 \end{align}
 $$&lt;/center&gt;
-Since &lt;script type=&quot;math/tex&quot;&gt;Q_{l}^{(i)}&lt;/script&gt; is computed in the E step, in the M step it is treated as something which is independent of &lt;script type=&quot;math/tex&quot;&gt;\theta&lt;/script&gt;. Moreover, the prior &lt;script type=&quot;math/tex&quot;&gt;p(\mathbf{z})&lt;/script&gt; is also assumed to be independent of &lt;script type=&quot;math/tex&quot;&gt;\theta&lt;/script&gt;. Therefore, the term &lt;script type=&quot;math/tex&quot;&gt;\sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log \frac{p(\mathbf{z})}{Q_{l}^{(i)}(\mathbf{z})}&lt;/script&gt; is irrelevant to &lt;script type=&quot;math/tex&quot;&gt;\theta&lt;/script&gt;, and the equivalent updating rule of &lt;script type=&quot;math/tex&quot;&gt;\theta&lt;/script&gt; can be written as: &lt;center&gt;$$\theta_{l}= \arg \max_{\theta} \sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z}) $$&lt;/center&gt;&lt;/li&gt;
+Since &lt;script type=&quot;math/tex&quot;&gt;Q_{l}^{(i)}&lt;/script&gt; is computed in the E step, in the M step it is treated as something which is independent of &lt;script type=&quot;math/tex&quot;&gt;\theta&lt;/script&gt;. Moreover, the prior &lt;script type=&quot;math/tex&quot;&gt;p(\mathbf{z})&lt;/script&gt; is also assumed to be independent of &lt;script type=&quot;math/tex&quot;&gt;\theta&lt;/script&gt;. Therefore, the term &lt;script type=&quot;math/tex&quot;&gt;\sum_{i=1}^{n}\sum_{\mathbf{z}}Q_{l}^{(i)}(\mathbf{z})\log \frac{p(\mathbf{z})}{Q_{l}^{(i)}(\mathbf{z})}&lt;/script&gt; is irrelevant to &lt;script type=&quot;math/tex&quot;&gt;\theta&lt;/script&gt;, and the equivalent updating rule of &lt;script type=&quot;math/tex&quot;&gt;\theta&lt;/script&gt; can be written as: &lt;center&gt;$$\theta_{l}= \arg \max_{\theta} \sum_{i=1}^{n}\sum_{\mathbf{z}}Q_{l}^{(i)}(\mathbf{z})\log p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z}) $$&lt;/center&gt;&lt;/li&gt;
 &lt;/ol&gt;
 
 &lt;h2 id=&quot;gaussian-mixture-model-gmm&quot;&gt;Gaussian Mixture Model (GMM)&lt;/h2&gt;
@@ -56,14 +56,79 @@ Since &lt;script type=&quot;math/tex&quot;&gt;Q_{l}^{(i)}&lt;/script&gt; is comp
 	$$
 	\begin{align}
 	p(\mathbf{x}; \phi, \mu, \Sigma) 
-	&amp;amp;= \sum_{m=1}^{M}\phi_{m} N(\mathbf{x};\mu_m, \Sigma_m)\\
-	&amp;amp;= \sum_{m=1}^{M}\phi_{m} \frac{1}{(2\pi)^{\frac{p}{2}}\vert\Sigma_m\vert^{\frac{1}{2}} } \exp\{-\frac{1}{2}{(\mathbf{x}-\mu_m)^T \Sigma_m^{-1} (\mathbf{x}-\mu_m)}\}
+	&amp;amp;= \sum_{j=1}^{M}\phi_{j} N(\mathbf{x};\mu_j, \Sigma_j)\\
+	&amp;amp;= \sum_{j=1}^{M}\phi_{j} \frac{1}{(2\pi)^{\frac{p}{2}}\vert\Sigma_j\vert^{\frac{1}{2}} } \exp\{-\frac{1}{2}{(\mathbf{x}-\mu_j)^T \Sigma_j^{-1} (\mathbf{x}-\mu_j)}\}
 	\end{align}
 	$$
 &lt;/center&gt;
-&lt;p&gt;where &lt;script type=&quot;math/tex&quot;&gt;M&lt;/script&gt; is the number of Gaussian models. &lt;script type=&quot;math/tex&quot;&gt;\phi_m&lt;/script&gt; is the weight factor of the Gaussian model &lt;script type=&quot;math/tex&quot;&gt;N(\mu_m,\Sigma_m)&lt;/script&gt;.&lt;/p&gt;
+&lt;p&gt;where &lt;script type=&quot;math/tex&quot;&gt;M&lt;/script&gt; is the number of Gaussian models. &lt;script type=&quot;math/tex&quot;&gt;\phi_j&lt;/script&gt; is the weight factor of the Gaussian model &lt;script type=&quot;math/tex&quot;&gt;N(\mu_j,\Sigma_j)&lt;/script&gt;. Moreover, we have the constraint: &lt;script type=&quot;math/tex&quot;&gt;\sum_{j=1}^{M} \phi_j =1&lt;/script&gt;.&lt;/p&gt;
 
-&lt;p&gt;GMM is very suitable to be used to fit the dataset which contains multiple clusters, and each cluster has circular or elliptical shape. For example, the data distribution shown in the following figure can be modeled by GMM.&lt;/p&gt;
+&lt;p&gt;GMM is very suitable to be used to fit the dataset which contains multiple clusters, and each cluster has circular or elliptical shape. For example, the data distribution shown in the following figure can be modeled by GMM.
+&lt;img src=&quot;https://nianlonggu.github.io/img/2019-07-10-EM/GMM-distribution.png&quot; width=&quot;400&quot; hegiht=&quot;203&quot; /&gt;
+Now the question is: &lt;strong&gt;given a dataset with the distribution in the figure above, if we want to use GMM to model it, how to find the MLE of the parameters (&lt;script type=&quot;math/tex&quot;&gt;\phi,\mu,\Sigma&lt;/script&gt;) of the Gaussian Mixture Model?&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;The answer is: using EM algorithm!&lt;/p&gt;
+&lt;h2 id=&quot;em-algorithm-on-gmm-parameters-estimation&quot;&gt;EM algorithm on GMM parameters estimation&lt;/h2&gt;
+&lt;p&gt;Suppose that there are &lt;script type=&quot;math/tex&quot;&gt;M&lt;/script&gt; Gaussian models in the GMM, our latent variable &lt;script type=&quot;math/tex&quot;&gt;\mathbf{z}&lt;/script&gt; only has &lt;script type=&quot;math/tex&quot;&gt;M&lt;/script&gt; different values: &lt;script type=&quot;math/tex&quot;&gt;\{\mathbf{z}^{(j)}=j| j=1,\dots,M\}&lt;/script&gt;. Moreover, &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}^{(i)}\in R^p&lt;/script&gt;. The EM algorithm works as follows:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Initialization: &lt;br /&gt;
+We normalize the raw data if necessary, randomly initialize &lt;script type=&quot;math/tex&quot;&gt;\phi, \mu, \Sigma&lt;/script&gt;, and initialize the prior of &lt;script type=&quot;math/tex&quot;&gt;\mathbf{z}&lt;/script&gt; as &lt;script type=&quot;math/tex&quot;&gt;p(\mathbf{z}^{(j)})=\frac{1}{M}&lt;/script&gt;&lt;/li&gt;
+  &lt;li&gt;Repeat:&lt;br /&gt;
+&lt;strong&gt;To avoid an overcomplicated expression, we omit the footnote of iteration index &lt;script type=&quot;math/tex&quot;&gt;l&lt;/script&gt;&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;strong&gt;E&lt;/strong&gt; step:&lt;br /&gt;
+&lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+\begin{align}
+Q^{(i)}(\mathbf{z}^{(j)})&amp;=\frac{ p( \mathbf{x}^{(i)}\vert \mathbf{z}^{(j)} ; \phi, \mu,\Sigma  ) p(\mathbf{z}^{(j)})}{ \sum_{k=1}^{M}p( \mathbf{x}^{(i)}\vert \mathbf{z}^{(k)} ; \phi, \mu,\Sigma  ) p(\mathbf{z}^{(k)})  } \\
+&amp;=\frac{\phi_{j} \frac{1}{(2\pi)^{\frac{p}{2}}\vert \Sigma_j \vert^{\frac{1}{2}} }\exp\{-\frac{1}{2}(\mathbf{x}^{(i)}-\mu_j)^T\Sigma_j^{-1}(\mathbf{x}^{(i)}-\mu_j) \} p(\mathbf{z}^{(j)}) }{ \sum_{k=1}^{M} \phi_{k} \frac{1}{(2\pi)^{\frac{p}{2}}\vert \Sigma_k \vert^{\frac{1}{2}} }\exp\{-\frac{1}{2}(\mathbf{x}^{(i)}-\mu_k)^T\Sigma_k^{-1}(\mathbf{x}^{(i)}-\mu_k) \} p(\mathbf{z}^{(k)}) }
+\end{align} %]]&gt;&lt;/script&gt;&lt;br /&gt;
+For short we denote &lt;script type=&quot;math/tex&quot;&gt;q_{i,j}=Q^{(i)}(\mathbf{z}^{(j)})&lt;/script&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;strong&gt;M&lt;/strong&gt; step:&lt;br /&gt;
+The objective function is:&lt;br /&gt;
+&lt;script type=&quot;math/tex&quot;&gt;L= \sum_{i=1}^{n}\sum_{j=1}^{M} q_{i,j} \log \phi_{j} \frac{1}{(2\pi)^{\frac{p}{2}}\vert\Sigma_j\vert^{\frac{1}{2}} } \exp\{-\frac{1}{2}{(\mathbf{x}^{(i)}-\mu_j)^T \Sigma_j^{-1} (\mathbf{x}^{(i)}-\mu_j)}\}&lt;/script&gt;&lt;br /&gt;
+&lt;strong&gt;Update &lt;script type=&quot;math/tex&quot;&gt;\phi&lt;/script&gt;&lt;/strong&gt;&lt;br /&gt;
+&lt;strong&gt;We cannot update &lt;script type=&quot;math/tex&quot;&gt;\phi_k&lt;/script&gt; by simply computing
+&lt;script type=&quot;math/tex&quot;&gt;\frac{\partial{L}}{\partial{\phi_k}}= 0&lt;/script&gt;, because &lt;script type=&quot;math/tex&quot;&gt;\phi&lt;/script&gt; also has another constraint: &lt;script type=&quot;math/tex&quot;&gt;\sum_{j=1}^{M}=1&lt;/script&gt;&lt;/strong&gt;, so we can treat this as a convex optimization problem:&lt;center&gt;$$
+\min_{\phi} -\sum_{i=1}^{n}\sum_{j=1}^{M} q_{i,j} \log{\phi_j N(\mathbf{x}^{(i)}\vert \mu_j, \Sigma_j) }\\
+\text{s.t.}\  \sum_{j=1}^{M} \phi_j = 1 
+$$&lt;/center&gt;
+Since &lt;script type=&quot;math/tex&quot;&gt;N(\mathbf{x}^{(i)}\vert \mu_j,\Sigma_j)&lt;/script&gt; is not related with &lt;script type=&quot;math/tex&quot;&gt;\phi&lt;/script&gt;, the equivalent optimization problem is &lt;center&gt;$$
+ \min_{\phi} -\sum_{i=1}^{n}\sum_{j=1}^{M} q_{i,j} \log{\phi_j }\\
+ \text{s.t.}\  \sum_{j=1}^{M} \phi_j = 1 
+$$&lt;/center&gt;
+&lt;strong&gt;&lt;script type=&quot;math/tex&quot;&gt;\phi_j &gt; 0&lt;/script&gt; is not regarded as a constraint, since it is already included in the objective function &lt;script type=&quot;math/tex&quot;&gt;\log \phi_j&lt;/script&gt;&lt;/strong&gt;&lt;br /&gt;
+The Lagrangian function &lt;center&gt;$$L(\phi, \lambda)= -\sum_{i=1}^{n}\sum_{j=1}^{M} q_{i,j} \log{\phi_j } + \lambda( \sum_{j=1}^{M}\phi_j -1 ) $$&lt;/center&gt;
+By solving &lt;script type=&quot;math/tex&quot;&gt;\frac{\partial{L(\phi,\lambda)}}{\partial{\phi_k}}=-\sum_{i=1}^{n}\frac{q_{i,k}}{\phi_k}+\lambda=0&lt;/script&gt;, we have the primal optimum &lt;script type=&quot;math/tex&quot;&gt;\phi_k^\star=\frac{\sum_{i=1}^{n}q_{i,k}}{\lambda}&lt;/script&gt;. Substituting it to the Lagrangian function, we have the dual function:&lt;center&gt;$$d(\lambda)=-\sum_{i=1}^{n}\sum_{j=1}^{M}q_{i,j}\log\frac{\sum_{l=1}^{n}q_{l,j}}{\lambda}+\lambda(\sum_{j=1}^{M}\frac{\sum_{l=1}^{n}q_{l,j}}{\lambda} -1)$$&lt;/center&gt;. Therefore, the dual problem is: &lt;center&gt;$$
+\lambda^\star=\arg\max_{\lambda} d(\lambda)
+$$&lt;/center&gt;&lt;center&gt;$$\frac{\partial{d(\lambda)}}{\partial{\lambda}}=\sum_{i=1}^{n}\sum_{j=1}^{M}\frac{q_{i,j}}{\lambda}-1=0$$&lt;/center&gt;So we have the dual optimum &lt;script type=&quot;math/tex&quot;&gt;\lambda^\star=\sum_{i=1}^{n}\sum_{j=1}^{M}q_{i,j}=\sum_{i=1}^{n}1=n&lt;/script&gt; Therefore, we get the update rule of &lt;script type=&quot;math/tex&quot;&gt;\phi_k&lt;/script&gt;: &lt;center&gt;$$
+\phi_k^\text{new} = \frac{1}{n}\sum_{i=1}^{n}q_{i,k},\ k=1,\dots,M
+$$&lt;/center&gt;
+This deduction uses the Lagrangian Duality Principle, for detail please see my post &lt;a href=&quot;https://nianlonggu.github.io/2019/05/25/tutorial-on-SVM/&quot;&gt;An Introduction to Support Vector Machines (SVM): Convex Optimization and Lagrangian Duality Principle&lt;/a&gt;&lt;br /&gt;
+&lt;strong&gt;Update &lt;script type=&quot;math/tex&quot;&gt;\mu&lt;/script&gt;&lt;/strong&gt;&lt;br /&gt;
+We compute the partial derivative:&lt;center&gt;$$\begin{align}
+\frac{\partial{L}}{\partial{\mu_k}}&amp;amp;=\frac{\partial}{\partial{\mu_k}}\Big[\sum_{i=1}^{n}-\frac{1}{2}q_{i,k}(\mathbf{x}^{(i)}-\mu_k)^T\Sigma_k^{-1}(\mathbf{x}^{(i)}-\mu_k)\Big]\\
+&amp;amp;= -\sum_{i=1}^{n}q_{i,k}\Sigma_k^{-1}(\mu_k - \mathbf{x}^{(i)})\\
+&amp;amp;= -\Sigma_k^{-1}( \sum_{i=1}^{n}q_{i,k}\mu_k -\sum_{i=1}^{n}q_{i,k}\mathbf{x}^{(i)}  )\\
+&amp;amp;=0
+\end{align}$$&lt;/center&gt;
+Since &lt;script type=&quot;math/tex&quot;&gt;\Sigma_k&gt;0&lt;/script&gt;, the solution to the above equation is:&lt;center&gt;$$\mu_k^\text{new} = \frac{ \sum_{i=1}^{n}q_{i,k}\mathbf{x}^{(i)} }{ \sum_{i=1}^{n}q_{i,k} },\ k=1,\dots,M$$&lt;/center&gt;
+&lt;strong&gt;Update &lt;script type=&quot;math/tex&quot;&gt;\Sigma&lt;/script&gt;&lt;/strong&gt;&lt;br /&gt;
+let &lt;script type=&quot;math/tex&quot;&gt;\Lambda_k=\Sigma_k^{-1}&lt;/script&gt;, then the objective function is &lt;script type=&quot;math/tex&quot;&gt;L= \sum_{i=1}^{n}\sum_{j=1}^{M} q_{i,j} \log \phi_{j} \frac{\vert\Lambda_j\vert^{\frac{1}{2}}}{(2\pi)^{\frac{p}{2}} } \exp\{-\frac{1}{2}{(\mathbf{x}^{(i)}-\mu_j)^T \Lambda_j (\mathbf{x}^{(i)}-\mu_j)}\}&lt;/script&gt;&lt;br /&gt;
+we compute the optimal &lt;script type=&quot;math/tex&quot;&gt;\Lambda^\star_k&lt;/script&gt; by solving the equation:&lt;center&gt;
+$$\begin{align}\frac{\partial{L}}{\partial{\Lambda_k}}&amp;amp;=\frac{\partial}{\partial{\Lambda_k}}\Big\{ \sum_{i=1}^{n} q_{i,k}\Big[\frac{1}{2}\log \vert\Lambda_k\vert - \frac{1}{2}(\mathbf{x}^{(i)}-\mu_k)^T\Lambda_k(\mathbf{x}^{(i)}-\mu_k)\Big] \Big\} \\
+&amp;amp;=\frac{\partial}{\partial{\Lambda_k}}\Big\{ \sum_{i=1}^{n} q_{i,k}\Big[\frac{1}{2}\log \vert\Lambda_k\vert - \frac{1}{2}\text{tr}\left((\mathbf{x}^{(i)}-\mu_k)^T\Lambda_k(\mathbf{x}^{(i)}-\mu_k)\right) \Big] \Big\} \\
+&amp;amp;= \frac{1}{2}\sum_{i=1}^{n} q_{i,k} \Lambda_k^{-1} - \frac{1}{2} \frac{\partial}{\partial{\Lambda_k}} \text{tr}\left(\Lambda_k\sum_{i=1}^{n}q_{i,k}(\mathbf{x}^{(i)}-\mu_k)(\mathbf{x}^{(i)}-\mu_k)^T\right) \\
+&amp;amp;= \frac{1}{2}\sum_{i=1}^{n} q_{i,k} \Sigma_k - \frac{1}{2} \sum_{i=1}^{n}q_{i,k}(\mathbf{x}^{(i)}-\mu_k)(\mathbf{x}^{(i)}-\mu_k)^T \\
+&amp;amp;=0\end{align}$$&lt;/center&gt;So we have the update rule of &lt;script type=&quot;math/tex&quot;&gt;\Sigma_k&lt;/script&gt;:&lt;center&gt;$$
+\Sigma_k^\text{new} = \frac{ \sum_{i=1}^{n}q_{i,k}(\mathbf{x}^{(i)}-\mu_k)(\mathbf{x}^{(i)}-\mu_k)^T }{\sum_{i=1}^{n} q_{i,k} }
+$$&lt;/center&gt;&lt;/li&gt;
+      &lt;li&gt;(optional) update the prior &lt;script type=&quot;math/tex&quot;&gt;p(\mathbf{z}^{(j)})=\frac{1}{n}\sum_{i=1}^{n}Q^{(i)}(\mathbf{z}^{(j)})&lt;/script&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;script type=&quot;math/tex&quot;&gt;\ \ \ \ \&lt;/script&gt; Until all the parameters converges.&lt;/p&gt;
 </description>
         <pubDate>Wed, 10 Jul 2019 17:23:00 +0200</pubDate>
         <link>http://localhost:4000/2019/07/10/tutorial-on-EM/</link>

@@ -307,12 +307,12 @@ update <script type="math/tex">\theta_{l}=\arg \max_{\theta} \sum_{i=1}^{n}Q_{l}
   <li>In the E step, according to Bayes Theorem, we have <script type="math/tex">Q_{l}^{(i)}(\mathbf{z})=p_{\theta_{l-1}}(\mathbf{z}\vert \mathbf{x}^{(i)})=\frac{p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z})}{p_{\theta_{l-1}}(\mathbf{x}^{(i)})}=\frac{ p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z}) }{ \sum_{\mathbf{z}}p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z}) }</script>.<br />
 Here <script type="math/tex">p(\mathbf{z})</script> is the prior of the latent variable <script type="math/tex">\mathbf{z}</script>. Either we initialize it as fixed distribution, or we dynamically update it over each iteration. If <strong>the number of the value of the variable <script type="math/tex">\mathbf{z}</script> is finite and traversable</strong>, we can directly compute the sum <script type="math/tex">\sum_{\mathbf{z}}p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z})</script>, and then compute the posterior <script type="math/tex">Q_{l}^{(i)}(\mathbf{z})</script>. For example, in two coin tossing problem, <script type="math/tex">\mathbf{z}</script> can only be coin A (1) or coin B (0).</li>
   <li>In the M step, the objective function <center>$$\begin{align}
- L(\theta_{l-1}, Q_{l}^{(i)} ) &amp;= \sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log \frac{p_{\theta_{l-1}}(\mathbf{z},\mathbf{x}^{(i)})}{Q_{l}^{(\mathbf{z})}}\\
- &amp;= \sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log \frac{p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z})}{Q_{l}^{(i)}(\mathbf{z})}\\
- &amp;= \sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z}) + \sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log \frac{p(\mathbf{z})}{Q_{l}^{(i)}(\mathbf{z})}
+ L(\theta_{l-1}, Q_{l}^{(i)} ) &amp;= \sum_{i=1}^{n}\sum_{\mathbf{z}}Q_{l}^{(i)}(\mathbf{z})\log \frac{p_{\theta_{l-1}}(\mathbf{z},\mathbf{x}^{(i)})}{Q_{l}^{(\mathbf{z})}}\\
+ &amp;= \sum_{i=1}^{n}\sum_{\mathbf{z}}Q_{l}^{(i)}(\mathbf{z})\log \frac{p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z})}{Q_{l}^{(i)}(\mathbf{z})}\\
+ &amp;= \sum_{i=1}^{n}\sum_{\mathbf{z}}Q_{l}^{(i)}(\mathbf{z})\log p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z}) + \sum_{i=1}^{n}\sum_{\mathbf{z}}Q_{l}^{(i)}(\mathbf{z})\log \frac{p(\mathbf{z})}{Q_{l}^{(i)}(\mathbf{z})}
 \end{align}
 $$</center>
-Since <script type="math/tex">Q_{l}^{(i)}</script> is computed in the E step, in the M step it is treated as something which is independent of <script type="math/tex">\theta</script>. Moreover, the prior <script type="math/tex">p(\mathbf{z})</script> is also assumed to be independent of <script type="math/tex">\theta</script>. Therefore, the term <script type="math/tex">\sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log \frac{p(\mathbf{z})}{Q_{l}^{(i)}(\mathbf{z})}</script> is irrelevant to <script type="math/tex">\theta</script>, and the equivalent updating rule of <script type="math/tex">\theta</script> can be written as: <center>$$\theta_{l}= \arg \max_{\theta} \sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z}) $$</center></li>
+Since <script type="math/tex">Q_{l}^{(i)}</script> is computed in the E step, in the M step it is treated as something which is independent of <script type="math/tex">\theta</script>. Moreover, the prior <script type="math/tex">p(\mathbf{z})</script> is also assumed to be independent of <script type="math/tex">\theta</script>. Therefore, the term <script type="math/tex">\sum_{i=1}^{n}\sum_{\mathbf{z}}Q_{l}^{(i)}(\mathbf{z})\log \frac{p(\mathbf{z})}{Q_{l}^{(i)}(\mathbf{z})}</script> is irrelevant to <script type="math/tex">\theta</script>, and the equivalent updating rule of <script type="math/tex">\theta</script> can be written as: <center>$$\theta_{l}= \arg \max_{\theta} \sum_{i=1}^{n}\sum_{\mathbf{z}}Q_{l}^{(i)}(\mathbf{z})\log p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z}) $$</center></li>
 </ol>
 
 <h2 id="gaussian-mixture-model-gmm">Gaussian Mixture Model (GMM)</h2>
@@ -321,14 +321,79 @@ Since <script type="math/tex">Q_{l}^{(i)}</script> is computed in the E step, in
 	$$
 	\begin{align}
 	p(\mathbf{x}; \phi, \mu, \Sigma) 
-	&amp;= \sum_{m=1}^{M}\phi_{m} N(\mathbf{x};\mu_m, \Sigma_m)\\
-	&amp;= \sum_{m=1}^{M}\phi_{m} \frac{1}{(2\pi)^{\frac{p}{2}}\vert\Sigma_m\vert^{\frac{1}{2}} } \exp\{-\frac{1}{2}{(\mathbf{x}-\mu_m)^T \Sigma_m^{-1} (\mathbf{x}-\mu_m)}\}
+	&amp;= \sum_{j=1}^{M}\phi_{j} N(\mathbf{x};\mu_j, \Sigma_j)\\
+	&amp;= \sum_{j=1}^{M}\phi_{j} \frac{1}{(2\pi)^{\frac{p}{2}}\vert\Sigma_j\vert^{\frac{1}{2}} } \exp\{-\frac{1}{2}{(\mathbf{x}-\mu_j)^T \Sigma_j^{-1} (\mathbf{x}-\mu_j)}\}
 	\end{align}
 	$$
 </center>
-<p>where <script type="math/tex">M</script> is the number of Gaussian models. <script type="math/tex">\phi_m</script> is the weight factor of the Gaussian model <script type="math/tex">N(\mu_m,\Sigma_m)</script>.</p>
+<p>where <script type="math/tex">M</script> is the number of Gaussian models. <script type="math/tex">\phi_j</script> is the weight factor of the Gaussian model <script type="math/tex">N(\mu_j,\Sigma_j)</script>. Moreover, we have the constraint: <script type="math/tex">\sum_{j=1}^{M} \phi_j =1</script>.</p>
 
-<p>GMM is very suitable to be used to fit the dataset which contains multiple clusters, and each cluster has circular or elliptical shape. For example, the data distribution shown in the following figure can be modeled by GMM.</p>
+<p>GMM is very suitable to be used to fit the dataset which contains multiple clusters, and each cluster has circular or elliptical shape. For example, the data distribution shown in the following figure can be modeled by GMM.
+<img src="https://nianlonggu.github.io/img/2019-07-10-EM/GMM-distribution.png" width="400" hegiht="203" />
+Now the question is: <strong>given a dataset with the distribution in the figure above, if we want to use GMM to model it, how to find the MLE of the parameters (<script type="math/tex">\phi,\mu,\Sigma</script>) of the Gaussian Mixture Model?</strong></p>
+
+<p>The answer is: using EM algorithm!</p>
+<h2 id="em-algorithm-on-gmm-parameters-estimation">EM algorithm on GMM parameters estimation</h2>
+<p>Suppose that there are <script type="math/tex">M</script> Gaussian models in the GMM, our latent variable <script type="math/tex">\mathbf{z}</script> only has <script type="math/tex">M</script> different values: <script type="math/tex">\{\mathbf{z}^{(j)}=j| j=1,\dots,M\}</script>. Moreover, <script type="math/tex">\mathbf{x}^{(i)}\in R^p</script>. The EM algorithm works as follows:</p>
+
+<ol>
+  <li>Initialization: <br />
+We normalize the raw data if necessary, randomly initialize <script type="math/tex">\phi, \mu, \Sigma</script>, and initialize the prior of <script type="math/tex">\mathbf{z}</script> as <script type="math/tex">p(\mathbf{z}^{(j)})=\frac{1}{M}</script></li>
+  <li>Repeat:<br />
+<strong>To avoid an overcomplicated expression, we omit the footnote of iteration index <script type="math/tex">l</script></strong>
+    <ul>
+      <li><strong>E</strong> step:<br />
+<script type="math/tex">% <![CDATA[
+\begin{align}
+Q^{(i)}(\mathbf{z}^{(j)})&=\frac{ p( \mathbf{x}^{(i)}\vert \mathbf{z}^{(j)} ; \phi, \mu,\Sigma  ) p(\mathbf{z}^{(j)})}{ \sum_{k=1}^{M}p( \mathbf{x}^{(i)}\vert \mathbf{z}^{(k)} ; \phi, \mu,\Sigma  ) p(\mathbf{z}^{(k)})  } \\
+&=\frac{\phi_{j} \frac{1}{(2\pi)^{\frac{p}{2}}\vert \Sigma_j \vert^{\frac{1}{2}} }\exp\{-\frac{1}{2}(\mathbf{x}^{(i)}-\mu_j)^T\Sigma_j^{-1}(\mathbf{x}^{(i)}-\mu_j) \} p(\mathbf{z}^{(j)}) }{ \sum_{k=1}^{M} \phi_{k} \frac{1}{(2\pi)^{\frac{p}{2}}\vert \Sigma_k \vert^{\frac{1}{2}} }\exp\{-\frac{1}{2}(\mathbf{x}^{(i)}-\mu_k)^T\Sigma_k^{-1}(\mathbf{x}^{(i)}-\mu_k) \} p(\mathbf{z}^{(k)}) }
+\end{align} %]]></script><br />
+For short we denote <script type="math/tex">q_{i,j}=Q^{(i)}(\mathbf{z}^{(j)})</script></li>
+      <li><strong>M</strong> step:<br />
+The objective function is:<br />
+<script type="math/tex">L= \sum_{i=1}^{n}\sum_{j=1}^{M} q_{i,j} \log \phi_{j} \frac{1}{(2\pi)^{\frac{p}{2}}\vert\Sigma_j\vert^{\frac{1}{2}} } \exp\{-\frac{1}{2}{(\mathbf{x}^{(i)}-\mu_j)^T \Sigma_j^{-1} (\mathbf{x}^{(i)}-\mu_j)}\}</script><br />
+<strong>Update <script type="math/tex">\phi</script></strong><br />
+<strong>We cannot update <script type="math/tex">\phi_k</script> by simply computing
+<script type="math/tex">\frac{\partial{L}}{\partial{\phi_k}}= 0</script>, because <script type="math/tex">\phi</script> also has another constraint: <script type="math/tex">\sum_{j=1}^{M}=1</script></strong>, so we can treat this as a convex optimization problem:<center>$$
+\min_{\phi} -\sum_{i=1}^{n}\sum_{j=1}^{M} q_{i,j} \log{\phi_j N(\mathbf{x}^{(i)}\vert \mu_j, \Sigma_j) }\\
+\text{s.t.}\  \sum_{j=1}^{M} \phi_j = 1 
+$$</center>
+Since <script type="math/tex">N(\mathbf{x}^{(i)}\vert \mu_j,\Sigma_j)</script> is not related with <script type="math/tex">\phi</script>, the equivalent optimization problem is <center>$$
+ \min_{\phi} -\sum_{i=1}^{n}\sum_{j=1}^{M} q_{i,j} \log{\phi_j }\\
+ \text{s.t.}\  \sum_{j=1}^{M} \phi_j = 1 
+$$</center>
+<strong><script type="math/tex">\phi_j > 0</script> is not regarded as a constraint, since it is already included in the objective function <script type="math/tex">\log \phi_j</script></strong><br />
+The Lagrangian function <center>$$L(\phi, \lambda)= -\sum_{i=1}^{n}\sum_{j=1}^{M} q_{i,j} \log{\phi_j } + \lambda( \sum_{j=1}^{M}\phi_j -1 ) $$</center>
+By solving <script type="math/tex">\frac{\partial{L(\phi,\lambda)}}{\partial{\phi_k}}=-\sum_{i=1}^{n}\frac{q_{i,k}}{\phi_k}+\lambda=0</script>, we have the primal optimum <script type="math/tex">\phi_k^\star=\frac{\sum_{i=1}^{n}q_{i,k}}{\lambda}</script>. Substituting it to the Lagrangian function, we have the dual function:<center>$$d(\lambda)=-\sum_{i=1}^{n}\sum_{j=1}^{M}q_{i,j}\log\frac{\sum_{l=1}^{n}q_{l,j}}{\lambda}+\lambda(\sum_{j=1}^{M}\frac{\sum_{l=1}^{n}q_{l,j}}{\lambda} -1)$$</center>. Therefore, the dual problem is: <center>$$
+\lambda^\star=\arg\max_{\lambda} d(\lambda)
+$$</center><center>$$\frac{\partial{d(\lambda)}}{\partial{\lambda}}=\sum_{i=1}^{n}\sum_{j=1}^{M}\frac{q_{i,j}}{\lambda}-1=0$$</center>So we have the dual optimum <script type="math/tex">\lambda^\star=\sum_{i=1}^{n}\sum_{j=1}^{M}q_{i,j}=\sum_{i=1}^{n}1=n</script> Therefore, we get the update rule of <script type="math/tex">\phi_k</script>: <center>$$
+\phi_k^\text{new} = \frac{1}{n}\sum_{i=1}^{n}q_{i,k},\ k=1,\dots,M
+$$</center>
+This deduction uses the Lagrangian Duality Principle, for detail please see my post <a href="https://nianlonggu.github.io/2019/05/25/tutorial-on-SVM/">An Introduction to Support Vector Machines (SVM): Convex Optimization and Lagrangian Duality Principle</a><br />
+<strong>Update <script type="math/tex">\mu</script></strong><br />
+We compute the partial derivative:<center>$$\begin{align}
+\frac{\partial{L}}{\partial{\mu_k}}&amp;=\frac{\partial}{\partial{\mu_k}}\Big[\sum_{i=1}^{n}-\frac{1}{2}q_{i,k}(\mathbf{x}^{(i)}-\mu_k)^T\Sigma_k^{-1}(\mathbf{x}^{(i)}-\mu_k)\Big]\\
+&amp;= -\sum_{i=1}^{n}q_{i,k}\Sigma_k^{-1}(\mu_k - \mathbf{x}^{(i)})\\
+&amp;= -\Sigma_k^{-1}( \sum_{i=1}^{n}q_{i,k}\mu_k -\sum_{i=1}^{n}q_{i,k}\mathbf{x}^{(i)}  )\\
+&amp;=0
+\end{align}$$</center>
+Since <script type="math/tex">\Sigma_k>0</script>, the solution to the above equation is:<center>$$\mu_k^\text{new} = \frac{ \sum_{i=1}^{n}q_{i,k}\mathbf{x}^{(i)} }{ \sum_{i=1}^{n}q_{i,k} },\ k=1,\dots,M$$</center>
+<strong>Update <script type="math/tex">\Sigma</script></strong><br />
+let <script type="math/tex">\Lambda_k=\Sigma_k^{-1}</script>, then the objective function is <script type="math/tex">L= \sum_{i=1}^{n}\sum_{j=1}^{M} q_{i,j} \log \phi_{j} \frac{\vert\Lambda_j\vert^{\frac{1}{2}}}{(2\pi)^{\frac{p}{2}} } \exp\{-\frac{1}{2}{(\mathbf{x}^{(i)}-\mu_j)^T \Lambda_j (\mathbf{x}^{(i)}-\mu_j)}\}</script><br />
+we compute the optimal <script type="math/tex">\Lambda^\star_k</script> by solving the equation:<center>
+$$\begin{align}\frac{\partial{L}}{\partial{\Lambda_k}}&amp;=\frac{\partial}{\partial{\Lambda_k}}\Big\{ \sum_{i=1}^{n} q_{i,k}\Big[\frac{1}{2}\log \vert\Lambda_k\vert - \frac{1}{2}(\mathbf{x}^{(i)}-\mu_k)^T\Lambda_k(\mathbf{x}^{(i)}-\mu_k)\Big] \Big\} \\
+&amp;=\frac{\partial}{\partial{\Lambda_k}}\Big\{ \sum_{i=1}^{n} q_{i,k}\Big[\frac{1}{2}\log \vert\Lambda_k\vert - \frac{1}{2}\text{tr}\left((\mathbf{x}^{(i)}-\mu_k)^T\Lambda_k(\mathbf{x}^{(i)}-\mu_k)\right) \Big] \Big\} \\
+&amp;= \frac{1}{2}\sum_{i=1}^{n} q_{i,k} \Lambda_k^{-1} - \frac{1}{2} \frac{\partial}{\partial{\Lambda_k}} \text{tr}\left(\Lambda_k\sum_{i=1}^{n}q_{i,k}(\mathbf{x}^{(i)}-\mu_k)(\mathbf{x}^{(i)}-\mu_k)^T\right) \\
+&amp;= \frac{1}{2}\sum_{i=1}^{n} q_{i,k} \Sigma_k - \frac{1}{2} \sum_{i=1}^{n}q_{i,k}(\mathbf{x}^{(i)}-\mu_k)(\mathbf{x}^{(i)}-\mu_k)^T \\
+&amp;=0\end{align}$$</center>So we have the update rule of <script type="math/tex">\Sigma_k</script>:<center>$$
+\Sigma_k^\text{new} = \frac{ \sum_{i=1}^{n}q_{i,k}(\mathbf{x}^{(i)}-\mu_k)(\mathbf{x}^{(i)}-\mu_k)^T }{\sum_{i=1}^{n} q_{i,k} }
+$$</center></li>
+      <li>(optional) update the prior <script type="math/tex">p(\mathbf{z}^{(j)})=\frac{1}{n}\sum_{i=1}^{n}Q^{(i)}(\mathbf{z}^{(j)})</script></li>
+    </ul>
+  </li>
+</ol>
+
+<p><script type="math/tex">\ \ \ \ \</script> Until all the parameters converges.</p>
 
 
                 <hr style="visibility: hidden;">
