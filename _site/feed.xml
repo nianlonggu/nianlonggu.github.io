@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Wed, 17 Jul 2019 17:03:19 +0200</pubDate>
-    <lastBuildDate>Wed, 17 Jul 2019 17:03:19 +0200</lastBuildDate>
+    <pubDate>Wed, 17 Jul 2019 17:06:22 +0200</pubDate>
+    <lastBuildDate>Wed, 17 Jul 2019 17:06:22 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -138,6 +138,7 @@ $$&lt;/center&gt;&lt;/li&gt;
 &lt;p&gt;Suppose that we have use the EM algorithm to find the estimation of the model parameters, what does the posterior &lt;script type=&quot;math/tex&quot;&gt;p_\theta(\mathbf{z}^{(j)}\vert \mathbf{x})&lt;/script&gt; represent? It actually represents the likelihood that the data &lt;script type=&quot;math/tex&quot;&gt;\mathbf{x}&lt;/script&gt; belongs to the Gaussian model index &lt;script type=&quot;math/tex&quot;&gt;j&lt;/script&gt; (or Cluster &lt;script type=&quot;math/tex&quot;&gt;j&lt;/script&gt;). Therefore, we can use the posterior expression given in the &lt;strong&gt;E&lt;/strong&gt; step above, to the compute the posterior &lt;script type=&quot;math/tex&quot;&gt;p_\theta(\mathbf{z}^{(j)}\vert \mathbf{x}),\ j=1,\dots,M&lt;/script&gt;, and determine the cluster index with largest posterior &lt;script type=&quot;math/tex&quot;&gt;c_x=\arg \max_{j} p_\theta(\mathbf{z}^{(j)}\vert \mathbf{x})&lt;/script&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;demo&quot;&gt;Demo&lt;/h2&gt;
+&lt;p&gt;We implement the EM &amp;amp; GMM using python, and test it on 2d dataset.&lt;/p&gt;
 
 &lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
 2
@@ -588,6 +589,11 @@ parameter changes:  0.002146320352925
 
 &lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
 &lt;p&gt;Now we see the ability and shortcoming of the GMM clustering. In the GMM clustering results, each cluster’s region ussually has a convex shape. This actually limits the power of GMM clustering especially on some mainfold data clustring. In the future we will discuss how to cluster such non-convex dataset.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Reference&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;&lt;a href=&quot;http://cs229.stanford.edu/notes/&quot;&gt;Andrew Ng’s course on Machine Learning at Stanford University&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
 </description>
         <pubDate>Wed, 10 Jul 2019 17:23:00 +0200</pubDate>
         <link>http://localhost:4000/2019/07/10/tutorial-on-EM/</link>

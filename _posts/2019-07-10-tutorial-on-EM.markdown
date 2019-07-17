@@ -126,7 +126,7 @@ $$\ \ \ \ \$$ Until all the parameters converges.
 Suppose that we have use the EM algorithm to find the estimation of the model parameters, what does the posterior $$p_\theta(\mathbf{z}^{(j)}\vert \mathbf{x})$$ represent? It actually represents the likelihood that the data $$\mathbf{x}$$ belongs to the Gaussian model index $$j$$ (or Cluster $$j$$). Therefore, we can use the posterior expression given in the **E** step above, to the compute the posterior $$p_\theta(\mathbf{z}^{(j)}\vert \mathbf{x}),\ j=1,\dots,M$$, and determine the cluster index with largest posterior $$c_x=\arg \max_{j} p_\theta(\mathbf{z}^{(j)}\vert \mathbf{x})$$
 
 ## Demo
-
+We implement the EM & GMM using python, and test it on 2d dataset.
 
 ```python
 import numpy as np
@@ -422,3 +422,6 @@ From this figure we can see the real clusters are actually non-convex, since the
 
 ## Conclusion
 Now we see the ability and shortcoming of the GMM clustering. In the GMM clustering results, each cluster's region ussually has a convex shape. This actually limits the power of GMM clustering especially on some mainfold data clustring. In the future we will discuss how to cluster such non-convex dataset.
+
+**Reference**
+1. [Andrew Ng's course on Machine Learning at Stanford University](http://cs229.stanford.edu/notes/)
