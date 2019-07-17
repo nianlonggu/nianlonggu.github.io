@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Wed, 17 Jul 2019 17:06:22 +0200</pubDate>
-    <lastBuildDate>Wed, 17 Jul 2019 17:06:22 +0200</lastBuildDate>
+    <pubDate>Wed, 17 Jul 2019 17:26:53 +0200</pubDate>
+    <lastBuildDate>Wed, 17 Jul 2019 17:26:53 +0200</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -589,6 +589,8 @@ parameter changes:  0.002146320352925
 
 &lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
 &lt;p&gt;Now we see the ability and shortcoming of the GMM clustering. In the GMM clustering results, each cluster’s region ussually has a convex shape. This actually limits the power of GMM clustering especially on some mainfold data clustring. In the future we will discuss how to cluster such non-convex dataset.&lt;/p&gt;
+
+&lt;p&gt;Moreover, this GMM model is not very practical, since for some sparse dataset, when updating the &lt;script type=&quot;math/tex&quot;&gt;\Sigma_j&lt;/script&gt; in the &lt;strong&gt;M&lt;/strong&gt; step, the covariance matrix &lt;script type=&quot;math/tex&quot;&gt;\frac{ \sum_{i=1}^{n}q_{i,k}(\mathbf{x}^{(i)}-\mu_k)(\mathbf{x}^{(i)}-\mu_k)^T }{\sum_{i=1}^{n} q_{i,k} }&lt;/script&gt; may not be positive definite (be singular). In this case we cannot directly compute the inverse of &lt;script type=&quot;math/tex&quot;&gt;\Sigma_j&lt;/script&gt;. More works are needed to deal with such cases.&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;Reference&lt;/strong&gt;&lt;/p&gt;
 &lt;ol&gt;

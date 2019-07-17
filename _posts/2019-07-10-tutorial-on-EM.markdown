@@ -423,5 +423,7 @@ From this figure we can see the real clusters are actually non-convex, since the
 ## Conclusion
 Now we see the ability and shortcoming of the GMM clustering. In the GMM clustering results, each cluster's region ussually has a convex shape. This actually limits the power of GMM clustering especially on some mainfold data clustring. In the future we will discuss how to cluster such non-convex dataset.
 
+Moreover, this GMM model is not very practical, since for some sparse dataset, when updating the $$\Sigma_j$$ in the **M** step, the covariance matrix $$\frac{ \sum_{i=1}^{n}q_{i,k}(\mathbf{x}^{(i)}-\mu_k)(\mathbf{x}^{(i)}-\mu_k)^T }{\sum_{i=1}^{n} q_{i,k} }$$ may not be positive definite (be singular). In this case we cannot directly compute the inverse of $$\Sigma_j$$. More works are needed to deal with such cases. 
+
 **Reference**
 1. [Andrew Ng's course on Machine Learning at Stanford University](http://cs229.stanford.edu/notes/)

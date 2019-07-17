@@ -855,6 +855,8 @@ parameter changes:  0.002146320352925
 <h2 id="conclusion">Conclusion</h2>
 <p>Now we see the ability and shortcoming of the GMM clustering. In the GMM clustering results, each cluster’s region ussually has a convex shape. This actually limits the power of GMM clustering especially on some mainfold data clustring. In the future we will discuss how to cluster such non-convex dataset.</p>
 
+<p>Moreover, this GMM model is not very practical, since for some sparse dataset, when updating the <script type="math/tex">\Sigma_j</script> in the <strong>M</strong> step, the covariance matrix <script type="math/tex">\frac{ \sum_{i=1}^{n}q_{i,k}(\mathbf{x}^{(i)}-\mu_k)(\mathbf{x}^{(i)}-\mu_k)^T }{\sum_{i=1}^{n} q_{i,k} }</script> may not be positive definite (be singular). In this case we cannot directly compute the inverse of <script type="math/tex">\Sigma_j</script>. More works are needed to deal with such cases.</p>
+
 <p><strong>Reference</strong></p>
 <ol>
   <li><a href="http://cs229.stanford.edu/notes/">Andrew Ng’s course on Machine Learning at Stanford University</a></li>
