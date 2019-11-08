@@ -1,0 +1,449 @@
+I"L�<p>Expectation Maximization (EM) algorithm is a special case of MLE where the observations (data samples <script type="math/tex">\mathbf{x}</script>) are inherently related with some hidden variables (<script type="math/tex">\mathbf{z}</script>). First of all, we need to review the basics of MLE.</p>
+<h2 id="maximum-likelihood-estimation-mle">Maximum Likelihood Estimation (MLE)</h2>
+<p>Let <script type="math/tex">\{\mathbf{x}^{(i)}\},\ i=1,\dots,n</script> be a set of independent and identically distributed observations, and <script type="math/tex">\mathbf{\theta}</script> be the parameters of the data distribution which are unknown for us. The maximum likelihood estimation of the parameters <script type="math/tex">\theta</script> is the parameters which can maximize the joint distribution <script type="math/tex">p_\theta(\mathbf{x}^{(1)},\dots,\mathbf{x}^{(n)})= \prod_{i=1}^{n}p_\theta(\mathbf{x}^{(i)})</script></p>
+<center>
+	$$
+	\hat{\theta}_\text{MLE} = \arg\ \max_{\theta}{\prod_{i=1}^{n}p_\theta(\mathbf{x}^{(i)})}
+	$$
+</center>
+<p>More commonly, we choose to maximize the joint log-likelihood:</p>
+<center>
+	$$
+	\hat{\theta}_\text{MLE} = \arg\ \max_{\theta}{\sum_{i=1}^{n}\log p_\theta(\mathbf{x}^{(i)})}
+	$$
+</center>
+
+<p>We use an example to illustrate how it works (referred from <a href="https://zhuanlan.zhihu.com/p/40991784">EM算法详解-知乎</a>).</p>
+
+<p>Suppose that we have a coin A, the likelihood of a heads is <script type="math/tex">\theta_A</script>. We denote one observation <script type="math/tex">\mathbf{x}^{(i)}=\{ x_ {i,1},x_ {i,2},x_ {i,3},x_ {i,4},x_ {i,5}, \}</script> as tossing the coin A 5 times and record the heads (1) or tails (0) of each tossing. For example, <script type="math/tex">\mathbf{x}^{(i)}</script> can be 01001, 01110, 10010, … etc. The likelihood of the observation <script type="math/tex">\mathbf{x}^{(i)}</script> is:</p>
+<center>
+	$$
+	p({\mathbf{x}^{(i)}}) = \prod_{j=1}^{5}\theta_A^{x_{i,j}}(1-\theta_A)^{1-x_{i,j}} = \theta_A^{\sum_{j=1}^{5}x_{i,j}}(1-\theta_A)^{\sum_{j=1}^{5}(1-x_{i,j})}
+	$$
+</center>
+<p>Therefore, the log likelihood of the joint distribution of <script type="math/tex">n</script> observations is:</p>
+<center>
+	$$
+	l(\theta_A) = \sum_{i=1}^{n} \sum_{j=1}^{5}\Big( x_{i,j}\log{\theta_A} +(1-x_{i,j})\log{(1-\theta_A)} \Big)
+	$$
+</center>
+<p>The MLE of <script type="math/tex">\theta_A</script> is</p>
+<center>
+	$$
+	\hat{\theta}_{A,\text{MLE}} = \arg \max_{\theta_A} l(\theta_A)
+	$$
+</center>
+<p>To get <script type="math/tex">\hat{\theta}_{A,\text{MLE}}</script> we can solve the equation <script type="math/tex">\frac{\partial{l(\theta_A)}}{\partial{\theta_A}}=0</script>.</p>
+<center>
+	$$
+	\begin{align}
+	\frac{\partial{l(\theta_A)}}{\partial{\theta_A}} &amp;= \sum_{i=1}^{n}\sum_{j=1}^5 \Big(\frac{x_{i,j}}{\theta_A} + \frac{x_{i,j}-1}{1-\theta_A} \Big)\\
+	&amp;=  \frac{\sum_{i=1}^{n}\sum_{j=1}^5 x_{i,j}}{\theta_A} + \frac{\sum_{i=1}^{n}\sum_{j=1}^5 x_{i,j}-5n}{1-\theta_A} \\
+	&amp;= 0
+	\end{align}
+	$$
+</center>
+<p>Therefore, we have</p>
+<center>
+	$$
+	\hat{\theta}_{A, \text{MLE}} = \frac{\sum_{i=1}^{n}\sum_{j=1}^5 x_{i,j}}{5n}
+	$$
+</center>
+<p>This is actually equivalent to compute the average value of all tossing results. 
+For example, if we have 10 observations as below:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td><script type="math/tex">\mathbf{x}^{(1)}</script></td>
+      <td>01011</td>
+      <td><script type="math/tex">\mathbf{x}^{(6)}</script></td>
+      <td>01110</td>
+    </tr>
+    <tr>
+      <td><script type="math/tex">\mathbf{x}^{(2)}</script></td>
+      <td>01111</td>
+      <td><script type="math/tex">\mathbf{x}^{(7)}</script></td>
+      <td>01110</td>
+    </tr>
+    <tr>
+      <td><script type="math/tex">\mathbf{x}^{(3)}</script></td>
+      <td>11011</td>
+      <td><script type="math/tex">\mathbf{x}^{(8)}</script></td>
+      <td>11011</td>
+    </tr>
+    <tr>
+      <td><script type="math/tex">\mathbf{x}^{(4)}</script></td>
+      <td>00011</td>
+      <td><script type="math/tex">\mathbf{x}^{(9)}</script></td>
+      <td>00100</td>
+    </tr>
+    <tr>
+      <td><script type="math/tex">\mathbf{x}^{(5)}</script></td>
+      <td>01010</td>
+      <td><script type="math/tex">\mathbf{x}^{(10)}</script></td>
+      <td>01001</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The sum of all tossing is 28, and the total number of tossing is 50, so MLE of <script type="math/tex">\theta_A</script> is <script type="math/tex">\frac{28}{50}=\frac{14}{25}</script></p>
+
+<p><strong>MLE with hidden variables</strong></p>
+
+<p>Now things become more complicated. Suppose we have two coins: A and B. The likelihood of a heads of coin A and B are <script type="math/tex">\theta_A</script> and <script type="math/tex">\theta_B</script> respectively. We want to find the MLE of <script type="math/tex">\theta_A, \theta_B</script> using <script type="math/tex">n</script> observations <script type="math/tex">\{\mathbf{x}^{(i)}\},\ i=1,\dots,n</script>. Each observation has the same form as above. The challenging part is that for each observation <script type="math/tex">\mathbf{x}^{(i)}</script>, we don’t know which coin it comes from. For example, <script type="math/tex">n=10</script>, the observation set is the same as the table above. In this case how to find the MLE of <script type="math/tex">\theta_A</script> and <script type="math/tex">\theta_B</script>?</p>
+
+<p>This is an simple example where our observation is closely related with some hidden (unknown) variables. In other words, the information of the data is incomplete. The Expectation-Maximization algorithm can be used to solve these problems.</p>
+
+<h2 id="expectation-maximization-em-algorithm">Expectation-Maximization (EM) Algorithm</h2>
+<p>Before introducing EM algorithm, we need to known an important inequality: Jensen-Shannon Inequality.</p>
+
+<p><strong>Jensen-Shannon Inequality</strong></p>
+
+<p>If a function <script type="math/tex">f(\mathbf{X})</script> is strictly convex, where <script type="math/tex">\mathbf{X}</script> is a random variable and the Hessian matrix <script type="math/tex">H</script> is positive definite, we have</p>
+<center>
+	$$
+	E_{X}[f(\mathbf{X})] \geq f(E_X(\mathbf{X}))
+	$$
+</center>
+<p>The equality holds if and only if <script type="math/tex">E_X [\mathbf{X}]= \mathbf{X}</script> with the probability 1 (<script type="math/tex">\mathbf{X}</script> is a constant). Note that of <script type="math/tex">f(\mathbf{X})</script> is strictly concave, the direction of the inequality needs to be reversed.</p>
+
+<p>We can use an example to illustrate Jensen-Shannon inequality more intuitively (<strong>not proof</strong>). This example is referred from <a href="http://cs229.stanford.edu/notes/">Andrew Ng’s lecture note on EM</a>.
+<img src="https://nianlonggu.github.io/img/2019-07-07-EM/js-inequality.svg" alt="jensen-shannon inequality" />
+As shown in this figure, the random variable <script type="math/tex">\mathbf{X}</script> has only two possible values: <script type="math/tex">a</script> and <script type="math/tex">b</script>, each with the probability 0.5. Therefore, <script type="math/tex">f(E[\mathbf{X}])= f(\frac{a+b}{2})</script> and <script type="math/tex">E[f(\mathbf{X})]=\frac{f(a)+f(b)}{2}</script>. According to the convexity of the function <script type="math/tex">f(\mathbf{X})</script>, we have <script type="math/tex">E[f(\mathbf{X})]\geq f(E[\mathbf{X}])</script>, and the equality holds if and only if <script type="math/tex">a=b</script>, which means <script type="math/tex">E[\mathbf{X}]=\mathbf{X}=a</script>.</p>
+
+<p>Now we have a powerful tool, and we will use it to deduce the EM algorithm.</p>
+
+<p><strong>EM algorithm</strong><br />
+Recall the MLE problem:</p>
+<center>
+	$$
+	\theta_\text{MLE} = \arg \max_{\theta} \sum_{i=1}^{n} \log{p_\theta(\mathbf{x}^{(i)})}
+	$$
+</center>
+<p>If <script type="math/tex">\mathbf{x}</script> is related with a latent variable <script type="math/tex">\mathbf{z}</script>, we write <script type="math/tex">p_\theta</script> as the marginal likelihood of the joint distribution:</p>
+<center>
+	$$
+	p_\theta(\mathbf{x}^{(i)}) = \sum_{z} p_\theta(\mathbf{x}^{(i)}, \mathbf{z})
+	$$
+</center>
+<p>Now our log-likelihood function <script type="math/tex">l(\theta)</script> becomes:</p>
+<center>
+	$$
+	l(\theta) = \sum_{i=1}^{n}\log \sum_{z} p_\theta(\mathbf{x}^{(i)}, \mathbf{z})
+	$$
+</center>
+<p>The expression of the joint distribution is not known to us. To solve this maximization problem we introduce a distribution <script type="math/tex">Q^{(i)}(\mathbf{z})</script>, and rewrite the log-likelihood function as:</p>
+<center>
+	$$
+	\begin{align}
+	l(\theta) &amp;= \sum_{i=1}^{n} \log \sum_{z} Q^{(i)}(z) \frac{p_\theta(\mathbf{x}^{(i)},\mathbf{z}))}{Q^{(i)}(\mathbf{z})}\\
+	&amp;= \sum_{i=1}^{n} \log E_{z\in Q^{(i)}(z)} \left[ \frac{p_\theta(\mathbf{x}^{(i)},\mathbf{z}))}{Q^{(i)}(\mathbf{z})}\right]
+	\end{align}
+	$$
+</center>
+<p>We know that the function <script type="math/tex">f(x)=\log(x)</script> is strictly concave, so according to the Jensen-Shannon inequality, we have the following inequality:</p>
+<center>
+	$$
+	l(\theta) \geq L(\theta, Q^{(i)}) =\sum_{i=1}^{n} E_{z \in Q^{(i)}(z)}\left[ \log{\frac{p_\theta(\mathbf{x}^{(i)},\mathbf{z}))} {Q^{(i)}(\mathbf{z})}} \right]
+	$$
+</center>
+<p>The equality holds if and only if <script type="math/tex">\frac{p_\theta(\mathbf{x}^{(i)},\mathbf{z}))} {Q^{(i)}(\mathbf{z})}</script> is a constant (with respect to variable <script type="math/tex">\mathbf{z}</script>). To achieve this we can set <script type="math/tex">Q^{(i)}(\mathbf{z})= \frac{p_\theta(\mathbf{x}^{(i)},\mathbf{z})}{\sum_{z}p_\theta(\mathbf{x}^{(i)},\mathbf{z})}= \frac{ p_\theta(\mathbf{x}^{(i)},\mathbf{z}) }{p_\theta(\mathbf{x}^{(i)})}= p_\theta(\mathbf{z}\vert \mathbf{x}^{(i)})</script>. This means <script type="math/tex">Q^{(i)}(\mathbf{z})</script> is the posterior of <script type="math/tex">\mathbf{z}</script> given <script type="math/tex">\mathbf{x}^{(i)}</script>.</p>
+
+<p>People may ask: why do we try to find a proper <script type="math/tex">Q^{(i)}(\mathbf{z})</script> to make the equality hold?</p>
+<blockquote>
+  <p>Our initial goal is to find the MLE of $\theta$ w.r.t $l(\theta)$. However, the original expression of $l(\theta)$ is not explicit, so we take advantage of the Jensen-Shannon inequality, by selecting a proper distribution of $Q^{(i)}(\mathbf{z})$, to make $l(\theta)=L(\theta, Q^{(i)})$. Then we can instead maximize $L(\theta, Q^{(i)})$ w.r.t $\theta$ to find the MLE in an iterative way.</p>
+</blockquote>
+
+<p>Now, we can summarize the EM algorithm:</p>
+
+<ol>
+  <li>Heuristically (or randomly) initialize parameters <script type="math/tex">\theta</script></li>
+  <li>Repeat:<br />
+    <ul>
+      <li>Expectation (<strong>E</strong>) step:<br />
+Based on current parameter <script type="math/tex">\theta</script> and <script type="math/tex">\mathbf{x}^{(i)}</script>, set <script type="math/tex">Q^{(i)}(\mathbf{z})=p_\theta(\mathbf{z}\vert \mathbf{x}^{(i)})</script>.</li>
+      <li>Maximization (<strong>M</strong>) step:<br />
+Update <script type="math/tex">\theta \leftarrow \arg \max_{\theta} \sum_{i=1}^{n}\sum_z Q^{(i)}(\mathbf{z}) \log \frac{p_\theta(\mathbf{x}^{(i)}, \mathbf{z})}{Q^{(i)}(\mathbf{z})}</script></li>
+    </ul>
+  </li>
+</ol>
+
+<p><script type="math/tex">\ \ \ \ \ \ \ \</script>Until: <script type="math/tex">\theta</script> converges</p>
+
+<p>In <a href="http://cs229.stanford.edu/notes/">Andrew Ng’s lecture notes</a>, it is proven that can guarantee that <script type="math/tex">l(\theta)</script> is steadily maximized. Suppose that after <script type="math/tex">l-1</script> iterations we have the log-likelihood <script type="math/tex">l(\theta_{l-1})</script>. At the <script type="math/tex">l^\text{th}</script> iteration, after the <strong>E</strong> step, we have <script type="math/tex">L(\theta_{l-1}, Q^{(i)}_l)= l(\theta_{l-1})</script>; After the <strong>M</strong> step, updated <script type="math/tex">\theta_{l}</script> is selected such that <script type="math/tex">L(\theta_l, Q^{(i)}_l)\geq L(\theta_{l-1}, Q^{(i)}_l)</script>. Then at the <script type="math/tex">l+1</script> iteration, by selecting <script type="math/tex">Q^{(i)}_{l+1}</script> as the posterior of <script type="math/tex">\mathbf{z}</script>, we have <script type="math/tex">l(\theta_l)=L(\theta_l, Q^{(i)}_{l+1})</script>. Therefore, we have</p>
+<center>
+	$$
+	l(\theta_l) = L(\theta_l, Q^{(i)}_{l+1}) \geq L(\theta_l, Q^{(i)}_{l}) \geq L(\theta_{l-1}, Q^{(i)}_{l}) = l(\theta_{l-1})
+	$$
+</center>
+<p>So we have <script type="math/tex">l(\theta_{l})\geq l(\theta_{l-1})</script>. This guarantees that the overall log-likelihood can only keep increasing or stay unchanged, but not decrease.</p>
+
+<p>This deduction shows that the EM algorithm is heading to the right direction. However, this direction may not be the ideal one. It is pretty obvious that if <script type="math/tex">l(\theta)</script> is globally concave, EM algorithm  can always converge at the global optimum. If <script type="math/tex">l(\theta)</script> is not globally concave, the property <script type="math/tex">l(\theta_l)\geq l(\theta_{l-1})</script> will guarantee that EM algorithm will converge at some point (assume that <script type="math/tex">l(\theta)</script> is not delta function), but the converge point may not be globally optimum.</p>
+
+<p>Moreover, the EM algorithm is sensitive to the initialization. Different initialization may results in pretty different converge points, as shown in the figure below. 
+<img src="https://nianlonggu.github.io/img/2019-07-07-EM/example-em-init.svg" alt="EM initialization" /> 
+As shown in this figure, if the initialization is at point <script type="math/tex">A</script>, then EM will converge at point <script type="math/tex">C_A</script>, while the EM will converge at point <script type="math/tex">C_B</script> if initialization is <script type="math/tex">B</script>. Obviously <script type="math/tex">C_B</script> is the global optimum and <script type="math/tex">C_A</script> not.</p>
+
+<p>So how to make EM algorithm less sensitive to initialization and be more likely to find the global optimum? One simple, straight-forward but effective way is to randomly initialize the parameters and rum EM algorithm multiple times, and choose the parameters with the largest converged log-likelihood (objective function).</p>
+
+<h2 id="apply-em-algorithm-to-practical-questions">Apply EM algorithm to practical questions</h2>
+<p><strong>Tossing two coins with different heads probability</strong></p>
+
+<p>Let recall the question raised in the first section:</p>
+<blockquote>
+  <p>Suppose we have two coins: A and B. The likelihood of a heads of coin A and B are <script type="math/tex">\theta_A</script> and <script type="math/tex">\theta_B</script> respectively. We want to find the MLE of <script type="math/tex">\theta_A, \theta_B</script> using <script type="math/tex">n</script> observations <script type="math/tex">\{\mathbf{x}^{(i)}\in \{0,1\}^d\},\ i=1,\dots,n</script>. Each observation has <script type="math/tex">d</script> dimension, which means <script type="math/tex">d</script> times of tossing for each observation. The challenging part is that for each observation <script type="math/tex">\mathbf{x}^{(i)}</script>, we don’t know which coin it comes from. In this case how to find the MLE of <script type="math/tex">\theta_A</script> and <script type="math/tex">\theta_B</script>?</p>
+</blockquote>
+
+<p>In this case, <script type="math/tex">\mathbf{x}</script> is related with a hidden variable <script type="math/tex">z</script>. <script type="math/tex">z</script> can only have 2 values: <script type="math/tex">z=A</script> for coin <script type="math/tex">A</script> and <script type="math/tex">z=B</script> for coin <script type="math/tex">B</script>. We want to apply EM algorithm to this case.</p>
+
+<ol>
+  <li>Randomly initialize <script type="math/tex">\theta_{A,0}</script>, <script type="math/tex">\theta_{B,0}</script>, and the prior distribution of <script type="math/tex">z</script> is <script type="math/tex">P(z=A)</script> , <script type="math/tex">P(z=B)</script>.
+    <blockquote>
+      <p>Note that the choice of prior distribution of <script type="math/tex">z</script> will influence the final learned parameters very much. If the chosen prior is pretty different from the real prior, the estimated parameters will be inaccurate. To solve this problem, we can update the prior by setting the prior of current iteration as the posterior of previous iteration, averaged over all observations. This is commonly used when data comes as a sequence.</p>
+    </blockquote>
+  </li>
+  <li>Repeat:<br />
+at the <script type="math/tex">l^\text{th}</script> iteration:
+    <ul>
+      <li><strong>E</strong> step: <br />
+We need to compute the posterior:<center>$$Q^{(i)}_l(z) = P(z|\mathbf{x}^{(i)}; \theta_{l-1}) = \frac{P(\mathbf{x}^{(i)}\vert z; \theta_{l-1}) P(z) }{ P(\mathbf{x}^{(i)}) }$$</center> 
+Here <script type="math/tex">\theta_{l-1}</script> represents the parameter set <script type="math/tex">\{\theta_{A,l-1}, \theta_{B, l-1}\}</script>. 
+Furthermore, we known that <script type="math/tex">P(z=A|\mathbf{x}^{(i)}; \theta_{l-1})+P(z=A|\mathbf{x}^{(i)}; \theta_{l-1})=1</script>. Moreover we have the prior <script type="math/tex">P(z=A)=0.5</script> and <script type="math/tex">P(z=B)=0.5</script>. Therefore, we have<center>$$\begin{align} &amp;  Q^{(i)}_{A,l}= Q^{(i)}_ l(z=A)\\=&amp;\frac{P(\mathbf{x}^{(i)}\vert z=A; \theta_{l-1})P(z=A) }{ P(\mathbf{x}^{(i)}\vert z=A; \theta_{l-1})P(z=A) +P(\mathbf{x}^{(i)}\vert z=B; \theta_{l-1})  P(z=B) }\\
+=&amp;\frac{P(\mathbf{x}^{(i)}\vert z=A; \theta_{l-1})}{ P(\mathbf{x}^{(i)}\vert z=A; \theta_{l-1}) +P(\mathbf{x}^{(i)}\vert z=B; \theta_{l-1})  } \end{align}$$</center> and <center>$$\begin{align} &amp;Q^{(i)}_{B,l}=Q^{(i)}_ l(z=B)\\=&amp;\frac{P(\mathbf{x}^{(i)}\vert z=B; \theta_{l-1}) }{ P(\mathbf{x}^{(i)}\vert z=A; \theta_{l-1}) +P(\mathbf{x}^{(i)}\vert z=B; \theta_{l-1})   }\end{align}$$</center></li>
+      <li><strong>M</strong> step:<br />
+The objective function is <center>$$\begin{align}&amp;L(\theta_{l-1}, Q^{(i)}_l)\\ =&amp; \sum_{i=1}^{n} \sum_z Q^{(i)}_l(z) \log \frac{P(\mathbf{x}^{(i)},z;\theta_{l-1})}{Q^{(i)}_ l(z)}\\ =&amp; \sum_{i=1}^{n}\Big( Q_l^{(i)}(z=A)\log \frac{ P(\mathbf{x}^{(i)}|z=A; \theta_{l-1} )P(z=A) }{Q_l^{(i)}(z=A)  } +\\ &amp;\ \ \ Q_l^{(i)}(z=B)\log \frac{ P(\mathbf{x}^{(i)}|z=B; \theta_{l-1} )P(z=B) }{Q_l^{(i)}(z=B)  }\Big)\\ =&amp; \sum_{i=1}^{n}  \sum_{j=1}^{d}\Big[Q_{A,l}^{(i)}\Big(x_{i,j}\log \theta_{A,l-1} +(1-x_{i,j})\log (1-\theta_{A,l-1})  \Big)+\\ &amp;\ \ \ Q_{B,l}^{(i)}\Big(x_{i,j}\log \theta_{B,l-1} +(1-x_{i,j})\log (1-\theta_{B,l-1})  \Big)\Big]+C     \end{align}$$</center> Where <script type="math/tex">C</script> is a term which is not related with <script type="math/tex">\theta_A</script> or <script type="math/tex">\theta_B</script>. To update <script type="math/tex">\theta</script>, we need to compute the partial derivate ad set them to 0: <center>$$\begin{align} \frac{\partial{L(\theta_{l-1}, Q_l^{(i)})}}{\partial{ \theta_{A,l-1} }}= \frac{\sum_{i=1}^{n}\sum_{j=1}^{d}Q_{A,l}^{(i)}x_{i,j}}{\theta_{A,l-1}} + \frac{\sum_{i=1}^{n}\sum_{j=1}^{d}Q_{A,l}^{(i)}(x_{i,j}-1)}{1-\theta_{A,l-1}} =0 \\ \frac{\partial{L(\theta_{l-1}, Q_l^{(i)})}}{\partial{ \theta_{B,l-1} }}= \frac{\sum_{i=1}^{n}\sum_{j=1}^{d}Q_{B,l}^{(i)}x_{i,j}}{\theta_{B,l-1}} + \frac{\sum_{i=1}^{n}\sum_{j=1}^{d}Q_{B,l}^{(i)}(x_{i,j}-1)}{1-\theta_{B,l-1}} =0  \end{align}$$</center> By solving these two equations, we get the update rule: <center>$$
+\theta_{A,l} = \frac{ \sum_{i}^{n} \sum_{j=1}^d Q_{A,l}^{(i)} x_{i,j} }{ \sum_{i}^{n}Q_{A,l}^{(i)}d}\\
+\theta_{B,l} = \frac{ \sum_{i}^{n} \sum_{j=1}^d Q_{B,l}^{(i)} x_{i,j} }{ \sum_{i}^{n}Q_{B,l}^{(i)}d}
+$$</center></li>
+      <li><strong>Update prior <script type="math/tex">P(z)</script></strong>: 
+<script type="math/tex">P(z=A)=\frac{1}{n}Q_{A,l}^{(i)}</script>, <script type="math/tex">P(z=B)=\frac{1}{n}Q_{B,l}^{(i)}</script></li>
+    </ul>
+  </li>
+</ol>
+
+<p><script type="math/tex">\ \ \ \ \ \ \ \</script>Until <script type="math/tex">\theta_A,\theta_B</script> converges.</p>
+
+<h2 id="implementation-and-analysis">Implementation and Analysis</h2>
+<p>To test the effectiveness of the EM algorithm, I wrote a small demo for the coin tossing problem:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+
+<span class="c1">## Define a tossing function, to generate our observations
+## theta is the head likelihood; num is the number of tossing for a single observation
+</span><span class="k">def</span> <span class="nf">tossing</span><span class="p">(</span> <span class="n">theta</span><span class="p">,</span> <span class="n">num</span> <span class="p">):</span>
+	<span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">num</span><span class="p">)</span><span class="o">&lt;</span><span class="n">theta</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+
+<span class="c1">## the load data is used to generate a set of observations
+## prior_coin_A is the prior of the hidden variable z;
+## theta_A, theta_B is heads probability of coin A and B separately. 
+## this method return a dataset X, without any explicit information about  prior_coin_A, theta_A, theta_B
+</span><span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span>  <span class="n">num_samples</span><span class="p">,</span> <span class="n">prior_coin_A</span> <span class="o">=</span> <span class="mf">0.8</span> <span class="p">,</span> <span class="n">theta_A</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">theta_B</span> <span class="o">=</span> <span class="mf">0.7</span><span class="p">,</span> <span class="n">num_tossing_per_sample</span> <span class="o">=</span> <span class="mi">5</span> <span class="p">):</span>
+	<span class="n">X</span><span class="o">=</span><span class="p">[]</span>
+	<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_samples</span><span class="p">):</span>
+		<span class="n">random_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">()</span>
+		<span class="k">if</span> <span class="n">random_v</span> <span class="o">&lt;</span> <span class="n">prior_coin_A</span><span class="p">:</span>
+			<span class="c1">##generate a tossing observation using coin A
+</span>			<span class="n">X</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">tossing</span><span class="p">(</span> <span class="n">theta_A</span><span class="p">,</span> <span class="n">num_tossing_per_sample</span><span class="p">)</span> <span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="c1">##generate a tossing observation using coin B
+</span>			<span class="n">X</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">tossing</span><span class="p">(</span> <span class="n">theta_B</span><span class="p">,</span> <span class="n">num_tossing_per_sample</span> <span class="p">)</span> <span class="p">)</span>
+
+	<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">X</span>
+
+<span class="c1">## The task of EM is to found the MLE of theta_A, theta_B using only obtained observations X
+</span><span class="k">def</span> <span class="nf">EM</span><span class="p">(</span> <span class="n">X</span><span class="p">,</span> <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span> <span class="n">update_prior</span> <span class="o">=</span> <span class="bp">True</span> <span class="p">,</span> <span class="n">is_return_prior_list</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+	<span class="c1">## initialization
+</span>	<span class="n">prior_coin_A</span> <span class="o">=</span> <span class="mf">0.5</span>
+	<span class="n">prior_coin_B</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span> <span class="n">prior_coin_A</span>
+	<span class="n">theta_A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">()</span>
+	<span class="n">theta_B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">()</span>
+	<span class="n">prior_coin_A_list</span><span class="o">=</span><span class="p">[</span><span class="n">prior_coin_A</span><span class="p">]</span>
+	<span class="n">prev_theta_A</span> <span class="o">=</span> <span class="n">theta_A</span>
+	<span class="n">prev_theta_B</span> <span class="o">=</span> <span class="n">theta_B</span>
+	<span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+	<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+		<span class="c1">## E step:		
+</span>		<span class="n">P_X_with_z_eq_A</span> <span class="o">=</span> <span class="n">theta_A</span><span class="o">**</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="p">)</span><span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">theta_A</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span> <span class="mi">1</span><span class="o">-</span><span class="n">X</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span> <span class="p">))</span>
+		<span class="n">P_X_with_z_eq_B</span> <span class="o">=</span> <span class="n">theta_B</span><span class="o">**</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="p">)</span><span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">theta_B</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span> <span class="mi">1</span><span class="o">-</span><span class="n">X</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span> <span class="p">))</span>
+		<span class="n">Q_A</span> <span class="o">=</span> <span class="n">P_X_with_z_eq_A</span><span class="o">*</span><span class="n">prior_coin_A</span><span class="o">/</span><span class="p">(</span><span class="n">P_X_with_z_eq_A</span><span class="o">*</span><span class="n">prior_coin_A</span><span class="o">+</span><span class="n">P_X_with_z_eq_B</span><span class="o">*</span><span class="n">prior_coin_B</span><span class="p">)</span>
+		<span class="n">Q_B</span> <span class="o">=</span> <span class="n">P_X_with_z_eq_B</span><span class="o">*</span><span class="n">prior_coin_B</span><span class="o">/</span><span class="p">(</span><span class="n">P_X_with_z_eq_A</span><span class="o">*</span><span class="n">prior_coin_A</span><span class="o">+</span><span class="n">P_X_with_z_eq_B</span><span class="o">*</span><span class="n">prior_coin_B</span><span class="p">)</span>
+		<span class="c1">## M step:
+</span>		<span class="n">theta_A</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span> <span class="n">Q_A</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">Q_A</span><span class="p">)</span>
+		<span class="n">theta_B</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span> <span class="n">Q_B</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">Q_B</span><span class="p">)</span>
+		<span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">theta_A</span><span class="o">-</span> <span class="n">prev_theta_A</span><span class="p">)</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="n">theta_B</span><span class="o">-</span> <span class="n">prev_theta_B</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">epsilon</span><span class="p">:</span>
+			<span class="k">break</span>
+		<span class="n">prev_theta_A</span> <span class="o">=</span> <span class="n">theta_A</span>
+		<span class="n">prev_theta_B</span> <span class="o">=</span> <span class="n">theta_B</span>
+		<span class="c1">## update prior
+</span>		<span class="k">if</span> <span class="n">update_prior</span><span class="p">:</span>
+			<span class="n">prior_coin_A</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">Q_A</span><span class="p">)</span>
+			<span class="n">prior_coin_B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">Q_B</span><span class="p">)</span>
+		<span class="n">prior_coin_A_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prior_coin_A</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">is_return_prior_list</span><span class="p">:</span>
+		<span class="k">return</span> <span class="n">theta_A</span><span class="p">,</span> <span class="n">theta_B</span><span class="p">,</span> <span class="p">{</span><span class="s">"prior_coin_A_list"</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">prior_coin_A_list</span><span class="p">),</span><span class="s">"prior_coin_B_list"</span><span class="p">:</span><span class="mi">1</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">prior_coin_A_list</span><span class="p">)}</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="k">return</span> <span class="n">theta_A</span><span class="p">,</span> <span class="n">theta_B</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>First, let’s load the coin tossing data.
+The true prior distribution of $z$ is $P(z=A)=0.8$ and $P(z=B)=0.2$. For coin A, the true heads probability is 0.2; for coin B, the true heads probability is 0.7. For each observation, there are 10 tossing results.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="n">true_prior_coin_A</span> <span class="o">=</span> <span class="mf">0.7</span>
+<span class="n">true_theta_A</span> <span class="o">=</span> <span class="mf">0.2</span>
+<span class="n">true_theta_B</span> <span class="o">=</span> <span class="mf">0.7</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="n">prior_coin_A</span> <span class="o">=</span> <span class="n">true_prior_coin_A</span> <span class="p">,</span> <span class="n">theta_A</span><span class="o">=</span><span class="n">true_theta_A</span> <span class="p">,</span> <span class="n">theta_B</span> <span class="o">=</span> <span class="n">true_theta_B</span><span class="p">,</span> <span class="n">num_tossing_per_sample</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>We can have a look at the loaded data (the first 10 observations)</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="k">print</span><span class="p">(</span><span class="n">X</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre>[[0 1 1 1 1 1 1 1 1 0]
+ [1 1 1 1 1 1 1 1 0 1]
+ [0 1 1 0 1 1 1 1 1 1]
+ [0 0 0 0 0 0 0 0 0 1]
+ [0 0 0 1 0 1 0 0 0 0]
+ [0 0 0 1 1 0 0 1 1 1]
+ [0 0 0 0 0 0 0 0 1 0]
+ [0 1 0 0 1 0 0 1 1 1]
+ [1 1 0 1 0 1 0 0 0 1]
+ [0 0 0 0 0 0 0 1 0 1]]
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="the-influence-of-whether-dynamically-updating-the-prior-or-not">The influence of whether dynamically updating the prior or not</h3>
+
+<p><strong>EM algorithm with dynamically updated prior distribution of $z$</strong></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="n">estimated_theta_A</span><span class="p">,</span><span class="n">estimated_theta_B</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="n">EM</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">update_prior</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">is_return_prior_list</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="c1">## This problem is (strictly) concave, 
+</span><span class="k">print</span><span class="p">(</span><span class="s">"Estimated theta_A: </span><span class="si">%.4</span><span class="s">f, Estimated theta_B: </span><span class="si">%.4</span><span class="s">f"</span><span class="o">%</span><span class="p">(</span> <span class="n">estimated_theta_A</span><span class="p">,</span> <span class="n">estimated_theta_B</span><span class="p">))</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>Estimated theta_A: 0.1923, Estimated theta_B: 0.7053
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Wow, the estimated theta_A is almost equal to the true theta_A (0.2), and the same holds for estimated theta_B. Note that the EM output may sometimes be “Estimated theta_A: 0.7, Estimated theta_B: 0.2”. This is OK because EM doesn’t know estimated theta_A is corresponding to coin A literally. It only knows that there are two coins, one with heads prob 0.7 and another on with 0.2.</p>
+
+<p><strong>EM algorithm with fixed prior distribution of $z$</strong>: $P(z=A)=0.5$ and $P(z=B)=0.5$.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="n">estimated_theta_A</span><span class="p">,</span><span class="n">estimated_theta_B</span> <span class="o">=</span> <span class="n">EM</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">update_prior</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Estimated theta_A: </span><span class="si">%.4</span><span class="s">f, Estimated theta_B: </span><span class="si">%.4</span><span class="s">f"</span><span class="o">%</span><span class="p">(</span> <span class="n">estimated_theta_A</span><span class="p">,</span> <span class="n">estimated_theta_B</span><span class="p">))</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>Estimated theta_A: 0.6621, Estimated theta_B: 0.1762
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>From this result it’s obvious that if we use a fixed prior distribution of $z$ which is pretty different from the true prior, the final estimate of model parameters will be less accurate.</p>
+
+<p>In fact, if we choose to dynamically update prior we check how the prior distribution changes, we will see the prior distribution will gradually approach the true prior. This can be shown by plotting the prior_coin_A_list variable:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span> <span class="n">params</span><span class="p">[</span><span class="s">"prior_coin_A_list"</span><span class="p">]</span> <span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span> <span class="n">params</span><span class="p">[</span><span class="s">"prior_coin_A_list"</span><span class="p">])</span><span class="o">*</span><span class="n">true_prior_coin_A</span> <span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s">"dynamically updated prior"</span><span class="p">,</span><span class="s">"true prior"</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"$p(z=A)$"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"iteration"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="https://nianlonggu.github.io/img/2019-07-07-EM/coin-tossing_11_0.png" alt="dynamically update prior" /></p>
+
+<p>We can see that the prior gradually approachs the true prior as we expected. However, we also notice that there always exists some gap. This might be analytically explained. I will try to think about this in the future.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<ol>
+  <li>EM algorithm does work on this example.</li>
+  <li>To better estimate the parameters, it’s advisable to dynamically update the prior distribution of the hidden variables.</li>
+</ol>
+:ET

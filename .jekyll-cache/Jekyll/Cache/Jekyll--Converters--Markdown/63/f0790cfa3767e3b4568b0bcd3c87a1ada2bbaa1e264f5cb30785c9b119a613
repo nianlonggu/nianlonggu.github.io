@@ -1,0 +1,241 @@
+I"�B<p>Recall the Kernel SVM dual problem:</p>
+
+<p><strong>Dual Problem</strong></p>
+<center>
+	$$
+	\max_{\lambda, \mu} L(\lambda)= \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j K_{i,j} \\
+	\begin{align}
+		s.t.\ &amp; 0 \leq \lambda_i \leq C \\
+		 &amp;\sum_{i=1}^{n} \lambda_i y_i =0
+	\end{align}
+	$$
+</center>
+
+<p>We have introduced using gradient descent algorithm to solve the dual problem. However, the computation of the gradient has a high time complexity and thus would be a challenge for memory, especially when the training dataset is large. In this post, I introduce an efficient and light-version algorithm to solve the dual problem: Sequential Minimal Optimization (SMO)</p>
+
+<h2 id="sequential-minimal-optimization-smo">Sequential Minimal Optimization (SMO)</h2>
+<p>The algorithm of SMO is:</p>
+<blockquote>
+
+  <p>Initialization: let <script type="math/tex">\{\lambda_i\}, i=1,\dots,n</script> be a set which satisfies the dual constraint.<br />
+Repeat:<br />
+<script type="math/tex">\ \ \ \</script>(1) heuristically select two <script type="math/tex">\lambda_a, \lambda_b</script>, and set all the other <script type="math/tex">\lambda_i (i\neq a,b)</script> fixed;<br />
+<script type="math/tex">\ \ \ \</script>(2) optimize <script type="math/tex">L(\lambda)</script> with respect to <script type="math/tex">\lambda_a, \lambda_b</script>;<br />
+Until: KKT condition is satisfied with certain accuracy.</p>
+</blockquote>
+
+<p>First question about the initialization: how to find a set <script type="math/tex">\{\lambda_i\}</script> which satisfies the dual constraints? <br />
+The answer is simply set <script type="math/tex">\lambda_i=0</script> for <script type="math/tex">i=0,\dots,n</script>.</p>
+
+<p>Suppose that we have finished the initialization, and pick up a pair <script type="math/tex">\lambda_a, \lambda_b</script> to optimize while keeping <script type="math/tex">\lambda_i (i\neq a,b)</script> fixed, then we have</p>
+<center>
+	$$
+	\begin{align}
+	L(\lambda) =&amp; \lambda_a + \lambda_b -\frac{1}{2} \lambda_a^2 K_{a,a} - \frac{1}{2} \lambda_b^2 K_{b,b} - \lambda_a \lambda_b y_a y_b K_{a,b} \\
+	&amp; -  \sum_{i\neq a,b} \lambda_a \lambda_i y_a y_i K_{a,i} -  \sum_{i \neq a,b} \lambda_b \lambda_i y_b y_i K_{b,i} + Const
+	\end{align}
+	$$
+</center>
+<p>Moreover, according to the dual constraints, we have</p>
+<center>
+$$
+	\lambda_a y_a + \lambda_b y_b = -\sum_{i\neq a,b} \lambda_i y_i = - \xi\\
+	\lambda_b y_b = -\lambda_a y_a -\xi\\
+	\lambda_b = -\lambda_a y_a y_b -\xi y_b
+$$	
+</center>
+<p>So we have</p>
+<center>
+	$$
+	\begin{align}
+	L(\lambda) =&amp; \lambda_a -\lambda_a y_a y_b - \xi y_b - \frac{1}{2}\lambda_a^2 K_{a,a} -\frac{1}{2}(\lambda_a y_a + \xi)^2 K_{b,b} \\
+	&amp; + \lambda_a y_a ( \lambda_a y_a + \xi ) K_{a,b} - \sum_{i\neq a,b} \lambda_a y_a \lambda_i y_i K_{a,i}\\
+	&amp; + \sum_{i\neq a,b}(\lambda_a y_a + \xi)\lambda_i y_i K_{b,i} + Const
+	\end{align}
+	$$
+</center>
+<p><script type="math/tex">L(\lambda)</script> is concave with respect to <script type="math/tex">\lambda_a</script>, since <script type="math/tex">\frac{\partial^2{L}}{\partial{\lambda_a^2}}= -( K_{a,a} + K_{b,b} - 2K_{a,b} )=-(e_a - e_b)^T \mathbf{K} (e_a - e_b) \leq 0</script> due to the fact that the kernel matrix <script type="math/tex">\mathbf{K}</script> is nonnegative definite (see last post <a href="http://nianlonggu.github.io/2019/06/27/tutorial-on-SVM/">An Introduction to Support Vector Machines (SVM): kernel functions</a> ). Therefore, we can find the optimal value of <script type="math/tex">\lambda_a</script> which maximizes <script type="math/tex">L(\lambda)</script> by computing the gradient and set it to 0.</p>
+<center>
+	$$
+	\begin{align}
+	\frac{\partial{L(\lambda)}}{\partial{\lambda_a}} =&amp; 1 - y_a y_b -\lambda_a K_{a,a} - (\lambda_a y_a +\xi)y_a K_{b,b} + 2\lambda_a K_{a,b} \\
+	&amp;+ y_a \xi K_{a,b} - \sum_{i\neq a,b} y_a \lambda_i y_i K_{a,i} + \sum_{i \neq a,b}y_a \lambda_i y_i K_{b,i}\\
+	=&amp; 0
+	\end{align}
+	$$
+</center>
+<p>By solving this equation, we will get the solution for <script type="math/tex">\lambda_a^\star</script>:</p>
+<center>
+	$$
+	\lambda_a^{\text{new}} = \frac{ 1-y_a y_b - \xi y_a K_{b,b} + y_a \xi K_{a,b} - \sum_{i \neq a,b} y_a \lambda_i y_i K_{a,i} +\sum_{i\neq a,b}y_a \lambda_i y_i K_{b,i} }{ K_{a,a} + K_{b,b} -2K_{a,b} }
+	$$
+</center>
+<p>It is too complicated to compute the numerator since there are too many terms. In the next, we will show that we can actually compute <script type="math/tex">\lambda_a^\text{new}, \lambda_b^\text{new}</script> from the old <script type="math/tex">\lambda_a^\text{old}, \lambda_b^\text{old}</script>.</p>
+
+<p>Before updating the value of <script type="math/tex">\lambda_a, \lambda_b</script>, we first use the old version <script type="math/tex">\lambda</script> to perform the classification on data <script type="math/tex">\mathbf{x}_ a, \mathbf{x}_ b</script>:</p>
+<center>
+	$$
+	\begin{align}
+	\hat{y}_a &amp;= \sum_{i\neq a,b}\lambda_i y_i K_{i,a} + \lambda_a^\text{old} y_a K_{a,a} + \lambda_b^\text{old} y_b K_{b,a}\\
+	\hat{y}_b &amp;= \sum_{i\neq a,b}\lambda_i y_i K_{i,b} + \lambda_a^\text{old} y_a K_{a,b} + \lambda_b^\text{old} y_b K_{b,b}\\
+	\end{align}
+	$$
+</center>
+<p>Base on the expressions of <script type="math/tex">\hat{y}_a, \hat{y}_b</script>, we can have the following equation:</p>
+<center>
+	$$
+	\begin{align}
+	&amp;y_a[ (\hat{y}_b - y_b) - (\hat{y}_a - y_a)  ]\\
+	= &amp; \sum_{i\neq a,b}y_a \lambda_i y_i K_{i,b} + \lambda_a^\text{old} K_{a,b} + \lambda_b^\text{old} y_a y_b K_{b,b} + y_a b^\text{old} - y_a y_b \\
+	\ &amp; - \sum_{i \neq a,b}y_a \lambda_i y_i K_{i,a} - \lambda_a^\text{old}K_{a,a} - \lambda_b^\text{old} y_a y_b K_{b,a} - y_a b^\text{old} +1\\
+	=&amp;  \sum_{i\neq a,b} y_a \lambda_i y_i K_{i,b} + \lambda_a^\text{old} K_{a,b} - \xi y_a K_{b,b}    - \lambda_a^\text{old} K_{b,b}- y_a y_b \\
+	\ &amp; - \sum_{i \neq a,b}y_a \lambda_i y_i K_{i,a} - \lambda_a^\text{old}K_{a,a}  + \lambda_a^\text{old} K_{a,b} + \xi y_a K_{a,b}   +1 \\
+	=&amp; 1- y_a y_b - \xi y_a K_{b,b} + \xi y_a K_{a,b} - \sum_{i \neq a,b}y_a \lambda_i y_i K_{i,a} +\sum_{i\neq a,b} y_a \lambda_i y_i K_{i,b}\\
+	\ &amp; -\lambda_a^\text{old}( K_{a,a} + K_{b,b} - 2K_{a,b} )\\
+	= &amp; \lambda_a^{\text{new}}(K_{a,a} + K_{b,b} -2K_{a,b})-\lambda_a^\text{old}( K_{a,a} + K_{b,b} - 2K_{a,b} )
+	\end{align}
+	$$
+</center>
+<p>We denote prediction error <script type="math/tex">E_i= \hat{y}_i - y_i</script>, then we have the expression of <script type="math/tex">\lambda_a^\text{new}</script>:</p>
+<center>
+	$$
+	\lambda_a^\text{new} = \lambda_a^\text{old} + \frac{y_a(E_b - E_a)}{K_{a,a} +K_{b,b} - 2K_{a,b}  }
+	$$
+</center>
+
+<blockquote>
+  <p>Discussion: What if <script type="math/tex">K_{a,a} +K_{b,b} - 2K_{a,b}=0</script>? In this case <script type="math/tex">L(\lambda)</script> is a first degree function, it’s still concave, but in this case the definition of <script type="math/tex">\lambda_a^\text{new}</script> is no longer meaningful, so we just simply select another pair <script type="math/tex">(\lambda_a, \lambda_b)</script> and do the computation above.</p>
+</blockquote>
+
+<p>Note that the expression of the <script type="math/tex">\lambda_a^\text{new}</script> is not clipped, so for simplicity we name it as <script type="math/tex">\lambda_a^\text{new, unclipped}</script>. It is inadequate to only compute the <script type="math/tex">\lambda_a^\text{new, unclipped}</script>. We need to further clip it based on the meaningful domain determined by the dual constraints. According to the dual constraints, each <script type="math/tex">\lambda_i</script> actually has a box constraint. So we have:</p>
+<center>
+	$$
+	0\leq \lambda_a \leq C\\
+	0\leq \lambda_b \leq C\\
+	\lambda_b = -\lambda_a y_a y_b - \xi y_b
+	$$
+</center>
+<p>We know that <script type="math/tex">y_i \in \{-1, +1\}</script>. Based on whether <script type="math/tex">y_a = y_b</script> or not, we can have the relationship between <script type="math/tex">\lambda_a</script> and <script type="math/tex">\lambda_b</script> with box constraints, shown in the figure below.</p>
+
+<p><a name="lambda_ab"></a>
+<img src="https://nianlonggu.github.io/img/2019-06-28-SVM/lambda_ab.svg" />
+<em><center>Relationship between $\lambda_a$ and $\lambda_b$ with box constraints.</center></em></p>
+
+<p>According to the figure, we can get the lower bound <script type="math/tex">L</script> and higher bound <script type="math/tex">H</script> for a meaningful solution of a new <script type="math/tex">\lambda_a</script>:</p>
+<ol>
+  <li>if <script type="math/tex">y_a \neq y_b</script>:<center>
+ $$
+ L = \max(\xi y_b, 0)\\
+ H = \min(C+\xi y_b, C )
+ $$</center></li>
+  <li>if <script type="math/tex">y_a = y_b</script>:<center>
+ $$
+ L = \max(0, -C-\xi y_b)\\
+ H = \min(C, -\xi y_b)
+ $$</center>
+Based on <script type="math/tex">L</script> and <script type="math/tex">H</script>, we can get the clipped new <script type="math/tex">\lambda_a</script>:</li>
+</ol>
+<center>
+	$$ \lambda_a^\text{new, clipped} = \begin{cases} 
+		L, &amp;\ \text{if}\ \lambda_a^\text{new, unclipped} &lt; L \\
+		H, &amp;\ \text{if}\ \lambda_a^\text{new, unclipped} &gt; H \\
+		\lambda_a^\text{new, unclipped}, &amp;\ \text{otherwise}
+	\end{cases} $$
+</center>
+<p>This <script type="math/tex">\lambda_a^\text{new, clipped}</script> is the final meaningful new value of <script type="math/tex">\lambda_a</script>. For simplicity, in the following we use <script type="math/tex">\lambda_a^\text{new}</script> to refer <script type="math/tex">\lambda_a^\text{new, clipped}</script>.</p>
+
+<p>After getting <script type="math/tex">\lambda_a^\text{new}</script>, we need to compute <script type="math/tex">\lambda_b^\text{new}</script>:</p>
+<center>
+	$$
+	\lambda_b^\text{new} = -\lambda_a^\text{new} y_a y_b - \xi y_b
+	$$
+</center>
+
+<p>Now, we need to decide whether to update the value of <script type="math/tex">b^\star</script>. If <script type="math/tex">% <![CDATA[
+0<\lambda_a^\text{new}<C %]]></script>, then <script type="math/tex">\mathbf{x}_ a</script> is the support vector which is exactly located at the margin. Therefore, we can update <script type="math/tex">b^\text{new}</script> as:</p>
+<center>
+	$$
+	\begin{align}
+	b^\text{new} &amp;= y_a -\sum_{i\neq a,b} \lambda_i y_i K_{i,a} - \lambda_a^\text{new} y_a K_{a,a} - \lambda_b^\text{new} y_b K_{b,a}\\
+		   &amp;= b^\text{old} - ( \sum_{i}\lambda_i y_i K_{i,a} + b^\text{old} - y_a ) \\
+		   &amp;\ \ \ + (\lambda_a^\text{old}-\lambda_a^\text{new})y_a K_{a,a} +(\lambda_b^\text{old}-\lambda_b^\text{new}) y_b K_{b,a} \\
+		   &amp;= b^\text{old} - E_a + (\lambda_a^\text{old}-\lambda_a^\text{new})y_a K_{a,a} +(\lambda_b^\text{old}-\lambda_b^\text{new}) y_b K_{b,a} 
+	\end{align}
+	$$
+</center>
+
+<p>Otherwise, if <script type="math/tex">% <![CDATA[
+0<\lambda_b^\text{new}<C %]]></script>, we can update <script type="math/tex">b^\text{new}</script> as:</p>
+<center>
+	$$
+	b^\text{new} = b^\text{old} - E_b + ( \lambda_a^\text{old} - \lambda_a^\text{new} )y_a K_{a,b} +( \lambda_b^\text{old} - \lambda_b^\text{old} ) y_b K_{b,b}
+	$$
+</center>
+
+<p>Note that if neither <script type="math/tex">% <![CDATA[
+0<\lambda_a^\text{new}<C %]]></script> nor <script type="math/tex">% <![CDATA[
+0<\lambda_b^\text{new}<C %]]></script>, here we choose not to update <script type="math/tex">b</script>.</p>
+
+<p><strong>Now, we have finished one single iteration in SMO.</strong></p>
+
+<p>Before we summarize the algorithm of SMO, there are some updates that can improve the computation efficiency.</p>
+<ol>
+  <li>Computation of <script type="math/tex">\xi</script>:
+In the deduction above, we can see <script type="math/tex">\xi</script> is used in computing <script type="math/tex">L,\ H</script> and <script type="math/tex">\lambda_b^\text{new}</script>. If we compute <script type="math/tex">\xi</script> using <script type="math/tex">\xi = \sum_{i\neq a,b}\lambda_i y_i</script>, it will be time consuming. Instead, we can use the equation <center>$$ \xi = -\lambda_a^\text{old} y_a - \lambda_b^\text{old} y_b $$</center>By substituting the expression of <script type="math/tex">\xi</script> into the expression of <script type="math/tex">\lambda_b^\text{new}</script>, we have:</li>
+</ol>
+<center>
+	$$
+	\lambda_b^\text{new} = \lambda_b^\text{old} + ( \lambda_a^\text{old} - \lambda_a^\text{new}) y_a y_b
+	$$
+</center>
+
+<h2 id="sequential-minimal-optimization-algorithm">Sequential Minimal Optimization Algorithm</h2>
+<p>According to the deduction above, we can have the pseudo algorithm of the SMO.</p>
+<blockquote>
+  <p><strong>Initialization:</strong> <script type="math/tex">\lambda_i=0</script> for <script type="math/tex">i=1,\dots,n</script>, <script type="math/tex">b=0</script>, and pre-calculation of the Kernel matrix <script type="math/tex">\mathbf{K}</script> <br />
+<strong>Repeat:</strong><br />
+<script type="math/tex">\ \ \ \ \ \ \</script>heuristically (or randomly) select a pair <script type="math/tex">\lambda_a^\text{old}\leftarrow \lambda_a,\ \lambda_b^\text{old}\leftarrow \lambda_b</script>;<br />
+<br />
+<script type="math/tex">\ \ \ \ \ \ \</script><strong>if</strong> <script type="math/tex">K_{a,a}+K_{b,b}-2K_{a,b}==0</script>:<br />
+<script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">\ \ \ \ \ \ \</script><strong>continue</strong><br />
+<br />
+<script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">E_a = \sum_{i} \lambda_i y_i K_{i,a}+ b^\text{old} - y_a</script> <br />
+<script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">E_b = \sum_{i}\lambda_i y_i K_{i,b}+ b^\text{old} - y_b</script> <br />
+<script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">\lambda_a^\text{new, unclipped} = \lambda_a^\text{old} + \frac{ y_a (E_b - E_a)}{ K_{a,a} + K_{b,b} -2K_{a,b} }</script><br />
+<script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">\xi = -\lambda_a^\text{old} y_a - \lambda_b^\text{old} y_b</script><br />
+<br />
+<script type="math/tex">\ \ \ \ \ \ \</script><strong>if</strong> <script type="math/tex">y_a \neq y_b</script>:<br />
+<script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">L= \max( \xi y_b,0 ),\ H=\min(C+\xi y_b,C)</script><br />
+<script type="math/tex">\ \ \ \ \ \ \</script><strong>else</strong>:<br />
+<script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">L= \max( 0, -C-\xi y_b ),\ H=\min(C, -\xi y_b)</script><br />
+<br />
+<script type="math/tex">\ \ \ \ \ \ \</script><strong>if</strong> <script type="math/tex">% <![CDATA[
+\lambda_a^\text{new, unclipped} < L %]]></script>:<br />
+<script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">\lambda_a^\text{new} = L</script><br />
+<script type="math/tex">\ \ \ \ \ \ \</script><strong>else if</strong> <script type="math/tex">\lambda_a^\text{new, unclipped} > H</script>:<br />
+<script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">\lambda_a^\text{new} = H</script><br />
+<script type="math/tex">\ \ \ \ \ \ \</script><strong>else</strong>:<br />
+<script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">\lambda_a^\text{new} = \lambda_a^\text{new, unclipped}</script><br />
+<br />
+<script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">\lambda_b^\text{new}=\lambda_b^\text{old}+(\lambda_a^\text{old}-\lambda_a^\text{new})y_a y_b</script><br />
+<script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">\lambda_a\leftarrow \lambda_a^\text{new},\ \lambda_b\leftarrow \lambda_b^\text{new}</script><br />
+<br />
+<script type="math/tex">\ \ \ \ \ \ \</script><strong>if</strong> <script type="math/tex">% <![CDATA[
+0<\lambda_a^\text{new}<C %]]></script>:<br />
+<script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">b^\text{new}=b^\text{old}-E_a +(\lambda_a^\text{old}-\lambda_a^\text{new})y_a K_{a,a}+(\lambda_b^\text{old}-\lambda_b^\text{new})y_b K_{b,a}</script><br />
+<script type="math/tex">\ \ \ \ \ \ \</script><strong>else if</strong> <script type="math/tex">% <![CDATA[
+0<\lambda_b^\text{new}<C %]]></script>:<br />
+<script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">\ \ \ \ \ \ \</script><script type="math/tex">b^\text{new}=b^\text{old}-E_b +(\lambda_a^\text{old}-\lambda_a^\text{new})y_a K_{a,b}+(\lambda_b^\text{old}-\lambda_b^\text{new})y_b K_{b,b}</script><br />
+<br />
+<strong>Until</strong>: Maximum iteration reached, or the dual objective function <script type="math/tex">L(\lambda)</script> is not further maximized with a certain accuracy.</p>
+</blockquote>
+
+<p>Cool, isn’t it? Now We are able to solve the dual problem using the SMO algorithm!</p>
+
+<blockquote>
+  <p>Ref:</p>
+  <ol>
+    <li><a href="https://zhuanlan.zhihu.com/p/29212107">机器学习算法实践-SVM中的SMO算法- 知乎</a></li>
+  </ol>
+</blockquote>
+:ET

@@ -415,7 +415,7 @@ plt.show()
 ```
 
 
-![png](https://nianlonggu.github.io/img/2019-07-10-EM//EM_24_0.png)
+![png](https://nianlonggu.github.io/img/2019-07-10-EM/EM_24_0.png)
 
 
 From this figure we can see the real clusters are actually non-convex, since there is a sine-shape gap between two real clusters. However, the GMM clustering resluts always provide convex clutsers. For example, either the blue points set or the red points set is convex. This is determined by the fact that Gaussian distribution has convex shape.

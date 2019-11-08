@@ -1,0 +1,130 @@
+I"!<p>Recall of the Slack SVM dual problem:<br /></p>
+
+<p><strong>Dual Problem</strong></p>
+<center>
+	$$
+	\max_{\lambda, \mu} \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \mathbf{x}_i^T\mathbf{x}_j\\
+	\begin{align}
+		s.t.\ &amp; 0 \leq \lambda_i \leq C \\
+		 &amp;\sum_{i=1}^{n} \lambda_i y_i =0
+	\end{align}
+	$$
+</center>
+
+<p>Suppose that we have solved the dual problem and get the dual optimum. Let <script type="math/tex">% <![CDATA[
+S_w=\{ i \vert 0<\lambda_i^\star \leq C \} %]]></script> represent the support set related with <script type="math/tex">\mathbf{w}</script>; <script type="math/tex">% <![CDATA[
+S_b=\{ i \vert 0<\lambda_i^\star < C \} %]]></script> represent the support set related with <script type="math/tex">b</script>. Meanwhile, we define <script type="math/tex">S_b^+ =\{ i \vert i\in S_b \  \text{and}\ y_i = +1 \}</script> and <script type="math/tex">S_b^-=\{ i \vert i\in S_b\ \text{and}\ y_i = -1 \}</script>. Then we can compute the primal optimum:</p>
+<center>
+	$$
+	\mathbf{w}^\star = \sum_{i\in S_w}\lambda_i^\star y_i \mathbf{x}_i\\
+	b^\star= y_j - {\mathbf{w}^\star}^T\mathbf{x}_j = y_j - \sum_{i\in S_w}\lambda_i^\star y_i \mathbf{x}_i^T \mathbf{x}_j \ , \ j\in S_b\\
+	$$
+</center>
+<p>Given a new point <script type="math/tex">\mathbf{x}</script>, we can perform classification by computing:</p>
+<center>
+	$$
+	\begin{align}
+	\hat{y} &amp;= {\mathbf{w}^\star}^T \mathbf{x} + b^\star\\
+			&amp;=\sum_{i\in S_w} \lambda^\star_i y_i \mathbf{x}_i^T \mathbf{x} + b^\star\\
+	\end{align}
+	$$
+</center>
+
+<p>According to the formulas above, we notice that in the dual problem, computation of <script type="math/tex">\mathbf{w}^\star</script> and classification of new points, <script type="math/tex">\mathbf{x}_ i^T\mathbf{x}_ j</script> always appears as a whole.</p>
+
+<h2 id="svm-with-kernel-functions">SVM with kernel functions</h2>
+<p><strong>Mapping points to a higher dimensional space</strong></p>
+
+<p>In some cases, if the points is not linearly separable in current space, they are possibly linearly separable if we map them into the higher dimension.</p>
+
+<p><a name="2d-3d-mapping"></a>
+<img src="https://nianlonggu.github.io/img/2019-06-27-SVM/2d-3d-mapping.svg" width="400" hegiht="203" />
+<em><center>Mapping points from 2d to 3d to make them linearly separable.</center></em></p>
+
+<p>We define <script type="math/tex">\phi(\mathbf{x}): R^p \rightarrow R^d\ ,\ d>p</script> as a mapping function which maps low dimensional data to a high dimensional data. We can first map our data <script type="math/tex">\mathbf{x}_ i \rightarrow \phi(\mathbf{x}_ i)</script>, then solve the dual problem:</p>
+<center>
+	$$
+	\max_{\lambda, \mu} \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j \phi(\mathbf{x}_i)^T \phi(\mathbf{x}_j)\\
+	\begin{align}
+		s.t.\ &amp; 0 \leq \lambda_i \leq C \\
+		 &amp;\sum_{i=1}^{n} \lambda_i y_i =0
+	\end{align}
+	$$
+</center>
+
+<p>We notice that in the dual problem, computing <script type="math/tex">\mathbf{w}^\star</script> and performing classification, <script type="math/tex">\phi(\mathbf{x}_ i)^T\phi(\mathbf{x}_ j)</script> always appears as a whole. Therefore, we can avoid computing the exact form of <script type="math/tex">\phi(\mathbf{x})</script>, but instead directly explore the function for the inner product of two mapped points <script type="math/tex">K: R^p \times R^p \rightarrow R</script>:</p>
+<center>
+	$$
+	K_{i,j}=K(\mathbf{x}_i, \mathbf{x}_j)=&lt;\phi(\mathbf{x}_i), \phi(\mathbf{x}_j)&gt; 
+	$$
+</center>
+<p>We call <script type="math/tex">K(\mathbf{x}_i, \mathbf{x}_j)</script> as the <strong>kernel function</strong>.</p>
+
+<p>What is a valid kernel function?</p>
+<blockquote>
+  <p>A kernel function <script type="math/tex">K(\mathbf{x}_ i, \mathbf{x}_ j)</script> is valid if there exists a mapping function <script type="math/tex">\phi</script>, such that it holds <script type="math/tex">% <![CDATA[
+K_{i,j} = <\phi(\mathbf{x}_ i), \phi(\mathbf{x}_ j)> %]]></script> for any <script type="math/tex">\mathbf{x}_ i, \mathbf{x}_ j\in R^p</script>.</p>
+</blockquote>
+
+<p>Moreover, there is an equivalent conclusion on the validness of a kernel function.</p>
+<blockquote>
+  <p>A kernel function <script type="math/tex">K(\mathbf{x}_ i, \mathbf{x}_ j)</script> is valid if for any <script type="math/tex">n</script> samples <script type="math/tex">\{ \mathbf{x}_ i \vert \mathbf{x}_ i \in R^p \}, i=1,\dots, n</script>, the kernel matrix <script type="math/tex">\mathbf{K}=\begin{bmatrix}K_{1,1}, \dots, K_{1,n}\\\dots \\ K_{n,1},\dots, K_{n,n} \end{bmatrix}</script> is non-negative definite.</p>
+</blockquote>
+
+<p><strong>Examples of Kernel functions</strong></p>
+<ol>
+  <li>
+    <p>Polynomial kernel function</p>
+
+    <script type="math/tex; mode=display">K(\mathbf{x}, \mathbf{y}) = ( \mathbf{x}^T\mathbf{y} +c )^d</script>
+
+    <p>It can be proven that this function is equivalent to first mapping points to higher dimensional space and then computing the inner product.</p>
+  </li>
+  <li>
+    <p>Gaussian Kernel</p>
+
+    <script type="math/tex; mode=display">K(\mathbf{x}, \mathbf{y}) = \exp\{ -\frac{ \|\mathbf{x}-\mathbf{y}\|^2 }{2{\epsilon}^2} \}</script>
+
+    <p>Applying Gaussian kernel is equivalent to first mapping points to a infinitely high dimensional space and then computing the inner product. This can be understood by the Taylor expansion of the exponential function. For detailed explanation please see <a href="https://www.zhihu.com/question/35602879">SVM中，高斯核为什么会把原始维度映射到无穷多维？</a></p>
+  </li>
+</ol>
+
+<h2 id="dual-problem-with-kernel-function">Dual problem with kernel function</h2>
+<p>With the definition of the kernel function, we can rewrite the dual problem and classification task as following.</p>
+
+<p><strong>Dual Problem</strong></p>
+<center>
+	$$
+	\max_{\lambda, \mu} \sum_{i=1}^{n}\lambda_i - \frac{1}{2}\sum_{i,j}\lambda_i \lambda_j y_i y_j K(\mathbf{x}_i, \mathbf{x}_j) \\
+	\begin{align}
+		s.t.\ &amp; 0 \leq \lambda_i \leq C \\
+		 &amp;\sum_{i=1}^{n} \lambda_i y_i =0
+	\end{align}
+	$$
+</center>
+
+<p>Suppose that we have solved the dual problem and get the dual optimum. Let <script type="math/tex">% <![CDATA[
+S_w=\{ i \vert 0<\lambda_i^\star \leq C \} %]]></script> represent the support set related with <script type="math/tex">\mathbf{w}</script>; <script type="math/tex">% <![CDATA[
+S_b=\{ i \vert 0<\lambda_i^\star < C \} %]]></script> represent the support set related with <script type="math/tex">b</script>. Meanwhile, we define <script type="math/tex">S_b^+ =\{ i \vert i\in S_b \  \text{and}\ y_i = +1 \}</script> and <script type="math/tex">S_b^-=\{ i \vert i\in S_b\ \text{and}\ y_i = -1 \}</script>. Then we can compute the primal optimum:</p>
+<center>
+	$$
+	\mathbf{w}^\star = \sum_{i\in S_w}\lambda_i^\star y_i \phi(\mathbf{x}_i)\\
+	b^\star= y_j - {\mathbf{w}^\star}^T\phi(\mathbf{x}_j) = y_j - \sum_{i\in S_w}\lambda_i^\star y_i K(\mathbf{x}_i, \mathbf{x}_j) \ , \ j\in S_b\\
+	$$
+</center>
+<p>Given a new point <script type="math/tex">\mathbf{x}</script>, we can perform classification by computing:</p>
+<center>
+	$$
+	\begin{align}
+	\hat{y} &amp;= {\mathbf{w}^\star}^T \phi(\mathbf{x}) + b^\star\\
+			&amp;=\sum_{i\in S_w} \lambda^\star_i y_i K(\mathbf{x}_i, \mathbf{x}) + b^\star\\
+	\end{align}
+	$$
+</center>
+<p>See, in fact <script type="math/tex">\mathbf{w}^\star</script> is never really computed, since we are only interested in the kernel function!</p>
+
+<h2 id="solve-the-dual-problem-using-gradient-descent-algorithm">Solve the dual problem using Gradient Descent Algorithm</h2>
+<p>We can solve the dual problem using gradient descent algorithm as introduced in the post <a href="http://nianlonggu.github.io/2019/05/27/tutorial-on-SVM/">An Introduction to Support Vector Machines (SVM): Dual problem solution using GD</a>. Just simply select a kernel function, such as polynomial or Gaussian, compte the Kernel matrix <script type="math/tex">\mathbf{K}</script> for the training dataset, compute the gradient and then perform back propagation to get the dual optimum <script type="math/tex">\lambda^\star</script>. After getting <script type="math/tex">\lambda^\star</script>, we can compute the primal optimum <script type="math/tex">b^\star</script> and perform classification on new points using the equations above.</p>
+
+<p>In the next post, I will introduce how to solve the dual problem using Sequential Minimal Optimization (SMO).</p>
+:ET

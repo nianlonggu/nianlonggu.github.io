@@ -1,0 +1,1597 @@
+I"��<ol>
+  <li>
+    <p>Why using TPU?<br />
+TPU is much faster than GPU. A single TPU contains 8 cores, each with a 8GB memory. During training, each batch of data is equally dispatched to all 8 cores. This means the equivalent memrory size if 8x8 = 64 GB. This make it possible to train some large models.</p>
+  </li>
+  <li>
+    <p>How to run GAN on TPU? <br />
+Using TPU Estimator.<br />
+Different from classic classification task, training of GAN involves alternation between training Generator and Discriminator. This fact makes it imossible to simply use Keras on TPU. TPU Estimator allows you to more flexibiy configure the network and training optimizer behaviors</p>
+  </li>
+</ol>
+
+<p>#Start of coding</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre># here we force google colab to use tensorflow 1.x, the configuration will be slightly different for tf 2.0
+%tensorflow_version 1.x
+import tensorflow as tf
+# tf.enable_eager_execution()
+import numpy as np
+# we use mnist dataset as an example
+import keras.datasets.mnist as mnist
+import math
+import os
+import matplotlib.pyplot as plt
+import imageio
+# This is needed for access the google cloud storage to save/restore the model and load the training/testing data.
+from google.colab import auth
+auth.authenticate_user()
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre>Using TensorFlow backend.
+
+
+WARNING:tensorflow:
+The TensorFlow contrib module will not be included in TensorFlow 2.0.
+For more information, please see:
+  * https://github.com/tensorflow/community/blob/master/rfcs/20180907-contrib-sunset.md
+  * https://github.com/tensorflow/addons
+  * https://github.com/tensorflow/io (for I/O related ops)
+If you depend on functionality not listed there, please file an issue.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="step-0-some-helper-function-for-visualizing-the-results">Step 0: Some helper function for visualizing the results</h2>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+</pre></td><td class="rouge-code"><pre>def add_padding( x, padding_size=(2,2,2,2), padding_value = 1 ):
+    # x is a 4 d ndarray with range [0,1]
+    background = padding_value * np.ones(  [ x.shape[0], x.shape[1]+ padding_size[0]+padding_size[2], x.shape[2] + padding_size[1]+padding_size[3], x.shape[3]   ]  ).astype(np.float32)
+    background[:, padding_size[0]:-padding_size[2], padding_size[1]:-padding_size[3], : ] = x
+    padded_x = background
+    return padded_x
+
+# to convert a bulk of images into grid of images
+def make_grid(images,  ncol= None):
+	# ncol represents the number of columns of the image grid, if ncol is None, then arrange the grid as close to a square as possible
+	# This function always assume that the input image is RGB color space , normalized float type
+	if np.max(images)-np.min(images) &gt;1 :
+		images = np.clip( images, -1,1 )
+		images = images /2 +0.5
+		
+	image_num = images.shape[0]
+	num_h = None
+	num_w = None
+	im_h = images.shape[1]
+	im_w = images.shape[2]   
+	im_c = images.shape[3]
+	if (ncol==None):
+		num_w = int( np.ceil(np.sqrt(image_num )))
+		num_h = int( np.ceil( image_num/ num_w ))
+	else:
+		num_w = int(ncol)
+		num_h = int( np.ceil(  image_num/num_w ))
+
+	# create a white pannel, which is a [height, width, channel] ndarray
+	pannel = np.ones(( num_h * im_h, num_w * im_w , im_c )).astype(np.float32)
+
+	for i in range( image_num ):
+		start_h = int(i / num_w) * im_h
+		start_w = (i % num_w) * im_w
+		pannel[ start_h: start_h+im_h , start_w : start_w + im_w ,: ]= images[i,:,:,:]
+	return  pannel
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="step-1-preparation-of-training-dataset">Step 1: preparation of training dataset</h2>
+
+<p>For using TPU in a practical scenario, it is recommended to use <strong>tf.data.TFRecordDataset</strong>. The reason of not using <strong>tf.data.Dataset.from_tensor_slices</strong> is this will store the training dataset directly to the computation graph, which will consume a lot of memory, especially for large training dataset.</p>
+
+<p>A typical work flow is:</p>
+<ol>
+  <li>generating TFRecod locally;</li>
+  <li>uploading TFRecord to google cloud storage bucket;</li>
+  <li>load TFRecord data using TFRecordDataset during training.</li>
+</ol>
+
+<p>Get the original image data, write them into TFRecord file. Each image is corresponding to a single record in the TFRecord file</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre>(X_train, y_train), (X_test, y_test) = mnist.load_data()
+X_train= X_train[:,:,:,np.newaxis]
+X_test = X_test[ :,:,:,np.newaxis ]
+X_train = (X_train/255).astype(np.float32)
+X_test = (X_test/255).astype(np.float32)
+
+print(X_train.shape)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>Downloading data from https://s3.amazonaws.com/img-datasets/mnist.npz
+11493376/11490434 [==============================] - 0s 0us/step
+(60000, 28, 28, 1)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The image shape will be used later on. Then we write mnist images into TFRecord files.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre>def make_tfrecord( file_name, images ):
+    # define a TFRecordWriter
+    writer = tf.python_io.TFRecordWriter(file_name, options= tf.io.TFRecordOptions(tf.io.TFRecordCompressionType.GZIP) )
+    for img in images:
+        if isinstance( img, str ):  # This case img is the path to the image file
+            img =imageio.imread(img)
+            img = (img/255.0).astype(np.float32)
+        features = { 
+            "image": tf.train.Feature( float_list = tf.train.FloatList( value = img.reshape(-1) ) ),
+            "image_shape": tf.train.Feature( int64_list = tf.train.Int64List( value = img.shape )  )}
+        # tf_serialized_example contains the serialized information about the value and shape of an image
+        tf_serialized_example = tf.train.Example( features = tf.train.Features( feature = features ) ).SerializeToString()
+        writer.write( tf_serialized_example )
+    writer.close()
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>make_tfrecord( 'mnist_train.tfrecord', X_train  )
+make_tfrecord( 'mnist_eval.tfrecord', X_test[:5000] )
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Copy the generated TFRecord to the GDS storage bucket.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>! gsutil cp mnist_train.tfrecord mnist_eval.tfrecord gs://gan-tpu-tutorial/data
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>Copying file://mnist_train.tfrecord [Content-Type=application/octet-stream]...
+Copying file://mnist_eval.tfrecord [Content-Type=application/octet-stream]...
+- [2 files][ 16.9 MiB/ 16.9 MiB]                                                
+Operation completed over 2 objects/16.9 MiB.                                     
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>One can also load multiple TFRecords by</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>ds=tf.data.TFRecordDataset(["record1.tfrecord","record2.tfrecord","record3.tfrecord"], compression_type='GZIP')
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="step-2-configure-the-tpu-estimator">Step 2: configure the TPU Estimator</h2>
+
+<p>The TPU Estimator mainly contains two parts: train/eval/test input function, and model function</p>
+
+<h3 id="prepeare-the-input_functions-for-tf-estimator">Prepeare the input_functions for tf estimator</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+</pre></td><td class="rouge-code"><pre> def parse_tfrecord_func( serialized_record ):
+    parse_dic = { "image": tf.FixedLenFeature(shape=(28,28,1), dtype = tf.float32 ),
+                  "image_shape": tf.FixedLenFeature( shape=(3,), dtype = tf.int64 ) 
+                }
+    parses_record = tf.parse_single_example( serialized_record, parse_dic )
+    ## note that parse_single_example can only be placed before batch()
+    ## parse_example can only be placed after batch()
+    return {"image": parses_record["image"]}
+ 
+def train_input_fn( batch_size ):
+    
+    dataset_x_train = tf.data.TFRecordDataset([ "gs://gan-tpu-tutorial/data/mnist_train.tfrecord" ], compression_type='GZIP')
+    
+    dataset_x_train = dataset_x_train.shuffle(60000).repeat()
+    pattern = np.array([0,0,0,0,1]).repeat(batch_size).astype(np.float32)
+    dataset_g_w = tf.data.Dataset.from_tensor_slices( { "g_w": pattern  } ).repeat()
+    dataset_output = tf.data.Dataset.from_tensor_slices( ( np.zeros( ( batch_size ) ).astype(np.float32) ) ).repeat()
+    
+    ds = tf.data.Dataset.zip(( dataset_x_train, dataset_g_w, dataset_output))
+    def merge_func(a,b,c):
+        a = parse_tfrecord_func(a)
+        a.update(b)
+        return a, c
+    ds = ds.map(merge_func)
+    return ds.batch( batch_size, drop_remainder = True ).prefetch(buffer_size =1)
+
+def eval_input_fn( batch_size ):
+    dataset_x_eval = tf.data.TFRecordDataset([ "gs://gan-tpu-tutorial/data/mnist_eval.tfrecord" ], compression_type='GZIP')
+    dataset_x_eval = dataset_x_eval.shuffle(10000).repeat()
+    dataset_output = tf.data.Dataset.from_tensor_slices( ( np.zeros( ( batch_size ) ).astype(np.float32) ) ).repeat()
+    
+    ds = tf.data.Dataset.zip(( dataset_x_eval, dataset_output))
+    def merge_func(a,b):
+        a = parse_tfrecord_func(a)
+        return a, b
+    ds = ds.map(merge_func)
+    return ds.batch(batch_size, drop_remainder = True).prefetch(buffer_size =1)
+
+def predict_input_fn( z ):
+    dataset_z_input = tf.data.Dataset.from_tensor_slices( ( z.astype(np.float32), np.zeros(( z.shape[0],) ).astype(np.float32)  ) )
+    return dataset_z_input.batch(64, drop_remainder= False)
+
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<ol>
+  <li>dataset_x_train is loaded from the TFRecordDataset, the parse_tfrecord_func is used to convert the serialized tf record examples into image tensors.</li>
+  <li>g_w is used to control when to update the generator’s parameters. Here the pattern “0 0 0 0 1” means training the generator once for every n_critic = 5 batches as stated in WGAN-GP.  This setting is due to the special property of the TPU mechanism</li>
+  <li>dataset_output is some dummy values (0) for the label parameter of the estimator.train() function</li>
+  <li>Each batch of ds contains follows contents:
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre> features: {"image": image_tensors, "g_w": g_w }
+ labels: dataset_output (dummy value 0)
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>predict_input_fn doesn’t use TFRecord, since in GAN during test we would like to input some random latent vectors to get the output, therefore, using Dataset.from_tensor_slices is more flexible.</li>
+</ol>
+
+<h3 id="define-the-model_fn-part-of-the-tpuestimator">Define the model_fn part of the TPUEstimator</h3>
+
+<h4 id="to-be-more-compact-we-first-design-the-generator-and-discriminator">To be more compact, we first design the generator and discriminator</h4>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td><td class="rouge-code"><pre>def generator( z, scope="generator", trainable= True ):
+    with tf.variable_scope( scope, reuse= tf.AUTO_REUSE ):
+        net = tf.layers.BatchNormalization()( tf.layers.Dense( 7*7*128, activation= tf.nn.relu )(z) )
+        net = tf.reshape( net, [ tf.shape(net)[0], 7, 7, 128 ] )
+        net = tf.layers.BatchNormalization()( tf.layers.Conv2DTranspose( 64, 5, (2,2), "same", activation= tf.nn.relu )(net) )
+        net = tf.layers.BatchNormalization()( tf.layers.Conv2DTranspose( 32, 5, (2,2), "same", activation= tf.nn.relu )(net) )
+        net = tf.layers.Conv2D(1, 5, (1,1), "same", activation= tf.nn.sigmoid  )(net)
+        return net
+
+def discriminator( x, scope="discriminator", trainable = True ):
+    with tf.variable_scope( scope, reuse= tf.AUTO_REUSE ):
+        net = tf.layers.Conv2D( 32, 5, (2,2), "same", activation= tf.nn.leaky_relu )(x) 
+        net = tf.layers.BatchNormalization()( tf.layers.Conv2D( 64, 5, (2,2), "same", activation= tf.nn.leaky_relu )(net) )
+        net = tf.layers.BatchNormalization()( tf.layers.Conv2D( 128, 5, (2,2), "same", activation= tf.nn.leaky_relu )(net) )
+        net = tf.layers.Flatten()(net)
+        net = tf.layers.BatchNormalization()( tf.layers.Dense( 128, activation= tf.nn.leaky_relu  )(net) )
+        net = tf.layers.Dense( 1 )(net)
+        return net
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Define some metric functions for evaluation</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre>def metric_fn(loss_gen, loss_dis, W_dis ):
+    """Function to return metrics for evaluation.
+    The input parameters can be arbritary
+    """
+    return {"loss_gen": tf.metrics.mean(loss_gen), 
+            "loss_dis": tf.metrics.mean(loss_dis),
+            "wasserstein_distance": tf.metrics.mean( W_dis ),
+            }
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+</pre></td><td class="rouge-code"><pre>def model_fn(features, labels, mode, params):
+    
+    lr = params["learning_rate"]
+    z_dim = params["z_dim"]
+    
+    if mode == tf.estimator.ModeKeys.TRAIN or mode == tf.estimator.ModeKeys.EVAL:
+        """ Part I. create the model networks"""
+        x = features["image"]
+        is_train = mode == tf.estimator.ModeKeys.TRAIN
+        random_z = tf.random.normal( [tf.shape(x)[0], z_dim ]  )
+        gen_x = generator( random_z, trainable= is_train )
+        dis_x = discriminator( x, trainable= is_train )
+        dis_gen_x = discriminator( gen_x, trainable= is_train )
+
+        # This is used to compute the gradient penalty
+        epsilon = tf.random.uniform( [ tf.shape(x)[0],1,1,1 ], minval=0, maxval= 1 )
+        interp_x = epsilon * x + (1-epsilon) * gen_x
+        dis_interp_x = discriminator( interp_x, trainable= is_train )
+        gradient_x = tf.gradients( dis_interp_x, [ interp_x ]  )[0]
+        gradient_penalty = tf.square( tf.sqrt( tf.reduce_sum( tf.square(gradient_x ),[1,2,3] ) ) - 1  )
+        LAMBDA = 10
+    
+        """Part II. define the loss and relative parameters for mode == TRAIN/EVAL/PREDICT"""
+        ## compute loss
+        loss_dis = dis_gen_x  - dis_x + LAMBDA * gradient_penalty 
+        loss_gen = - dis_gen_x
+        W_dis = dis_x - dis_gen_x
+
+        ## operations for the training mode, define the optimizer, and reconfig it using tpu.CrossShardOptimizer
+        if mode == tf.estimator.ModeKeys.TRAIN:
+            g_w = features["g_w"]
+            loss_dis = tf.reduce_mean( loss_dis   )  
+            ## when g_w =0, this loss_gen 's gradient will be 0, which means generator is not trained during current batch
+            loss_gen = tf.reduce_mean( loss_gen * g_w)
+            W_dis = tf.reduce_mean(W_dis)
+
+            # Define the optimizer
+            d_optimizer = tf.train.AdamOptimizer(learning_rate=lr, beta1=0, beta2= 0.99 )
+            g_optimizer = tf.train.AdamOptimizer(learning_rate=lr, beta1=0, beta2= 0.99 )
+            # convert to TPU optimizer version
+            d_optimizer = tf.tpu.CrossShardOptimizer(d_optimizer)
+            g_optimizer = tf.tpu.CrossShardOptimizer(g_optimizer)
+
+            with tf.control_dependencies( tf.get_collection( tf.GraphKeys.UPDATE_OPS )):
+                d_op = d_optimizer.minimize( loss = loss_dis, var_list = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,\
+                                           scope="discriminator")  )
+                g_op = g_optimizer.minimize(loss = loss_gen,  var_list = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,\
+                                           scope="generator"),global_step= tf.train.get_global_step() )
+                # This group command will group the discriminator optimization and generator optimization together
+                # all the optimizations in the group will be run during each batch
+                # g_w can control whether to update the parameters of generator or not, which plays the role of n_critic in WGAN
+                train_op = tf.group( [ d_op , g_op] )
+                spec= tf.estimator.tpu.TPUEstimatorSpec(mode=mode, loss= W_dis ,train_op= train_op  )
+    
+        ## for EVAL mode, the parameters eval_metrics takes a tuple or list of two elements. The first element is a callable function,
+        ## The second element is a list of parameters. The return value of the callable function will be shown in the evaluatio results
+        elif mode == tf.estimator.ModeKeys.EVAL:
+            spec = tf.estimator.tpu.TPUEstimatorSpec(mode=mode, loss= tf.reduce_mean(W_dis), eval_metrics=(metric_fn, [loss_gen, loss_dis, W_dis ] ) )
+    
+    elif mode == tf.estimator.ModeKeys.PREDICT:
+        """ construct the model (only the generator part) """
+        input_z = features
+        gen_x = generator( input_z, trainable= False )
+
+        """Define the predictions"""
+        predictions = { "generated_images":  gen_x   }
+        spec= tf.estimator.tpu.TPUEstimatorSpec( mode = mode, predictions = predictions )
+
+    return spec
+
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="create-the-tpuestimator-entity-and-run-the-train--evaluate-predict">Create the TPUEstimator entity, and run the train / evaluate/ predict</h2>
+
+<p>iterations_per_loop means the number of batches fed into TPU before returning to the host CPU</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre></td><td class="rouge-code"><pre><span class="n">model_dir</span><span class="p">=</span><span class="s2">"gs://gan-tpu-tutorial/model"</span>
+<span class="n">tpu_address</span> <span class="p">=</span> <span class="s1">'grpc://'</span> <span class="p">+</span> <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'COLAB_TPU_ADDR'</span><span class="p">]</span>
+<span class="n">iterations_per_loop</span> <span class="p">=</span> <span class="m">200</span>
+
+<span class="n">run_config</span> <span class="p">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">estimator</span><span class="p">.</span><span class="n">tpu</span><span class="p">.</span><span class="n">RunConfig</span><span class="p">(</span>
+        <span class="n">model_dir</span><span class="p">=</span><span class="n">model_dir</span><span class="p">,</span>
+        <span class="n">cluster</span><span class="p">=</span><span class="n">tf</span><span class="p">.</span><span class="n">distribute</span><span class="p">.</span><span class="n">cluster_resolver</span><span class="p">.</span><span class="n">TPUClusterResolver</span><span class="p">(</span><span class="n">tpu_address</span><span class="p">),</span>
+        <span class="n">session_config</span><span class="p">=</span><span class="n">tf</span><span class="p">.</span><span class="n">ConfigProto</span><span class="p">(</span><span class="n">allow_soft_placement</span><span class="p">=</span><span class="nb">True</span><span class="p">,</span> <span class="n">log_device_placement</span><span class="p">=</span><span class="nb">True</span><span class="p">),</span>
+        <span class="n">tpu_config</span><span class="p">=</span><span class="n">tf</span><span class="p">.</span><span class="n">estimator</span><span class="p">.</span><span class="n">tpu</span><span class="p">.</span><span class="n">TPUConfig</span><span class="p">(</span><span class="n">iterations_per_loop</span><span class="p">),</span>
+        <span class="p">)</span>
+
+<span class="k">model</span> <span class="p">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">estimator</span><span class="p">.</span><span class="n">tpu</span><span class="p">.</span><span class="n">TPUEstimator</span><span class="p">(</span>
+                               <span class="n">model_fn</span><span class="p">=</span><span class="n">model_fn</span><span class="p">,</span>
+                               <span class="n">params</span> <span class="p">=</span> <span class="p">{</span><span class="s2">"learning_rate"</span><span class="p">:</span> <span class="m">1e-3</span><span class="p">,</span> <span class="s2">"z_dim"</span><span class="p">:</span> <span class="m">100</span> <span class="p">},</span>
+                               <span class="n">config</span> <span class="p">=</span> <span class="n">run_config</span><span class="p">,</span>
+                               <span class="n">use_tpu</span><span class="p">=</span> <span class="nb">True</span><span class="p">,</span>
+                               <span class="n">train_batch_size</span><span class="p">=</span><span class="m">512</span>  <span class="p">,</span>
+                               <span class="n">eval_batch_size</span><span class="p">=</span><span class="m">512</span> <span class="p">,</span>
+                               <span class="n">predict_batch_size</span><span class="p">=</span> <span class="m">64</span><span class="p">,</span>
+                              <span class="p">)</span> 
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre>INFO:tensorflow:Using config: {'_model_dir': 'gs://gan-tpu-tutorial/model', '_tf_random_seed': None, '_save_summary_steps': 100, '_save_checkpoints_steps': None, '_save_checkpoints_secs': 600, '_session_config': allow_soft_placement: true
+log_device_placement: true
+cluster_def {
+  job {
+    name: "worker"
+    tasks {
+      key: 0
+      value: "10.70.62.122:8470"
+    }
+  }
+}
+, '_keep_checkpoint_max': 5, '_keep_checkpoint_every_n_hours': 10000, '_log_step_count_steps': None, '_train_distribute': None, '_device_fn': None, '_protocol': None, '_eval_distribute': None, '_experimental_distribute': None, '_experimental_max_worker_delay_secs': None, '_session_creation_timeout_secs': 7200, '_service': None, '_cluster_spec': &lt;tensorflow.python.training.server_lib.ClusterSpec object at 0x7efe48dce2e8&gt;, '_task_type': 'worker', '_task_id': 0, '_global_id_in_cluster': 0, '_master': 'grpc://10.70.62.122:8470', '_evaluation_master': 'grpc://10.70.62.122:8470', '_is_chief': True, '_num_ps_replicas': 0, '_num_worker_replicas': 1, '_tpu_config': TPUConfig(iterations_per_loop=200, num_shards=None, num_cores_per_replica=None, per_host_input_for_training=2, tpu_job_name=None, initial_infeed_sleep_secs=None, input_partition_dims=None, eval_training_input_configuration=2, experimental_host_call_every_n_steps=1), '_cluster': &lt;tensorflow.python.distribute.cluster_resolver.tpu_cluster_resolver.TPUClusterResolver object at 0x7efe49c15710&gt;}
+INFO:tensorflow:_TPUContext: eval_on_tpu True
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="training">Training</h3>
+
+<p>What is the relationship between max_steps and epochs?</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>max_epoch = max_steps * batch_size / total_number_of_training_samples
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>model.train( input_fn = lambda params: train_input_fn( params["batch_size"] ), max_steps= 10000 )
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+</pre></td><td class="rouge-code"><pre>INFO:tensorflow:Querying Tensorflow master (grpc://10.114.94.194:8470) for TPU system metadata.
+INFO:tensorflow:Found TPU system:
+INFO:tensorflow:*** Num TPU Cores: 8
+INFO:tensorflow:*** Num TPU Workers: 1
+INFO:tensorflow:*** Num TPU Cores Per Worker: 8
+INFO:tensorflow:*** Available Device: _DeviceAttributes(/job:worker/replica:0/task:0/device:CPU:0, CPU, -1, 11738852326692209401)
+INFO:tensorflow:*** Available Device: _DeviceAttributes(/job:worker/replica:0/task:0/device:TPU:0, TPU, 17179869184, 15275745687431098137)
+INFO:tensorflow:*** Available Device: _DeviceAttributes(/job:worker/replica:0/task:0/device:TPU:1, TPU, 17179869184, 3995785791262763730)
+INFO:tensorflow:*** Available Device: _DeviceAttributes(/job:worker/replica:0/task:0/device:TPU:2, TPU, 17179869184, 475623280109587729)
+INFO:tensorflow:*** Available Device: _DeviceAttributes(/job:worker/replica:0/task:0/device:TPU:3, TPU, 17179869184, 14111384919507113018)
+INFO:tensorflow:*** Available Device: _DeviceAttributes(/job:worker/replica:0/task:0/device:TPU:4, TPU, 17179869184, 12408752923211480002)
+INFO:tensorflow:*** Available Device: _DeviceAttributes(/job:worker/replica:0/task:0/device:TPU:5, TPU, 17179869184, 9478769006018729027)
+INFO:tensorflow:*** Available Device: _DeviceAttributes(/job:worker/replica:0/task:0/device:TPU:6, TPU, 17179869184, 12195907809172474084)
+INFO:tensorflow:*** Available Device: _DeviceAttributes(/job:worker/replica:0/task:0/device:TPU:7, TPU, 17179869184, 4450834394852893281)
+INFO:tensorflow:*** Available Device: _DeviceAttributes(/job:worker/replica:0/task:0/device:TPU_SYSTEM:0, TPU_SYSTEM, 8589934592, 8397242788630567163)
+INFO:tensorflow:*** Available Device: _DeviceAttributes(/job:worker/replica:0/task:0/device:XLA_CPU:0, XLA_CPU, 17179869184, 16733406576476642308)
+WARNING:tensorflow:From /usr/local/lib/python3.6/dist-packages/tensorflow_core/python/ops/resource_variable_ops.py:1630: calling BaseResourceVariable.__init__ (from tensorflow.python.ops.resource_variable_ops) with constraint is deprecated and will be removed in a future version.
+Instructions for updating:
+If using Keras pass *_constraint arguments to layers.
+WARNING:tensorflow:From /usr/local/lib/python3.6/dist-packages/tensorflow_core/python/training/training_util.py:236: Variable.initialized_value (from tensorflow.python.ops.variables) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use Variable.read_value. Variables in 2.X are initialized automatically both in eager and graph (inside tf.defun) contexts.
+INFO:tensorflow:Calling model_fn.
+WARNING:tensorflow:From /usr/local/lib/python3.6/dist-packages/tensorflow_core/python/autograph/converters/directives.py:119: The name tf.FixedLenFeature is deprecated. Please use tf.io.FixedLenFeature instead.
+
+WARNING:tensorflow:From /usr/local/lib/python3.6/dist-packages/tensorflow_core/python/autograph/converters/directives.py:119: The name tf.parse_single_example is deprecated. Please use tf.io.parse_single_example instead.
+
+INFO:tensorflow:Create CheckpointSaverHook.
+INFO:tensorflow:Done calling model_fn.
+INFO:tensorflow:TPU job name worker
+WARNING:tensorflow:From /usr/local/lib/python3.6/dist-packages/tensorflow_core/python/ops/array_ops.py:1475: where (from tensorflow.python.ops.array_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use tf.where in 2.0, which has the same broadcast rule as np.where
+INFO:tensorflow:Graph was finalized.
+INFO:tensorflow:Running local_init_op.
+INFO:tensorflow:Done running local_init_op.
+INFO:tensorflow:Saving checkpoints for 0 into gs://gan-tpu-tutorial/model/model.ckpt.
+WARNING:tensorflow:From /usr/local/lib/python3.6/dist-packages/tensorflow_estimator/python/estimator/tpu/tpu_estimator.py:751: Variable.load (from tensorflow.python.ops.variables) is deprecated and will be removed in a future version.
+Instructions for updating:
+Prefer Variable.assign which has equivalent behavior in 2.X.
+INFO:tensorflow:Initialized dataset iterators in 0 seconds
+INFO:tensorflow:Installing graceful shutdown hook.
+INFO:tensorflow:Creating heartbeat manager for ['/job:worker/replica:0/task:0/device:CPU:0']
+INFO:tensorflow:Configuring worker heartbeat: shutdown_mode: WAIT_FOR_COORDINATOR
+
+INFO:tensorflow:Init TPU system
+INFO:tensorflow:Initialized TPU in 7 seconds
+INFO:tensorflow:Starting infeed thread controller.
+INFO:tensorflow:Starting outfeed thread controller.
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:Outfeed finished for iteration (0, 0)
+INFO:tensorflow:loss = 14.393552, step = 200
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 1.4828832, step = 400 (7.869 sec)
+INFO:tensorflow:global_step/sec: 25.416
+INFO:tensorflow:examples/sec: 13013
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 1.0723968, step = 600 (7.901 sec)
+INFO:tensorflow:global_step/sec: 25.3108
+INFO:tensorflow:examples/sec: 12959.1
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 6.356781, step = 800 (8.227 sec)
+INFO:tensorflow:global_step/sec: 24.3109
+INFO:tensorflow:examples/sec: 12447.2
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.6402886, step = 1000 (8.289 sec)
+INFO:tensorflow:global_step/sec: 24.1293
+INFO:tensorflow:examples/sec: 12354.2
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.53613305, step = 1200 (8.223 sec)
+INFO:tensorflow:global_step/sec: 24.3209
+INFO:tensorflow:examples/sec: 12452.3
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.55330026, step = 1400 (8.064 sec)
+INFO:tensorflow:global_step/sec: 24.8014
+INFO:tensorflow:examples/sec: 12698.3
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:Outfeed finished for iteration (7, 114)
+INFO:tensorflow:loss = 0.49076754, step = 1600 (7.990 sec)
+INFO:tensorflow:global_step/sec: 25.0303
+INFO:tensorflow:examples/sec: 12815.5
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.33709282, step = 1800 (8.123 sec)
+INFO:tensorflow:global_step/sec: 24.6245
+INFO:tensorflow:examples/sec: 12607.7
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.60888314, step = 2000 (8.058 sec)
+INFO:tensorflow:global_step/sec: 24.8125
+INFO:tensorflow:examples/sec: 12704
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.27580887, step = 2200 (8.135 sec)
+INFO:tensorflow:global_step/sec: 24.5853
+INFO:tensorflow:examples/sec: 12587.7
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.08745375, step = 2400 (8.176 sec)
+INFO:tensorflow:global_step/sec: 24.4594
+INFO:tensorflow:examples/sec: 12523.2
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.5694318, step = 2600 (8.742 sec)
+INFO:tensorflow:global_step/sec: 22.879
+INFO:tensorflow:examples/sec: 11714.1
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.36715412, step = 2800 (7.541 sec)
+INFO:tensorflow:global_step/sec: 26.5243
+INFO:tensorflow:examples/sec: 13580.4
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:Outfeed finished for iteration (14, 195)
+INFO:tensorflow:loss = 0.7609652, step = 3000 (8.005 sec)
+INFO:tensorflow:global_step/sec: 24.9856
+INFO:tensorflow:examples/sec: 12792.6
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.54677314, step = 3200 (7.825 sec)
+INFO:tensorflow:global_step/sec: 25.5674
+INFO:tensorflow:examples/sec: 13090.5
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.43972525, step = 3400 (8.114 sec)
+INFO:tensorflow:global_step/sec: 24.641
+INFO:tensorflow:examples/sec: 12616.2
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.38988116, step = 3600 (7.899 sec)
+INFO:tensorflow:global_step/sec: 25.3192
+INFO:tensorflow:examples/sec: 12963.4
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.5205215, step = 3800 (7.848 sec)
+INFO:tensorflow:global_step/sec: 25.4857
+INFO:tensorflow:examples/sec: 13048.7
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.7150006, step = 4000 (8.073 sec)
+INFO:tensorflow:global_step/sec: 24.7781
+INFO:tensorflow:examples/sec: 12686.4
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.33404553, step = 4200 (7.940 sec)
+INFO:tensorflow:global_step/sec: 25.1904
+INFO:tensorflow:examples/sec: 12897.5
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.43263477, step = 4400 (8.186 sec)
+INFO:tensorflow:global_step/sec: 24.4345
+INFO:tensorflow:examples/sec: 12510.5
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:Outfeed finished for iteration (22, 101)
+INFO:tensorflow:loss = 0.4248472, step = 4600 (7.778 sec)
+INFO:tensorflow:global_step/sec: 25.7136
+INFO:tensorflow:examples/sec: 13165.4
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.29251263, step = 4800 (8.262 sec)
+INFO:tensorflow:global_step/sec: 24.2056
+INFO:tensorflow:examples/sec: 12393.3
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.9408156, step = 5000 (8.406 sec)
+INFO:tensorflow:global_step/sec: 23.7927
+INFO:tensorflow:examples/sec: 12181.9
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.26178244, step = 5200 (8.290 sec)
+INFO:tensorflow:global_step/sec: 24.1266
+INFO:tensorflow:examples/sec: 12352.8
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.27522358, step = 5400 (8.163 sec)
+INFO:tensorflow:global_step/sec: 24.4998
+INFO:tensorflow:examples/sec: 12543.9
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.4739352, step = 5600 (8.470 sec)
+INFO:tensorflow:global_step/sec: 23.6063
+INFO:tensorflow:examples/sec: 12086.4
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.7829461, step = 5800 (8.128 sec)
+INFO:tensorflow:global_step/sec: 24.6115
+INFO:tensorflow:examples/sec: 12601.1
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:Outfeed finished for iteration (29, 157)
+INFO:tensorflow:loss = 0.43061724, step = 6000 (8.149 sec)
+INFO:tensorflow:global_step/sec: 24.5437
+INFO:tensorflow:examples/sec: 12566.4
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.39409897, step = 6200 (7.968 sec)
+INFO:tensorflow:global_step/sec: 25.0996
+INFO:tensorflow:examples/sec: 12851
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.23961285, step = 6400 (7.942 sec)
+INFO:tensorflow:global_step/sec: 25.1724
+INFO:tensorflow:examples/sec: 12888.3
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.2636254, step = 6600 (8.168 sec)
+INFO:tensorflow:global_step/sec: 24.4874
+INFO:tensorflow:examples/sec: 12537.6
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.69607586, step = 6800 (8.292 sec)
+INFO:tensorflow:global_step/sec: 24.1157
+INFO:tensorflow:examples/sec: 12347.2
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.36292523, step = 7000 (8.073 sec)
+INFO:tensorflow:global_step/sec: 24.7802
+INFO:tensorflow:examples/sec: 12687.4
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.6368566, step = 7200 (8.042 sec)
+INFO:tensorflow:global_step/sec: 24.8744
+INFO:tensorflow:examples/sec: 12735.7
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.37213594, step = 7400 (8.173 sec)
+INFO:tensorflow:global_step/sec: 24.4726
+INFO:tensorflow:examples/sec: 12530
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:Outfeed finished for iteration (37, 40)
+INFO:tensorflow:loss = 0.23268355, step = 7600 (8.295 sec)
+INFO:tensorflow:global_step/sec: 24.1105
+INFO:tensorflow:examples/sec: 12344.6
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.27354458, step = 7800 (8.176 sec)
+INFO:tensorflow:global_step/sec: 24.4626
+INFO:tensorflow:examples/sec: 12524.8
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.36282498, step = 8000 (7.974 sec)
+INFO:tensorflow:global_step/sec: 25.0831
+INFO:tensorflow:examples/sec: 12842.5
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.24090263, step = 8200 (8.067 sec)
+INFO:tensorflow:global_step/sec: 24.7913
+INFO:tensorflow:examples/sec: 12693.2
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.3147499, step = 8400 (8.108 sec)
+INFO:tensorflow:global_step/sec: 24.6663
+INFO:tensorflow:examples/sec: 12629.2
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.536124, step = 8600 (8.836 sec)
+INFO:tensorflow:global_step/sec: 22.634
+INFO:tensorflow:examples/sec: 11588.6
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.37227648, step = 8800 (7.734 sec)
+INFO:tensorflow:global_step/sec: 25.8588
+INFO:tensorflow:examples/sec: 13239.7
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:Outfeed finished for iteration (44, 114)
+INFO:tensorflow:loss = 0.3612012, step = 9000 (7.962 sec)
+INFO:tensorflow:global_step/sec: 25.1092
+INFO:tensorflow:examples/sec: 12855.9
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.16772309, step = 9200 (8.070 sec)
+INFO:tensorflow:global_step/sec: 24.7942
+INFO:tensorflow:examples/sec: 12694.7
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.36110854, step = 9400 (7.798 sec)
+INFO:tensorflow:global_step/sec: 25.6348
+INFO:tensorflow:examples/sec: 13125
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.2133965, step = 9600 (7.968 sec)
+INFO:tensorflow:global_step/sec: 25.1138
+INFO:tensorflow:examples/sec: 12858.3
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.47117025, step = 9800 (7.890 sec)
+INFO:tensorflow:global_step/sec: 25.3484
+INFO:tensorflow:examples/sec: 12978.4
+INFO:tensorflow:Enqueue next (200) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (200) batch(es) of data from outfeed.
+INFO:tensorflow:loss = 0.64115626, step = 10000 (8.035 sec)
+INFO:tensorflow:global_step/sec: 24.8892
+INFO:tensorflow:examples/sec: 12743.3
+INFO:tensorflow:Saving checkpoints for 10000 into gs://gan-tpu-tutorial/model/model.ckpt.
+INFO:tensorflow:Stop infeed thread controller
+INFO:tensorflow:Shutting down InfeedController thread.
+INFO:tensorflow:InfeedController received shutdown signal, stopping.
+INFO:tensorflow:Infeed thread finished, shutting down.
+INFO:tensorflow:infeed marked as finished
+INFO:tensorflow:Stop output thread controller
+INFO:tensorflow:Shutting down OutfeedController thread.
+INFO:tensorflow:OutfeedController received shutdown signal, stopping.
+INFO:tensorflow:Outfeed thread finished, shutting down.
+INFO:tensorflow:outfeed marked as finished
+INFO:tensorflow:Shutdown TPU system.
+INFO:tensorflow:Loss for final step: 0.64115626.
+INFO:tensorflow:training_loop marked as finished
+
+
+
+
+
+&lt;tensorflow_estimator.python.estimator.tpu.tpu_estimator.TPUEstimator at 0x7f50c51485c0&gt;
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="evaluate">Evaluate</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>eval_result = model.evaluate(input_fn=lambda params: eval_input_fn( params["batch_size"]), steps = 10)
+eval_result
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+</pre></td><td class="rouge-code"><pre>INFO:tensorflow:Calling model_fn.
+WARNING:tensorflow:From /usr/local/lib/python3.6/dist-packages/tensorflow_estimator/python/estimator/tpu/tpu_estimator.py:3322: div (from tensorflow.python.ops.math_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Deprecated in favor of operator or tf.math.divide.
+INFO:tensorflow:Done calling model_fn.
+INFO:tensorflow:Starting evaluation at 2019-11-08T14:15:36Z
+INFO:tensorflow:TPU job name worker
+INFO:tensorflow:Graph was finalized.
+INFO:tensorflow:Restoring parameters from gs://gan-tpu-tutorial/model/model.ckpt-10000
+INFO:tensorflow:Running local_init_op.
+INFO:tensorflow:Done running local_init_op.
+INFO:tensorflow:Init TPU system
+INFO:tensorflow:Initialized TPU in 7 seconds
+INFO:tensorflow:Starting infeed thread controller.
+INFO:tensorflow:Starting outfeed thread controller.
+INFO:tensorflow:Initialized dataset iterators in 0 seconds
+INFO:tensorflow:Enqueue next (10) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (10) batch(es) of data from outfeed.
+INFO:tensorflow:Outfeed finished for iteration (0, 0)
+INFO:tensorflow:Evaluation [10/10]
+INFO:tensorflow:Stop infeed thread controller
+INFO:tensorflow:Shutting down InfeedController thread.
+INFO:tensorflow:InfeedController received shutdown signal, stopping.
+INFO:tensorflow:Infeed thread finished, shutting down.
+INFO:tensorflow:infeed marked as finished
+INFO:tensorflow:Stop output thread controller
+INFO:tensorflow:Shutting down OutfeedController thread.
+INFO:tensorflow:OutfeedController received shutdown signal, stopping.
+INFO:tensorflow:Outfeed thread finished, shutting down.
+INFO:tensorflow:outfeed marked as finished
+INFO:tensorflow:Shutdown TPU system.
+INFO:tensorflow:Finished evaluation at 2019-11-08-14:15:47
+INFO:tensorflow:Saving dict for global step 10000: global_step = 10000, loss = -0.02174891, loss_dis = -0.010456271, loss_gen = -0.26893204, wasserstein_distance = 0.031976245
+INFO:tensorflow:Saving 'checkpoint_path' summary for global step 10000: gs://gan-tpu-tutorial/model/model.ckpt-10000
+INFO:tensorflow:evaluation_loop marked as finished
+
+
+
+
+
+{'global_step': 10000,
+ 'loss': -0.02174891,
+ 'loss_dis': -0.010456271,
+ 'loss_gen': -0.26893204,
+ 'wasserstein_distance': 0.031976245}
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="predict">Predict</h3>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>random_z = np.random.normal( size=(1024, 100)  ).astype(np.float32)
+pred_results = model.predict( input_fn=lambda params: predict_input_fn(random_z) )
+images = np.array([ result["generated_images"] for result in pred_results  ])
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+</pre></td><td class="rouge-code"><pre>WARNING:tensorflow:From /usr/local/lib/python3.6/dist-packages/tensorflow_core/python/ops/resource_variable_ops.py:1630: calling BaseResourceVariable.__init__ (from tensorflow.python.ops.resource_variable_ops) with constraint is deprecated and will be removed in a future version.
+Instructions for updating:
+If using Keras pass *_constraint arguments to layers.
+INFO:tensorflow:Querying Tensorflow master (grpc://10.70.62.122:8470) for TPU system metadata.
+INFO:tensorflow:Found TPU system:
+INFO:tensorflow:*** Num TPU Cores: 8
+INFO:tensorflow:*** Num TPU Workers: 1
+INFO:tensorflow:*** Num TPU Cores Per Worker: 8
+INFO:tensorflow:*** Available Device: _DeviceAttributes(/job:worker/replica:0/task:0/device:CPU:0, CPU, -1, 10866346110703034261)
+INFO:tensorflow:*** Available Device: _DeviceAttributes(/job:worker/replica:0/task:0/device:TPU:0, TPU, 17179869184, 16437091814005203661)
+INFO:tensorflow:*** Available Device: _DeviceAttributes(/job:worker/replica:0/task:0/device:TPU:1, TPU, 17179869184, 5123041309255999589)
+INFO:tensorflow:*** Available Device: _DeviceAttributes(/job:worker/replica:0/task:0/device:TPU:2, TPU, 17179869184, 10093532896193916903)
+INFO:tensorflow:*** Available Device: _DeviceAttributes(/job:worker/replica:0/task:0/device:TPU:3, TPU, 17179869184, 6403766541942488628)
+INFO:tensorflow:*** Available Device: _DeviceAttributes(/job:worker/replica:0/task:0/device:TPU:4, TPU, 17179869184, 339454120416050112)
+INFO:tensorflow:*** Available Device: _DeviceAttributes(/job:worker/replica:0/task:0/device:TPU:5, TPU, 17179869184, 12978483851357354334)
+INFO:tensorflow:*** Available Device: _DeviceAttributes(/job:worker/replica:0/task:0/device:TPU:6, TPU, 17179869184, 12671250413276823126)
+INFO:tensorflow:*** Available Device: _DeviceAttributes(/job:worker/replica:0/task:0/device:TPU:7, TPU, 17179869184, 16759244163311379686)
+INFO:tensorflow:*** Available Device: _DeviceAttributes(/job:worker/replica:0/task:0/device:TPU_SYSTEM:0, TPU_SYSTEM, 8589934592, 742808221297359910)
+INFO:tensorflow:*** Available Device: _DeviceAttributes(/job:worker/replica:0/task:0/device:XLA_CPU:0, XLA_CPU, 17179869184, 9629312988469312393)
+INFO:tensorflow:Calling model_fn.
+INFO:tensorflow:Done calling model_fn.
+INFO:tensorflow:TPU job name worker
+WARNING:tensorflow:From /usr/local/lib/python3.6/dist-packages/tensorflow_core/python/ops/array_ops.py:1475: where (from tensorflow.python.ops.array_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use tf.where in 2.0, which has the same broadcast rule as np.where
+INFO:tensorflow:Graph was finalized.
+INFO:tensorflow:Restoring parameters from gs://gan-tpu-tutorial/model/model.ckpt-10000
+INFO:tensorflow:Running local_init_op.
+INFO:tensorflow:Done running local_init_op.
+WARNING:tensorflow:From /usr/local/lib/python3.6/dist-packages/tensorflow_estimator/python/estimator/tpu/tpu_estimator.py:818: Variable.load (from tensorflow.python.ops.variables) is deprecated and will be removed in a future version.
+Instructions for updating:
+Prefer Variable.assign which has equivalent behavior in 2.X.
+INFO:tensorflow:Init TPU system
+INFO:tensorflow:Initialized TPU in 7 seconds
+INFO:tensorflow:Starting infeed thread controller.
+INFO:tensorflow:Starting outfeed thread controller.
+INFO:tensorflow:Initialized dataset iterators in 0 seconds
+INFO:tensorflow:Enqueue next (1) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (1) batch(es) of data from outfeed.
+INFO:tensorflow:Outfeed finished for iteration (0, 0)
+INFO:tensorflow:Enqueue next (1) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (1) batch(es) of data from outfeed.
+INFO:tensorflow:Enqueue next (1) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (1) batch(es) of data from outfeed.
+INFO:tensorflow:Enqueue next (1) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (1) batch(es) of data from outfeed.
+INFO:tensorflow:Enqueue next (1) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (1) batch(es) of data from outfeed.
+INFO:tensorflow:Enqueue next (1) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (1) batch(es) of data from outfeed.
+INFO:tensorflow:Enqueue next (1) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (1) batch(es) of data from outfeed.
+INFO:tensorflow:Enqueue next (1) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (1) batch(es) of data from outfeed.
+INFO:tensorflow:Enqueue next (1) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (1) batch(es) of data from outfeed.
+INFO:tensorflow:Enqueue next (1) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (1) batch(es) of data from outfeed.
+INFO:tensorflow:Enqueue next (1) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (1) batch(es) of data from outfeed.
+INFO:tensorflow:Enqueue next (1) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (1) batch(es) of data from outfeed.
+INFO:tensorflow:Enqueue next (1) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (1) batch(es) of data from outfeed.
+INFO:tensorflow:Enqueue next (1) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (1) batch(es) of data from outfeed.
+INFO:tensorflow:Enqueue next (1) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (1) batch(es) of data from outfeed.
+INFO:tensorflow:Enqueue next (1) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (1) batch(es) of data from outfeed.
+INFO:tensorflow:Enqueue next (1) batch(es) of data to infeed.
+INFO:tensorflow:Dequeue next (1) batch(es) of data from outfeed.
+INFO:tensorflow:Stop infeed thread controller
+INFO:tensorflow:Shutting down InfeedController thread.
+INFO:tensorflow:InfeedController received shutdown signal, stopping.
+INFO:tensorflow:Infeed thread finished, shutting down.
+INFO:tensorflow:infeed marked as finished
+INFO:tensorflow:Stop output thread controller
+INFO:tensorflow:Shutting down OutfeedController thread.
+INFO:tensorflow:OutfeedController received shutdown signal, stopping.
+INFO:tensorflow:Outfeed thread finished, shutting down.
+INFO:tensorflow:outfeed marked as finished
+INFO:tensorflow:Shutdown TPU system.
+INFO:tensorflow:prediction_loop marked as finished
+INFO:tensorflow:prediction_loop marked as finished
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre>print("generated images")
+plt.figure(figsize = (5,5)) 
+plt.gray()
+plt.imshow( make_grid(add_padding(images[np.random.choice( images.shape[0], 64, replace= False )  ])).squeeze() )
+plt.show()
+
+imageio.imsave( "random.png",  make_grid(add_padding(images)).squeeze() )
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>generated images
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="GAN_on_TPU_files/GAN_on_TPU_36_1.png" alt="png" /></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>WARNING:root:Lossy conversion from float32 to uint8. Range [0, 1]. Convert image to uint8 prior to saving to suppress this warning.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>
+</pre></td></tr></tbody></table></code></pre></div></div>
+:ET

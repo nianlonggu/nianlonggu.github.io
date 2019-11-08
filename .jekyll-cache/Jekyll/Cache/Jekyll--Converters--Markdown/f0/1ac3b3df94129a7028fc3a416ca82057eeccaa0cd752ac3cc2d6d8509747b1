@@ -1,0 +1,2 @@
+I"<p>In the last post on <a href="https://nianlonggu.github.io/2019/07/07/tutorial-on-EM/">EM algorithm</a>, we introduced the deduction of the EM algorithm and use it to solve the MLE of the heads probability of two coins. In this post, we will apply EM algorithm to more practical and useful problem, the Gaussian Mixture Model (GMM), and discuss about using GMM for clustering.</p>
+:ET

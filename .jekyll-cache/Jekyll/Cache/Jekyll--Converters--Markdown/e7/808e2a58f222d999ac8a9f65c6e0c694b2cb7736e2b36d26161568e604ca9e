@@ -1,0 +1,5 @@
+I"2<ol>
+  <li>Why using TPU?<br />
+TPU is much faster than GPU. A single TPU contains 8 cores, each with a 8GB memory. During training, each batch of data is equally dispatched to all 8 cores. This means the equivalent memrory size if 8x8 = 64 GB. This make it possible to train some large models.</li>
+</ol>
+:ET

@@ -1,0 +1,586 @@
+I"��<p>In the last post on <a href="https://nianlonggu.github.io/2019/07/07/tutorial-on-EM/">EM algorithm</a>, we introduced the deduction of the EM algorithm and use it to solve the MLE of the heads probability of two coins. In this post, we will apply EM algorithm to more practical and useful problem, the Gaussian Mixture Model (GMM), and discuss about using GMM for clustering.</p>
+
+<p>First, let’s recall the EM algorithm:</p>
+<blockquote>
+  <p>Suppose that we have the observations <script type="math/tex">\{\mathbf{x}^{(i)}\}, i=1,\dots,n</script>. <script type="math/tex">\mathbf{x}^{(i)}</script> is related with a hidden variable <script type="math/tex">\mathbf{z}</script> which is unknown to us. The task is to find the MLE of <script type="math/tex">\theta</script>: <center>$$
+	\theta_\text{MLE} = \arg \max_{\theta} \sum_{i=1}^{n}\log \sum_{\mathbf{z}} p_\theta(\mathbf{z}, \mathbf{x}^{(i)})	
+	$$</center>
+The EM algorithm works as follows:</p>
+  <ol>
+    <li>Randomly initialize <script type="math/tex">\theta</script>, set the <script type="math/tex">\mathbf{z}</script> prior <script type="math/tex">p(\mathbf{z})</script></li>
+    <li><strong>Repeat:</strong><br />
+At the <script type="math/tex">l^\text{th}</script> iteration:
+      <ul>
+        <li><strong>E</strong> step:<br />
+set <script type="math/tex">Q_{l}^{(i)}(\mathbf{z})=p_{\theta_{l-1}}(\mathbf{z}\vert \mathbf{x}_ i)</script> for <script type="math/tex">i=1,\dots,n</script></li>
+        <li><strong>M</strong> step:<br />
+update <script type="math/tex">\theta_{l}=\arg \max_{\theta} \sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z})\log \frac{p_{\theta_{l-1}}(\mathbf{z}, \mathbf{x}^{(i)})}{Q_{l}^{(i)}(\mathbf{z})}</script></li>
+        <li>Update the prior <script type="math/tex">p(\mathbf{z})</script> (optional)
+<br />
+<br />
+<strong>Until</strong> <script type="math/tex">\theta</script> converges.</li>
+      </ul>
+    </li>
+  </ol>
+</blockquote>
+
+<p>Based on the experience on solving coin tossing problem using EM, we can further deform the EM algorithm:</p>
+<ol>
+  <li>In the E step, according to Bayes Theorem, we have <script type="math/tex">Q_{l}^{(i)}(\mathbf{z})=p_{\theta_{l-1}}(\mathbf{z}\vert \mathbf{x}^{(i)})=\frac{p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z})}{p_{\theta_{l-1}}(\mathbf{x}^{(i)})}=\frac{ p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z}) }{ \sum_{\mathbf{z}}p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z}) }</script>.<br />
+Here <script type="math/tex">p(\mathbf{z})</script> is the prior of the latent variable <script type="math/tex">\mathbf{z}</script>. Either we initialize it as fixed distribution, or we dynamically update it over each iteration. If <strong>the number of the value of the variable <script type="math/tex">\mathbf{z}</script> is finite and traversable</strong>, we can directly compute the sum <script type="math/tex">\sum_{\mathbf{z}}p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z})</script>, and then compute the posterior <script type="math/tex">Q_{l}^{(i)}(\mathbf{z})</script>. For example, in two coin tossing problem, <script type="math/tex">\mathbf{z}</script> can only be coin A (1) or coin B (0).</li>
+  <li>In the M step, the objective function <center>$$\begin{align}
+ L(\theta_{l-1}, Q_{l}^{(i)} ) &amp;= \sum_{i=1}^{n}\sum_{\mathbf{z}}Q_{l}^{(i)}(\mathbf{z})\log \frac{p_{\theta_{l-1}}(\mathbf{z},\mathbf{x}^{(i)})}{Q_{l}^{(\mathbf{z})}}\\
+ &amp;= \sum_{i=1}^{n}\sum_{\mathbf{z}}Q_{l}^{(i)}(\mathbf{z})\log \frac{p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z})p(\mathbf{z})}{Q_{l}^{(i)}(\mathbf{z})}\\
+ &amp;= \sum_{i=1}^{n}\sum_{\mathbf{z}}Q_{l}^{(i)}(\mathbf{z})\log p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z}) + \sum_{i=1}^{n}\sum_{\mathbf{z}}Q_{l}^{(i)}(\mathbf{z})\log \frac{p(\mathbf{z})}{Q_{l}^{(i)}(\mathbf{z})}
+\end{align}
+$$</center>
+Since <script type="math/tex">Q_{l}^{(i)}</script> is computed in the E step, in the M step it is treated as something which is independent of <script type="math/tex">\theta</script>. Moreover, the prior <script type="math/tex">p(\mathbf{z})</script> is also assumed to be independent of <script type="math/tex">\theta</script>. Therefore, the term <script type="math/tex">\sum_{i=1}^{n}\sum_{\mathbf{z}}Q_{l}^{(i)}(\mathbf{z})\log \frac{p(\mathbf{z})}{Q_{l}^{(i)}(\mathbf{z})}</script> is irrelevant to <script type="math/tex">\theta</script>, and the equivalent updating rule of <script type="math/tex">\theta</script> can be written as: <center>$$\theta_{l}= \arg \max_{\theta} \sum_{i=1}^{n}\sum_{\mathbf{z}}Q_{l}^{(i)}(\mathbf{z})\log p_{\theta_{l-1}}(\mathbf{x}^{(i)}\vert \mathbf{z}) $$</center></li>
+  <li>Update the prior <script type="math/tex">p(\mathbf{z})</script>. The initialized prior may not be the real prior, therefore, we need to update the prior during iteration. The choice of <script type="math/tex">f(\mathbf{z})</script> is also the prior distribution which can maximize the objective function in the M step: <script type="math/tex">L(\theta_{l-1}, Q_{l}^{(i)})</script>. In the expression of <script type="math/tex">L(\theta_{l-1}, Q_{l}^{(i)})</script>, only the term <script type="math/tex">\sum_{i=1}^{n}\sum_{\mathbf{z}}Q_{l}^{(i)}(\mathbf{z})\log {p(\mathbf{z})}</script> is related with <script type="math/tex">p(\mathbf{z})</script>. Therefore, the update rule of <script type="math/tex">p(\mathbf{z})</script> is:<center>$$
+ \min_{f(\mathbf{z})} -\sum_{i=1}^{n}\sum_{\mathbf{z}} Q_l^{(i)}(\mathbf{z}) \log{p(\mathbf{z}) }\\
+ \text{s.t.}\  \sum_{\mathbf{z}} p(\mathbf{z}) = 1 
+$$</center>
+The Lagrangian function <center>$$L(p(\mathbf{z}), \lambda)= -\sum_{i=1}^{n}\sum_{\mathbf{z}} Q_l^{(i)}(\mathbf{z}) \log{p(\mathbf{z})} + \lambda( \sum_{\mathbf{z}} p(\mathbf{z}) - 1 ) $$</center>
+By solving <script type="math/tex">\frac{\partial{L(p(\mathbf{z}),\lambda)}}{\partial{p(\mathbf{z})}}=-\sum_{i=1}^{n}\frac{Q_{l}^{(i)}(\mathbf{z})}{p(\mathbf{z})}+\lambda=0</script>, we have the primal optimum <script type="math/tex">p^{\star}(\mathbf{z})=\frac{\sum_{i=1}^{n}Q_l^{(i)}(\mathbf{z})}{\lambda}</script>. Substituting it to the Lagrangian function, we have the dual function:<center>$$d(\lambda)=-\sum_{i=1}^{n}\sum_{\mathbf{z}}Q_l^{(i)}(\mathbf{z})\log\frac{\sum_{k=1}^{n}Q_{l}^{(k)}(\mathbf{z})}{\lambda}+\lambda(\sum_{\mathbf{z}}\frac{\sum_{k=1}^{n}Q_{l}^{(k)}(\mathbf{z}) }{\lambda} -1)$$</center>. Therefore, the dual problem is: <center>$$
+\lambda^\star=\arg\max_{\lambda} d(\lambda)
+$$</center><center>$$\frac{\partial{d(\lambda)}}{\partial{\lambda}}=\sum_{i=1}^{n}\sum_{\mathbf{z}}\frac{Q_l^{(i)}(\mathbf{z}) }{\lambda}-1=0$$</center>So we have the dual optimum <script type="math/tex">\lambda^\star=\sum_{i=1}^{n}\sum_{\mathbf{z}}Q_{l}^{(i)}(\mathbf{z}) =\sum_{i=1}^{n}1=n</script> Therefore, we get the update rule of <script type="math/tex">p(\mathbf{z})</script>: <center>$$
+p^\text{new}(\mathbf{z}) = \frac{1}{n}\sum_{i=1}^{n}Q_{l}^{(i)}(\mathbf{z}),\ k=1,\dots,M
+$$</center>
+This deduction uses the Lagrangian Duality Principle, for detail please see my post <a href="https://nianlonggu.github.io/2019/05/25/tutorial-on-SVM/">An Introduction to Support Vector Machines (SVM): Convex Optimization and Lagrangian Duality Principle</a></li>
+</ol>
+
+<h2 id="gaussian-mixture-model-gmm">Gaussian Mixture Model (GMM)</h2>
+<p>As indicated by its name, the GMM is a mixture (actually a linear combination) of multiple Gaussian distributions. The probability density function of a GMM is (<script type="math/tex">\mathbf{x}\in R^p</script>):</p>
+<center>
+	$$
+	\begin{align}
+	p(\mathbf{x}; \phi, \mu, \Sigma) 
+	&amp;= \sum_{j=1}^{M}\phi_{j} N(\mathbf{x};\mu_j, \Sigma_j)\\
+	&amp;= \sum_{j=1}^{M}\phi_{j} \frac{1}{(2\pi)^{\frac{p}{2}}\vert\Sigma_j\vert^{\frac{1}{2}} } \exp\{-\frac{1}{2}{(\mathbf{x}-\mu_j)^T \Sigma_j^{-1} (\mathbf{x}-\mu_j)}\}
+	\end{align}
+	$$
+</center>
+<p>where <script type="math/tex">M</script> is the number of Gaussian models. <script type="math/tex">\phi_j</script> is the weight factor of the Gaussian model <script type="math/tex">N(\mu_j,\Sigma_j)</script>. Moreover, we have the constraint: <script type="math/tex">\sum_{j=1}^{M} \phi_j =1</script>.</p>
+
+<p>GMM is very suitable to be used to fit the dataset which contains multiple clusters, and each cluster has circular or elliptical shape. For example, the data distribution shown in the following figure can be modeled by GMM.
+<img src="https://nianlonggu.github.io/img/2019-07-10-EM/GMM-distribution.png" width="400" hegiht="203" />
+Now the question is: <strong>given a dataset with the distribution in the figure above, if we want to use GMM to model it, how to find the MLE of the parameters (<script type="math/tex">\phi,\mu,\Sigma</script>) of the Gaussian Mixture Model?</strong></p>
+
+<p>The answer is: using EM algorithm!</p>
+
+<h2 id="em-algorithm-on-gmm-parameters-estimation">EM algorithm on GMM parameters estimation</h2>
+<p>Before we move forward, we need to figure out what the prior <script type="math/tex">p(\mathbf{z})</script> is for the GMM.
+Suppose that there are <script type="math/tex">M</script> Gaussian models in the GMM, our latent variable <script type="math/tex">\mathbf{z}</script> only has <script type="math/tex">M</script> different values: <script type="math/tex">\{\mathbf{z}^{(j)}=j| j=1,\dots,M\}</script>. The prior <script type="math/tex">p(\mathbf{z}^{(j)})=p(\mathbf{z}=j)</script> represents the likelihood that the data belongs to cluster (Gaussian model) <script type="math/tex">j</script>, without any information about the data <script type="math/tex">\mathbf{x}</script>. According to the marginal likelihood we have:</p>
+<center>
+	$$
+	p(\mathbf{x}; \phi, \mu, \Sigma) =\sum_{j=1}^{M} p(\mathbf{z}^{(j)}) p(\mathbf{x}\vert \mathbf{z}^{(j)}; \mu, \Sigma)\\
+	\sum_{j=1}^{M}p(\mathbf{z}^{(j)})=1
+	$$
+</center>
+<p>If we compare these two equations with the expression of the GMM, we will find that <script type="math/tex">p(\mathbf{z}^{(j)})</script> plays the role of <script type="math/tex">\phi_j</script>. In other words, we can treat <script type="math/tex">\phi_j</script> as the prior and <script type="math/tex">p(\mathbf{x}\vert \mathbf{z}^{(j)}; \mu, \Sigma)= N(\mathbf{x};\mu_j, \Sigma_j)</script></p>
+
+<p>Moreover, <script type="math/tex">\mathbf{x}^{(i)}\in R^p</script>. The EM algorithm works as follows:</p>
+
+<ol>
+  <li>Initialization: <br />
+We normalize the raw data if necessary, randomly initialize <script type="math/tex">\phi, \mu, \Sigma</script>.</li>
+  <li>Repeat:<br />
+<strong>To avoid an overcomplicated expression, we omit the footnote of iteration index <script type="math/tex">l</script></strong>
+    <ul>
+      <li><strong>E</strong> step:<br />
+<script type="math/tex">% <![CDATA[
+\begin{align}
+Q^{(i)}(\mathbf{z}^{(j)})&=\frac{ p( \mathbf{x}^{(i)}\vert \mathbf{z}^{(j)} ;  \mu,\Sigma  ) p(\mathbf{z}^{(j)})}{ \sum_{k=1}^{M}p( \mathbf{x}^{(i)}\vert \mathbf{z}^{(k)} ; \mu,\Sigma  ) p(\mathbf{z}^{(k)})  } \\
+&=\frac{\phi_{j} \frac{1}{(2\pi)^{\frac{p}{2}}\vert \Sigma_j \vert^{\frac{1}{2}} }\exp\{-\frac{1}{2}(\mathbf{x}^{(i)}-\mu_j)^T\Sigma_j^{-1}(\mathbf{x}^{(i)}-\mu_j) \}  }{ \sum_{k=1}^{M} \phi_{k} \frac{1}{(2\pi)^{\frac{p}{2}}\vert \Sigma_k \vert^{\frac{1}{2}} }\exp\{-\frac{1}{2}(\mathbf{x}^{(i)}-\mu_k)^T\Sigma_k^{-1}(\mathbf{x}^{(i)}-\mu_k) \} }
+\end{align} %]]></script><br />
+For short we denote <script type="math/tex">q_{i,j}=Q^{(i)}(\mathbf{z}^{(j)})</script></li>
+      <li><strong>M</strong> step:<br />
+The objective function is:<br />
+<script type="math/tex">L= \sum_{i=1}^{n}\sum_{j=1}^{M} q_{i,j} \log \phi_{j} \frac{1}{(2\pi)^{\frac{p}{2}}\vert\Sigma_j\vert^{\frac{1}{2}} } \exp\{-\frac{1}{2}{(\mathbf{x}^{(i)}-\mu_j)^T \Sigma_j^{-1} (\mathbf{x}^{(i)}-\mu_j)}\}</script><br />
+<strong>Update <script type="math/tex">\mu</script></strong><br />
+We compute the partial derivative:<center>$$\begin{align}
+\frac{\partial{L}}{\partial{\mu_k}}&amp;=\frac{\partial}{\partial{\mu_k}}\Big[\sum_{i=1}^{n}-\frac{1}{2}q_{i,k}(\mathbf{x}^{(i)}-\mu_k)^T\Sigma_k^{-1}(\mathbf{x}^{(i)}-\mu_k)\Big]\\
+&amp;= -\sum_{i=1}^{n}q_{i,k}\Sigma_k^{-1}(\mu_k - \mathbf{x}^{(i)})\\
+&amp;= -\Sigma_k^{-1}( \sum_{i=1}^{n}q_{i,k}\mu_k -\sum_{i=1}^{n}q_{i,k}\mathbf{x}^{(i)}  )\\
+&amp;=0
+\end{align}$$</center>
+Since <script type="math/tex">\Sigma_k>0</script>, the solution to the above equation is:<center>$$\mu_k^\text{new} = \frac{ \sum_{i=1}^{n}q_{i,k}\mathbf{x}^{(i)} }{ \sum_{i=1}^{n}q_{i,k} },\ k=1,\dots,M$$</center>
+<strong>Update <script type="math/tex">\Sigma</script></strong><br />
+let <script type="math/tex">\Lambda_k=\Sigma_k^{-1}</script>, then the objective function is <script type="math/tex">L= \sum_{i=1}^{n}\sum_{j=1}^{M} q_{i,j} \log \phi_{j} \frac{\vert\Lambda_j\vert^{\frac{1}{2}}}{(2\pi)^{\frac{p}{2}} } \exp\{-\frac{1}{2}{(\mathbf{x}^{(i)}-\mu_j)^T \Lambda_j (\mathbf{x}^{(i)}-\mu_j)}\}</script><br />
+we compute the optimal <script type="math/tex">\Lambda^\star_k</script> by solving the equation:<center>
+$$\begin{align}\frac{\partial{L}}{\partial{\Lambda_k}}&amp;=\frac{\partial}{\partial{\Lambda_k}}\Big\{ \sum_{i=1}^{n} q_{i,k}\Big[\frac{1}{2}\log \vert\Lambda_k\vert - \frac{1}{2}(\mathbf{x}^{(i)}-\mu_k)^T\Lambda_k(\mathbf{x}^{(i)}-\mu_k)\Big] \Big\} \\
+&amp;=\frac{\partial}{\partial{\Lambda_k}}\Big\{ \sum_{i=1}^{n} q_{i,k}\Big[\frac{1}{2}\log \vert\Lambda_k\vert - \frac{1}{2}\text{tr}\left((\mathbf{x}^{(i)}-\mu_k)^T\Lambda_k(\mathbf{x}^{(i)}-\mu_k)\right) \Big] \Big\} \\
+&amp;= \frac{1}{2}\sum_{i=1}^{n} q_{i,k} \Lambda_k^{-1} - \frac{1}{2} \frac{\partial}{\partial{\Lambda_k}} \text{tr}\left(\Lambda_k\sum_{i=1}^{n}q_{i,k}(\mathbf{x}^{(i)}-\mu_k)(\mathbf{x}^{(i)}-\mu_k)^T\right) \\
+&amp;= \frac{1}{2}\sum_{i=1}^{n} q_{i,k} \Sigma_k - \frac{1}{2} \sum_{i=1}^{n}q_{i,k}(\mathbf{x}^{(i)}-\mu_k)(\mathbf{x}^{(i)}-\mu_k)^T \\
+&amp;=0\end{align}$$</center>So we have the update rule of <script type="math/tex">\Sigma_k</script>:<center>$$
+\Sigma_k^\text{new} = \frac{ \sum_{i=1}^{n}q_{i,k}(\mathbf{x}^{(i)}-\mu_k)(\mathbf{x}^{(i)}-\mu_k)^T }{\sum_{i=1}^{n} q_{i,k} }
+$$</center></li>
+      <li>update the prior <script type="math/tex">\phi_j=\frac{1}{n}\sum_{i=1}^{n}Q^{(i)}(\mathbf{z}^{(j)})</script></li>
+    </ul>
+  </li>
+</ol>
+
+<p><script type="math/tex">\ \ \ \ \</script> Until all the parameters converges.</p>
+
+<h2 id="gmm-for-clustering">GMM for Clustering</h2>
+<p>Suppose that we have use the EM algorithm to find the estimation of the model parameters, what does the posterior <script type="math/tex">p_\theta(\mathbf{z}^{(j)}\vert \mathbf{x})</script> represent? It actually represents the likelihood that the data <script type="math/tex">\mathbf{x}</script> belongs to the Gaussian model index <script type="math/tex">j</script> (or Cluster <script type="math/tex">j</script>). Therefore, we can use the posterior expression given in the <strong>E</strong> step above, to the compute the posterior <script type="math/tex">p_\theta(\mathbf{z}^{(j)}\vert \mathbf{x}),\ j=1,\dots,M</script>, and determine the cluster index with largest posterior <script type="math/tex">c_x=\arg \max_{j} p_\theta(\mathbf{z}^{(j)}\vert \mathbf{x})</script></p>
+
+<h2 id="demo">Demo</h2>
+<p>We implement the EM &amp; GMM using python, and test it on 2d dataset.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span> <span class="nn">keras.datasets</span> <span class="kn">import</span> <span class="n">mnist</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>Using TensorFlow backend.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+</pre></td><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span>  <span class="n">num_samples</span><span class="p">,</span> <span class="n">prior_z_list</span> <span class="p">,</span> <span class="n">mu_list</span> <span class="p">,</span> <span class="n">sigma_list</span> <span class="p">):</span>
+	<span class="n">X</span><span class="o">=</span><span class="p">[]</span>
+	<span class="n">choice_of_gaussian_model</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span> <span class="n">prior_z_list</span><span class="p">),</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">prior_z_list</span>  <span class="p">)</span>
+	<span class="k">for</span> <span class="n">sample_ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_samples</span><span class="p">):</span>
+		<span class="n">gaussian_ind</span> <span class="o">=</span> <span class="n">choice_of_gaussian_model</span><span class="p">[</span><span class="n">sample_ind</span><span class="p">]</span>
+		<span class="n">x</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">multivariate_normal</span><span class="p">(</span> <span class="n">mu_list</span><span class="p">[</span><span class="n">gaussian_ind</span><span class="p">],</span> <span class="n">sigma_list</span><span class="p">[</span><span class="n">gaussian_ind</span><span class="p">]</span> <span class="p">)</span>
+		<span class="n">X</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+	<span class="n">X</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">X</span>
+
+<span class="k">def</span> <span class="nf">EM</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">num_clusters</span><span class="p">,</span> <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1e-2</span><span class="p">,</span> <span class="n">update_prior</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">max_iter</span> <span class="o">=</span> <span class="mi">100000</span> <span class="p">):</span>
+	<span class="n">x_dim</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+	<span class="n">num_samples</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+	<span class="c1">## initialization
+</span>	<span class="n">mu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span> <span class="n">num_clusters</span><span class="p">,</span> <span class="n">x_dim</span> <span class="p">)</span> <span class="p">)</span>
+	<span class="c1">## initializing sigma as identity matrix can guarantee it's positive definite
+</span>	<span class="n">sigma</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_clusters</span><span class="p">):</span>
+		<span class="n">sigma</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">x_dim</span><span class="p">)</span> <span class="p">)</span>
+	<span class="n">sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">sigma</span><span class="p">)</span>
+	<span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">num_clusters</span><span class="p">)</span><span class="o">/</span> <span class="n">num_clusters</span>
+
+	<span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+
+	<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+		<span class="c1">## E step
+</span>		<span class="c1"># Q is the posterior, with the dimension num_samples x num_clusters
+</span>		<span class="n">Q</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="p">[</span><span class="n">num_samples</span><span class="p">,</span> <span class="n">num_clusters</span><span class="p">])</span>
+		<span class="n">sigma_det</span> <span class="o">=</span><span class="p">[</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">sigma</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span><span class="o">**</span><span class="mf">0.5</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_clusters</span><span class="p">)</span>  <span class="p">]</span>
+		<span class="n">sigma_inverse</span> <span class="o">=</span> <span class="p">[</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">sigma</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_clusters</span><span class="p">)</span>  <span class="p">]</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_samples</span><span class="p">):</span>
+			<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_clusters</span><span class="p">):</span>
+				<span class="n">Q</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">=</span> <span class="n">phi</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">/</span><span class="p">(</span>   <span class="n">sigma_det</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">((</span><span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">mu</span><span class="p">[</span><span class="n">j</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">sigma_inverse</span><span class="p">[</span><span class="n">j</span><span class="p">]),</span> <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">mu</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>   
+		<span class="n">Q</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span>
+		<span class="n">Q</span><span class="o">=</span><span class="n">Q</span><span class="o">/</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">keepdims</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>	
+
+		<span class="c1">## M step
+</span>		<span class="c1"># update mu
+</span>		<span class="n">mu_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="n">num_clusters</span><span class="p">,</span> <span class="n">x_dim</span><span class="p">])</span>
+		<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_clusters</span><span class="p">):</span>
+			<span class="n">mu_new</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="nb">sum</span> <span class="p">(</span><span class="n">Q</span><span class="p">[:,</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">X</span> <span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span> <span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">Q</span><span class="p">[:,</span><span class="n">j</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+		<span class="c1"># update sigma
+</span>		<span class="n">sigma_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">sigma</span><span class="p">)</span>
+		<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_clusters</span><span class="p">):</span>
+			<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_samples</span><span class="p">):</span>
+				<span class="n">sigma_new</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="n">Q</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span> <span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">mu</span><span class="p">[</span><span class="n">j</span><span class="p">])[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">mu</span><span class="p">[</span><span class="n">j</span><span class="p">])[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="p">)</span>
+			<span class="n">sigma_new</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">sigma_new</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">Q</span><span class="p">[:,</span><span class="n">j</span><span class="p">])</span>
+		<span class="c1"># update phi
+</span>		<span class="k">if</span> <span class="n">update_prior</span><span class="p">:</span>
+			<span class="n">phi_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span> <span class="n">Q</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span> <span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">phi_new</span> <span class="o">=</span> <span class="n">phi</span>
+
+		<span class="n">delta_change</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="nb">abs</span><span class="p">(</span><span class="n">phi</span><span class="o">-</span><span class="n">phi_new</span><span class="p">))</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="nb">abs</span><span class="p">(</span> <span class="n">mu</span><span class="o">-</span> <span class="n">mu_new</span> <span class="p">)</span> <span class="p">)</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="nb">abs</span><span class="p">(</span> <span class="n">sigma</span><span class="o">-</span> <span class="n">sigma_new</span> <span class="p">)</span> <span class="p">)</span>
+		<span class="k">print</span><span class="p">(</span><span class="s">"parameter changes: "</span><span class="p">,</span><span class="n">delta_change</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="n">delta_change</span> <span class="o">&lt;</span> <span class="n">epsilon</span><span class="p">:</span>
+			<span class="k">break</span>
+		
+		<span class="n">count</span> <span class="o">+=</span><span class="mi">1</span>
+		<span class="k">if</span> <span class="n">count</span> <span class="o">&gt;=</span> <span class="n">max_iter</span><span class="p">:</span>
+			<span class="k">break</span>
+
+		<span class="n">phi</span><span class="o">=</span><span class="n">phi_new</span>
+		<span class="n">mu</span><span class="o">=</span> <span class="n">mu_new</span>
+		<span class="n">sigma</span> <span class="o">=</span> <span class="n">sigma_new</span>
+
+	<span class="c1">## a function used for performing clustering
+</span>	<span class="k">def</span> <span class="nf">cluster</span><span class="p">(</span> <span class="n">X</span> <span class="p">):</span>
+		<span class="n">Q</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="p">[</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">num_clusters</span><span class="p">])</span>
+		<span class="n">sigma_det</span> <span class="o">=</span><span class="p">[</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">sigma</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span><span class="o">**</span><span class="mf">0.5</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_clusters</span><span class="p">)</span>  <span class="p">]</span>
+		<span class="n">sigma_inverse</span> <span class="o">=</span> <span class="p">[</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">sigma</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_clusters</span><span class="p">)</span>  <span class="p">]</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+			<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_clusters</span><span class="p">):</span>
+				<span class="n">Q</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">=</span> <span class="n">phi</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">/</span><span class="p">(</span>  <span class="n">sigma_det</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">((</span><span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">mu</span><span class="p">[</span><span class="n">j</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">sigma_inverse</span><span class="p">[</span><span class="n">j</span><span class="p">]),</span> <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">mu</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>   
+		<span class="n">Q</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span>
+		<span class="n">Q</span><span class="o">=</span><span class="n">Q</span><span class="o">/</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">keepdims</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>	
+		<span class="n">cluster_info</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span> <span class="n">Q</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">cluster_info</span>
+
+
+	<span class="k">return</span> <span class="p">{</span><span class="s">"mu"</span><span class="p">:</span><span class="n">mu</span><span class="p">,</span> <span class="s">"sigma"</span><span class="p">:</span><span class="n">sigma</span><span class="p">,</span> <span class="s">"phi"</span><span class="p">:</span><span class="n">phi</span><span class="p">,</span> <span class="s">"cluster"</span><span class="p">:</span> <span class="n">cluster</span><span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="gmm-on-2d-data-points-with-convex-shapes">GMM on 2d data points with convex shapes</h2>
+
+<p>First let load a small data points</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="n">real_phi</span> <span class="o">=</span>  <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.6</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">]</span>
+<span class="n">real_mu</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">8</span><span class="p">],[</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">],[</span><span class="mi">9</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="p">]</span>
+<span class="n">real_sigma</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mf">0.5</span><span class="p">],[</span><span class="mf">0.5</span><span class="p">,</span><span class="mi">1</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mf">0.6</span><span class="p">],[</span><span class="o">-</span><span class="mf">0.6</span><span class="p">,</span><span class="mi">1</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]],[[</span><span class="mi">1</span><span class="p">,</span><span class="mf">0.3</span><span class="p">],[</span><span class="mf">0.3</span><span class="p">,</span><span class="mf">0.5</span><span class="p">]]</span> <span class="p">]</span>
+<span class="n">X</span><span class="o">=</span><span class="n">load_data</span><span class="p">(</span><span class="mi">10000</span><span class="p">,</span> <span class="n">real_phi</span><span class="p">,</span> <span class="n">real_mu</span><span class="p">,</span> <span class="n">real_sigma</span> <span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">real_phi</span><span class="p">)):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"real phi: "</span><span class="p">,</span> <span class="n">real_phi</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s">" real mu: "</span><span class="p">,</span> <span class="n">real_mu</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s">" real sigma: "</span><span class="p">,</span> <span class="n">real_sigma</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>real phi:  0.2  real mu:  [0, 0]  real sigma:  [[1, 0.5], [0.5, 1]]
+real phi:  0.6  real mu:  [2, 8]  real sigma:  [[2, -0.6], [-0.6, 1]]
+real phi:  0.1  real mu:  [10, 10]  real sigma:  [[1, 0], [0, 1]]
+real phi:  0.1  real mu:  [9, 1]  real sigma:  [[1, 0.3], [0.3, 0.5]]
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Let’s plot the data and have a look at it.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span> <span class="n">X</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="https://nianlonggu.github.io/img/2019-07-10-EM/EM_7_0.png" alt="png" /></p>
+
+<p>Then we apply the EM algorithm, to get the MLE of GMM parameters and get the cluster function</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="n">params</span><span class="o">=</span><span class="n">EM</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">num_clusters</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span> <span class="mf">1E-4</span><span class="p">)</span>
+<span class="n">mu</span><span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s">"mu"</span><span class="p">]</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s">"sigma"</span><span class="p">]</span>
+<span class="n">phi</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s">"phi"</span><span class="p">]</span>
+<span class="n">cluster</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s">"cluster"</span><span class="p">]</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+</pre></td><td class="rouge-code"><pre>parameter changes:  28.449669073154364
+parameter changes:  17.400927300989974
+parameter changes:  0.9644888523985635
+parameter changes:  1.0995072448163998
+parameter changes:  1.3509364912075696
+parameter changes:  1.2308294431017273
+parameter changes:  1.3794412438676897
+parameter changes:  1.4081227407466508
+parameter changes:  1.0857571446279906
+parameter changes:  0.7155881044307679
+parameter changes:  0.411613512938475
+parameter changes:  0.12457364032905578
+parameter changes:  0.04685136953006225
+parameter changes:  0.0540454165259536
+parameter changes:  0.06456840164792643
+parameter changes:  0.07771391163679765
+parameter changes:  0.09436688134288668
+parameter changes:  0.11582159431045104
+parameter changes:  0.14421201360388664
+parameter changes:  0.1834323022021212
+parameter changes:  0.24801453948582258
+parameter changes:  0.3558084755399498
+parameter changes:  0.5349701481676721
+parameter changes:  0.7677886989164794
+parameter changes:  0.7666771213539978
+parameter changes:  0.5043555266074152
+parameter changes:  0.11678542980595268
+parameter changes:  0.001048169134691374
+parameter changes:  1.550958923947094e-06
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="n">esti_mu</span><span class="o">=</span> <span class="p">(</span><span class="n">mu</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span><span class="o">/</span><span class="mf">100.</span>  
+<span class="n">esti_sigma</span><span class="o">=</span> <span class="p">(</span><span class="n">sigma</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span><span class="o">/</span><span class="mf">100.</span> 
+<span class="n">esti_phi</span><span class="o">=</span> <span class="p">(</span><span class="n">phi</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span><span class="o">/</span><span class="mf">100.</span> 
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">esti_phi</span><span class="p">)):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"esti phi:"</span><span class="p">,</span> <span class="n">esti_phi</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s">"esti mu:"</span><span class="p">,</span> <span class="n">esti_mu</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="s">"esti sigma:"</span><span class="p">,</span> <span class="n">esti_sigma</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>esti phi: 0.09 esti mu: [8.99, 0.99] esti sigma: [[1.07, 0.31], [0.31, 0.51]]
+esti phi: 0.19 esti mu: [0.01, 0.01] esti sigma: [[1.0, 0.48], [0.48, 1.01]]
+esti phi: 0.1 esti mu: [10.02, 10.02] esti sigma: [[0.92, -0.01], [-0.01, 1.03]]
+esti phi: 0.6 esti mu: [2.01, 7.98] esti sigma: [[2.0, -0.61], [-0.61, 1.02]]
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>If we compare the estimated parameters with the real paramets, we can see the estimation error is within 0.05, and the correspondence between the phi, mu and sigma is also correct. Therefore the EM algorithm does work!</p>
+
+<p>We can perform clustering using the trained cluster model and plot the clustering results</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="n">cluster_X</span> <span class="o">=</span> <span class="n">cluster</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="n">cluster_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">cluster_X</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">cluster_index</span><span class="p">:</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span> <span class="n">X</span><span class="p">[</span><span class="n">cluster_X</span><span class="o">==</span><span class="n">ind</span><span class="p">][:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="p">[</span><span class="n">cluster_X</span><span class="o">==</span><span class="n">ind</span><span class="p">][:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span> <span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">cluster_index</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="https://nianlonggu.github.io/img/2019-07-10-EM//EM_13_0.png" alt="png" /></p>
+
+<p>Well, the clustering results are pretty accurate and reasonable! So we can use GMM for unsupervised clustering!</p>
+
+<p>Discussion: As shown the in the figure above, each cluster is actually a convex set.</p>
+<blockquote>
+  <p>A convex set $S$ means for any two points $\mathbf{x}<em>1\in S, \mathbf{x}_2\in S$, the linear interpolation $\mathbf{x}</em>\text{int}= \lambda * \mathbf{x}_1 + (1-\lambda)\mathbf{x}_2, 0\leq\lambda\leq 1$ also belongs to $S$</p>
+</blockquote>
+
+<p>This is pretty reasonable, since Gaussian distribution naturally has a convex shape. However, what the performance of GMM clustering will be for non-convex dataset?</p>
+
+<h2 id="gmm-on-2d-data-points-with-non-convex-shapes">GMM on 2d data points with non-convex shapes</h2>
+
+<p>First of all, let prepare the data:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">load_non_convex_data</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">prior_z_list</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.5</span><span class="p">],</span> <span class="n">mu_list</span><span class="o">=</span><span class="p">[[</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">]],</span> <span class="n">sigma_list</span><span class="o">=</span><span class="p">[[[</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]],[[</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]]]):</span>
+    <span class="n">X</span><span class="o">=</span><span class="p">[]</span>
+    <span class="n">choice_of_model</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span> <span class="n">prior_z_list</span><span class="p">),</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">prior_z_list</span>  <span class="p">)</span>
+    <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">choice_of_model</span><span class="p">:</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">x</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">multivariate_normal</span><span class="p">(</span> <span class="n">mu_list</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="n">sigma_list</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="p">)</span>
+            <span class="k">if</span> <span class="n">ind</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">&gt;</span><span class="mf">1.5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">+</span><span class="mf">0.5</span><span class="p">:</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">&lt;</span><span class="mf">1.5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">-</span><span class="mf">0.5</span><span class="p">:</span>
+                    <span class="k">break</span>
+        <span class="n">X</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">X</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">X</span>            
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">X</span><span class="o">=</span> <span class="n">load_non_convex_data</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span><span class="n">X</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="https://nianlonggu.github.io/img/2019-07-10-EM//EM_20_0.png" alt="png" /></p>
+
+<p>Use EM algorithm to estimate the parameters of the GMM model.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="n">params</span><span class="o">=</span><span class="n">EM</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">num_clusters</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span> <span class="mf">1E-2</span><span class="p">)</span>
+<span class="n">mu</span><span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s">"mu"</span><span class="p">]</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s">"sigma"</span><span class="p">]</span>
+<span class="n">phi</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s">"phi"</span><span class="p">]</span>
+<span class="n">cluster</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s">"cluster"</span><span class="p">]</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre>parameter changes:  7.344997536220525
+parameter changes:  2.769657568563131
+parameter changes:  0.6826557990296913
+parameter changes:  0.8559206668196735
+parameter changes:  0.9985169905722497
+parameter changes:  0.6972809861725238
+parameter changes:  0.16143972260766515
+parameter changes:  0.014376638549487432
+parameter changes:  0.002146320352925
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Let’s see the clustering results:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="n">cluster_X</span> <span class="o">=</span> <span class="n">cluster</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="n">cluster_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">cluster_X</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">cluster_index</span><span class="p">:</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span> <span class="n">X</span><span class="p">[</span><span class="n">cluster_X</span><span class="o">==</span><span class="n">ind</span><span class="p">][:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="p">[</span><span class="n">cluster_X</span><span class="o">==</span><span class="n">ind</span><span class="p">][:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span> <span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">cluster_index</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="https://nianlonggu.github.io/img/2019-07-10-EM/EM_24_0.png" alt="png" /></p>
+
+<p>From this figure we can see the real clusters are actually non-convex, since there is a sine-shape gap between two real clusters. However, the GMM clustering resluts always provide convex clutsers. For example, either the blue points set or the red points set is convex. This is determined by the fact that Gaussian distribution has convex shape.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+<p>Now we see the ability and shortcoming of the GMM clustering. In the GMM clustering results, each cluster’s region ussually has a convex shape. This actually limits the power of GMM clustering especially on some mainfold data clustring. In the future we will discuss how to cluster such non-convex dataset.</p>
+
+<p>Moreover, this GMM model is not very practical, since for some sparse dataset, when updating the <script type="math/tex">\Sigma_j</script> in the <strong>M</strong> step, the covariance matrix <script type="math/tex">\frac{ \sum_{i=1}^{n}q_{i,k}(\mathbf{x}^{(i)}-\mu_k)(\mathbf{x}^{(i)}-\mu_k)^T }{\sum_{i=1}^{n} q_{i,k} }</script> may not be positive definite (be singular). In this case we cannot directly compute the inverse of <script type="math/tex">\Sigma_j</script>. More works are needed to deal with such cases.</p>
+
+<p><strong>Reference</strong></p>
+<ol>
+  <li><a href="http://cs229.stanford.edu/notes/">Andrew Ng’s course on Machine Learning at Stanford University</a></li>
+</ol>
+:ET

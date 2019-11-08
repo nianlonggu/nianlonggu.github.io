@@ -3,20 +3,20 @@
 > Always on the way.
 
 
-Hi, I am Nianlong, a candidate PhD student. I am currently working on machine learning, computer vision and some natural language processing topics. 
-<!-- [Facebook](https://www.facebook.com/).  -->
+Hi, I am Nianlong. I am a PhD student at the institute of neuroinformatics, ETH Zurich. I am currently working on topics of natural language processing, including document information retrieval and summarization. During my internship at Robert Bosch, I worked on the topic generative model for image visual attributes manipulation and anomaly detection. My master thesis is about deep learning based image super-resolution in the context of video coding.
 
 
 ##### Projects
 
+- A Reverse Variation Autoencoder for Visual Attribute Manipulation and Anomaly Detection (submitted to WACV 2020)
 - [Master Thesis: Auto-encoder Based Super Resolution in the Context of Video Coding](https://github.com/nianlonggu/Autoencoder-based-Super-Resolution) . [Thesis PDF](https://github.com/nianlonggu/Autoencoder-based-Super-Resolution/blob/master/MasterThesis_Deep_Learning_based_Super_Resolution.pdf)
 - [Spectrum Analysis Tools for Super Resolution](https://github.com/nianlonggu/Super-Resolution-Spectrum-Analysis)
 - [Bachelor Thesis: Floating Random Walk Method for Capacitance Extraction][1] . [Thesis PDF](https://github.com/nianlonggu/Floating-Random-Walk-Method-for-Capacitance-Extraction/blob/master/BachelorThesis_FRW_and_Space_Management_NianlongGu.pdf)
-- A ReVAE for Visual Attribute Manipulation and Anomaly Detection (submitted to ICCV 2019)
 - [An Anroid Application: "MySchedule", used for setting personal schedule in a time sheet](https://github.com/nianlonggu/AndroidAPP-MySchedule)
 
+##### Github
+- https://github.com/nianlonggu
 
-<!-- [1]: //huangxuan.me/2015/07/09/js-module-7day/ -->
 [1]: https://github.com/nianlonggu/Floating-Random-Walk-Method-for-Capacitance-Extraction
 
 

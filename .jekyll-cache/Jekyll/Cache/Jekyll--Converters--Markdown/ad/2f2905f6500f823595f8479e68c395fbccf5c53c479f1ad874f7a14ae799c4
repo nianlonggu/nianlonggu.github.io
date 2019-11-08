@@ -1,0 +1,885 @@
+I"�N<p>The Jupyter notebook is available at my github: <a href="https://github.com/nianlonggu/SupportVectorMachine/blob/master/SVM-solver/SVM-Tutorial.ipynb">SupportVectorMachine/SVM-Tutorial</a></p>
+
+<p>First of all, we need to implement the SVM solver based on the SMO algorithm.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">keras.datasets</span> <span class="kn">import</span> <span class="n">mnist</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>Using TensorFlow backend.
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>We define some auxilary functions. The following two functions are related with the kernel function and kernel matrix</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre><span class="s">""" kernel part for SVM """</span>
+<span class="k">def</span> <span class="nf">kernel_func</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span> <span class="n">kernel_type</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+	<span class="k">if</span> <span class="n">kernel_type</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span> <span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">)</span>
+	<span class="k">elif</span> <span class="n">kernel_type</span><span class="p">[</span><span class="s">"name"</span><span class="p">]</span><span class="o">==</span><span class="s">"GAUSSIAN"</span><span class="p">:</span>
+		<span class="n">sigma</span> <span class="o">=</span> <span class="n">kernel_type</span><span class="p">[</span><span class="s">"params"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span> <span class="n">x1</span><span class="o">-</span><span class="n">x2</span><span class="p">,</span> <span class="n">x1</span><span class="o">-</span><span class="n">x2</span> <span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>  <span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">get_kernel_matrix</span><span class="p">(</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">kernel_type</span><span class="o">=</span><span class="bp">None</span> <span class="p">):</span>
+	<span class="n">num_samples_x1</span> <span class="o">=</span> <span class="n">x1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+	<span class="n">num_samples_x2</span> <span class="o">=</span> <span class="n">x2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+	<span class="n">kernel_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">num_samples_x1</span><span class="p">,</span> <span class="n">num_samples_x2</span><span class="p">])</span>
+	<span class="k">for</span> <span class="n">nrow</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_samples_x1</span> <span class="p">):</span>
+		<span class="k">for</span> <span class="n">ncol</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_samples_x2</span>  <span class="p">):</span>
+			<span class="n">kernel_matrix</span><span class="p">[</span><span class="n">nrow</span><span class="p">][</span><span class="n">ncol</span><span class="p">]</span> <span class="o">=</span> <span class="n">kernel_func</span><span class="p">(</span><span class="n">x1</span><span class="p">[</span><span class="n">nrow</span><span class="p">]</span> <span class="p">,</span> <span class="n">x2</span><span class="p">[</span><span class="n">ncol</span><span class="p">],</span> <span class="n">kernel_type</span> <span class="o">=</span> <span class="n">kernel_type</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">kernel_matrix</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Then we need to implement the SVM solver part, which is encapsulated into a class</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+</pre></td><td class="rouge-code"><pre><span class="s">"""
+Description: A SVM solver
+Input:  training dataset (x,y), together with other hype-parameters
+Return: a trained SVM model (solver) which is able to perform classification for a give x
+"""</span>
+<span class="k">class</span> <span class="nc">SVM_Solver</span><span class="p">:</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kernel_type</span><span class="o">=</span><span class="bp">None</span> <span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">support_ind</span> <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">support_x</span> <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">support_y</span> <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">support_lamb</span> <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">kernel_type</span><span class="o">=</span> <span class="n">kernel_type</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">C</span> <span class="o">=</span> <span class="n">C</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">objective_func</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">Inf</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">lamb</span> <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">param_b</span> <span class="o">=</span> <span class="bp">None</span>
+
+	<span class="c1">## This is a SVM trained predictor
+</span>	<span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x</span><span class="p">,</span> <span class="n">decision_mode</span> <span class="o">=</span> <span class="s">"hard"</span><span class="p">):</span>
+		<span class="k">def</span> <span class="nf">decision_func</span><span class="p">(</span><span class="n">z</span><span class="p">):</span>
+			<span class="k">if</span> <span class="n">decision_mode</span> <span class="o">==</span> <span class="s">"soft"</span><span class="p">:</span>
+				<span class="k">if</span> <span class="n">z</span><span class="o">&lt;-</span><span class="mi">1</span><span class="p">:</span>
+					<span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+				<span class="k">elif</span> <span class="n">z</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
+					<span class="k">return</span> <span class="mi">1</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="k">return</span> <span class="n">z</span>
+			<span class="k">elif</span> <span class="n">decision_mode</span> <span class="o">==</span> <span class="s">"hard"</span><span class="p">:</span>
+				<span class="k">if</span> <span class="n">z</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">:</span>
+					<span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="k">return</span> <span class="mi">1</span>
+		<span class="n">K</span> <span class="o">=</span> <span class="n">get_kernel_matrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">support_x</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">kernel_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel_type</span> <span class="p">)</span>
+		<span class="n">pred_y</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+			<span class="n">z</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_lamb</span><span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_y</span><span class="p">,</span> <span class="n">K</span><span class="p">[:,</span><span class="n">ind</span><span class="p">]</span> <span class="p">)</span> <span class="o">+</span>  <span class="bp">self</span><span class="o">.</span><span class="n">param_b</span>  
+			<span class="n">pred_y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">decision_func</span><span class="p">(</span><span class="n">z</span><span class="p">))</span>	
+		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pred_y</span><span class="p">)</span>
+		
+		<span class="s">"""Training the SVM model, which uses x, y and validation set x_val, y_val
+        max_iter is the maximum iteration to train;
+        epsilon is use to determine when the training is terminated -- the change of objective
+        function is less than epsilon
+        """</span>
+	<span class="k">def</span> <span class="nf">train</span><span class="p">(</span> <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span> <span class="mf">1E6</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span> <span class="mf">1E-4</span> <span class="p">):</span>
+	
+		<span class="n">num_samples</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="s">"""Solve the dual problem using SMO"""</span>
+		<span class="c1">## Initialization
+</span>		<span class="n">K</span><span class="o">=</span><span class="n">get_kernel_matrix</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">,</span> <span class="n">kernel_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel_type</span> <span class="p">)</span>	
+		<span class="n">C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">C</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lamb</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">lamb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_samples</span><span class="p">)</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_b</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">param_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">()</span>
+		<span class="c1">## Start looping:
+</span>		<span class="c1">## looping parameters:
+</span>
+		<span class="n">local_count</span> <span class="o">=</span><span class="mi">0</span>
+		<span class="c1">##Here is the part of the SMO algorithm
+</span>		<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+			<span class="c1">## randomly select a pair (a,b) to optimize
+</span>			<span class="p">[</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span> <span class="n">num_samples</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span> <span class="bp">False</span> <span class="p">)</span>
+			<span class="k">if</span> <span class="n">K</span><span class="p">[</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">]</span> <span class="o">+</span> <span class="n">K</span><span class="p">[</span><span class="n">b</span><span class="p">,</span><span class="n">b</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">K</span><span class="p">[</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">]</span> <span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+				<span class="k">continue</span>	
+
+			<span class="n">lamb_a_old</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lamb</span><span class="p">[</span><span class="n">a</span><span class="p">]</span>
+			<span class="n">lamb_b_old</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lamb</span><span class="p">[</span><span class="n">b</span><span class="p">]</span>	
+
+			<span class="n">Ea</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lamb</span> <span class="o">*</span> <span class="n">y</span><span class="p">,</span> <span class="n">K</span><span class="p">[:,</span><span class="n">a</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_b</span> <span class="o">-</span> <span class="n">y</span><span class="p">[</span><span class="n">a</span><span class="p">]</span>
+			<span class="n">Eb</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lamb</span> <span class="o">*</span> <span class="n">y</span><span class="p">,</span> <span class="n">K</span><span class="p">[:,</span><span class="n">b</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_b</span> <span class="o">-</span> <span class="n">y</span><span class="p">[</span><span class="n">b</span><span class="p">]</span>	
+
+			<span class="n">lamb_a_new_unclip</span> <span class="o">=</span> <span class="n">lamb_a_old</span>  <span class="o">+</span> <span class="n">y</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">*</span><span class="p">(</span><span class="n">Eb</span><span class="o">-</span><span class="n">Ea</span><span class="p">)</span><span class="o">/</span><span class="p">(</span> <span class="n">K</span><span class="p">[</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">]</span> <span class="o">+</span> <span class="n">K</span><span class="p">[</span><span class="n">b</span><span class="p">,</span><span class="n">b</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">K</span><span class="p">[</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">]</span> <span class="p">)</span>
+			<span class="n">xi</span> <span class="o">=</span> <span class="o">-</span> <span class="n">lamb_a_old</span>  <span class="o">*</span> <span class="n">y</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">-</span> <span class="n">lamb_b_old</span> <span class="o">*</span> <span class="n">y</span><span class="p">[</span><span class="n">b</span><span class="p">]</span>	
+
+			<span class="k">if</span> <span class="n">y</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">!=</span> <span class="n">y</span><span class="p">[</span><span class="n">b</span><span class="p">]:</span>
+				<span class="n">L</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span> <span class="n">xi</span> <span class="o">*</span> <span class="n">y</span><span class="p">[</span><span class="n">b</span><span class="p">],</span> <span class="mi">0</span> <span class="p">)</span>
+				<span class="n">H</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span> <span class="n">C</span><span class="o">+</span><span class="n">xi</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="n">b</span><span class="p">],</span> <span class="n">C</span> <span class="p">)</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">L</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">C</span><span class="o">-</span><span class="n">xi</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="n">b</span><span class="p">])</span>
+				<span class="n">H</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span> <span class="n">C</span><span class="p">,</span> <span class="o">-</span><span class="n">xi</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="p">)</span>	
+
+			<span class="k">if</span> <span class="n">lamb_a_new_unclip</span> <span class="o">&lt;</span> <span class="n">L</span><span class="p">:</span>
+				<span class="n">lamb_a_new</span> <span class="o">=</span> <span class="n">L</span>
+			<span class="k">elif</span> <span class="n">lamb_a_new_unclip</span> <span class="o">&gt;</span> <span class="n">H</span><span class="p">:</span>
+				<span class="n">lamb_a_new</span> <span class="o">=</span> <span class="n">H</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">lamb_a_new</span> <span class="o">=</span> <span class="n">lamb_a_new_unclip</span>	
+
+			<span class="n">lamb_b_new</span> <span class="o">=</span> <span class="n">lamb_b_old</span> <span class="o">+</span> <span class="p">(</span> <span class="n">lamb_a_old</span> <span class="o">-</span> <span class="n">lamb_a_new</span> <span class="p">)</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">*</span> <span class="n">y</span><span class="p">[</span><span class="n">b</span><span class="p">]</span>
+			<span class="k">if</span> <span class="n">lamb_a_new</span> <span class="o">&gt;</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">lamb_a_new</span> <span class="o">&lt;</span><span class="n">C</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">param_b</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">param_b</span> <span class="o">-</span> <span class="n">Ea</span> <span class="o">+</span> <span class="p">(</span> <span class="n">lamb_a_old</span><span class="o">-</span> <span class="n">lamb_a_new</span><span class="p">)</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="n">a</span><span class="p">]</span><span class="o">*</span><span class="n">K</span><span class="p">[</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">lamb_b_old</span> <span class="o">-</span> <span class="n">lamb_b_new</span><span class="p">)</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">*</span> <span class="n">K</span><span class="p">[</span><span class="n">b</span><span class="p">,</span><span class="n">a</span><span class="p">]</span>
+			<span class="k">elif</span> <span class="n">lamb_b_new</span> <span class="o">&gt;</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">lamb_b_new</span> <span class="o">&lt;</span><span class="n">C</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">param_b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_b</span> <span class="o">-</span> <span class="n">Eb</span> <span class="o">+</span> <span class="p">(</span> <span class="n">lamb_a_old</span><span class="o">-</span> <span class="n">lamb_a_new</span><span class="p">)</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="n">a</span><span class="p">]</span><span class="o">*</span><span class="n">K</span><span class="p">[</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">lamb_b_old</span> <span class="o">-</span> <span class="n">lamb_b_new</span><span class="p">)</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">*</span> <span class="n">K</span><span class="p">[</span><span class="n">b</span><span class="p">,</span><span class="n">b</span><span class="p">]</span>	
+
+			<span class="bp">self</span><span class="o">.</span><span class="n">lamb</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">=</span> <span class="n">lamb_a_new</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">lamb</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="n">lamb_b_new</span>	
+
+			<span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">+=</span><span class="mi">1</span>
+			<span class="n">local_count</span> <span class="o">+=</span><span class="mi">1</span>
+
+			<span class="s">"""Every 10000 iterations record the current progree of the training,
+            and determine whether to stop the training.
+            """</span>
+			<span class="k">if</span> <span class="n">local_count</span> <span class="o">&gt;=</span> <span class="n">max_iter</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">%</span> <span class="mi">10000</span> <span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+				<span class="c1">## get the support set
+</span>				<span class="bp">self</span><span class="o">.</span><span class="n">support_ind</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">lamb</span> <span class="o">&gt;</span> <span class="mi">0</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">support_x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">support_ind</span><span class="p">]</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">support_y</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">support_ind</span><span class="p">]</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">support_lamb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lamb</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">support_ind</span><span class="p">]</span>	
+	
+				<span class="c1">## Evaluate the performance (accuracy) on training set and validation set
+</span>				<span class="n">pred_y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+				<span class="n">train_acc</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span> <span class="n">pred_y</span> <span class="o">==</span> <span class="n">y</span><span class="p">)</span><span class="o">/</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+				<span class="n">pred_y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_val</span><span class="p">)</span>
+				<span class="n">val_acc</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span> <span class="n">pred_y</span> <span class="o">==</span> <span class="n">y_val</span>  <span class="p">)</span><span class="o">/</span> <span class="n">y_val</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+				<span class="n">support_K</span> <span class="o">=</span> <span class="n">K</span><span class="p">[</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_ind</span><span class="p">,:</span> <span class="p">][:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_ind</span><span class="p">]</span>
+				<span class="n">new_objective_func</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_lamb</span> <span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_lamb</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">support_y</span> <span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">support_K</span> <span class="p">)</span><span class="o">.</span><span class="n">T</span> <span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_lamb</span><span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_y</span>  <span class="p">)</span> 
+
+				<span class="c1">## support ratio represents the percentage of the points which are support vectors
+</span>				<span class="n">support_ratio</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_ind</span> <span class="p">)</span><span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_ind</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> 
+
+				<span class="k">print</span><span class="p">(</span><span class="s">"Iteration: </span><span class="si">%</span><span class="s">d, </span><span class="se">\t</span><span class="s">Train accuracy: </span><span class="si">%.2</span><span class="s">f</span><span class="si">%%</span><span class="s">, </span><span class="se">\t</span><span class="s">Val accuracy: </span><span class="si">%.2</span><span class="s">f</span><span class="si">%%</span><span class="s">, </span><span class="se">\t</span><span class="s">Delta Objective Function: </span><span class="si">%</span><span class="s">f, </span><span class="se">\t</span><span class="s">Support Ratio: </span><span class="si">%.2</span><span class="s">f</span><span class="si">%%</span><span class="s">"</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">,</span> <span class="n">train_acc</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span> <span class="n">val_acc</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span> <span class="n">new_objective_func</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">objective_func</span><span class="p">,</span> <span class="n">support_ratio</span> <span class="o">*</span><span class="mi">100</span> <span class="p">))</span>
+				
+				<span class="c1">## If the change of dual objective function is less than epsilon, then stop training
+</span>				<span class="k">if</span> <span class="nb">abs</span><span class="p">(</span> <span class="n">new_objective_func</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">objective_func</span> <span class="p">)</span> <span class="o">&lt;=</span> <span class="n">epsilon</span><span class="p">:</span>
+					<span class="k">break</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">objective_func</span> <span class="o">=</span> <span class="n">new_objective_func</span>
+				
+				<span class="k">if</span> <span class="n">local_count</span> <span class="o">&gt;=</span> <span class="n">max_iter</span><span class="p">:</span>
+					<span class="k">break</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Define some auxilary functions for compute the distance matrix, which is used to estimate the sigma for Gaussian Kernel, generator folder and plot the results.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+</pre></td><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">distance_matrix</span><span class="p">(</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span> <span class="n">metric</span> <span class="o">=</span> <span class="s">"Euclidean"</span> <span class="p">):</span>
+	<span class="k">def</span> <span class="nf">distance</span><span class="p">(</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span> <span class="p">):</span>
+		<span class="k">if</span> <span class="n">metric</span> <span class="o">==</span> <span class="s">"Euclidean"</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a</span><span class="o">-</span><span class="n">b</span><span class="p">)</span>
+	<span class="n">n_row</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+	<span class="n">n_col</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+	<span class="n">dis_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">n_row</span><span class="p">,</span> <span class="n">n_col</span><span class="p">]</span> <span class="p">)</span>
+	<span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="n">n_row</span> <span class="p">):</span>
+		<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_col</span> <span class="p">):</span>
+			<span class="n">dis_matrix</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">distance</span><span class="p">(</span> <span class="n">x</span><span class="p">[</span><span class="n">r</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
+	<span class="k">return</span> <span class="n">dis_matrix</span>
+
+<span class="k">def</span> <span class="nf">generate_folder</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+	<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+		<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">path</span>
+
+<span class="c1"># This plot results is used to plot the results on training dataset, e.g, what the separating hyperplane looks
+# like, how the support vectors are distributed, and whether the points are correctly classified
+</span><span class="k">def</span> <span class="nf">plot_results</span><span class="p">(</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span> <span class="n">support_ind</span><span class="p">,</span> <span class="n">pred_y</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="s">""</span><span class="p">,</span> <span class="n">img_save_path</span> <span class="o">=</span> <span class="bp">None</span> <span class="p">,</span> <span class="n">show_img</span> <span class="o">=</span> <span class="bp">True</span> <span class="p">):</span>
+
+	<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+
+	<span class="n">x_low_dim</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,:</span><span class="mi">2</span><span class="p">]</span>
+
+	<span class="n">x_support</span> <span class="o">=</span>  <span class="n">x</span><span class="p">[</span><span class="n">support_ind</span><span class="p">]</span>
+	<span class="n">y_support</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">support_ind</span><span class="p">]</span>
+	<span class="n">pred_y_support</span> <span class="o">=</span> <span class="n">pred_y</span><span class="p">[</span><span class="n">support_ind</span><span class="p">]</span>
+	<span class="n">x_support_low_dim</span> <span class="o">=</span> <span class="n">x_low_dim</span><span class="p">[</span><span class="n">support_ind</span><span class="p">]</span>
+
+	<span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+		<span class="k">if</span> <span class="n">y</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+			<span class="n">mshape</span> <span class="o">=</span> <span class="s">"^"</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">mshape</span> <span class="o">=</span> <span class="s">"o"</span>
+		<span class="k">if</span> <span class="n">pred_y</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+			<span class="n">color</span> <span class="o">=</span> <span class="s">"r"</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">color</span> <span class="o">=</span> <span class="s">"b"</span>
+
+		<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_low_dim</span><span class="p">[</span><span class="n">ind</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">x_low_dim</span><span class="p">[</span><span class="n">ind</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">mshape</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span> <span class="n">color</span><span class="p">,</span> <span class="n">markerfacecolor</span><span class="o">=</span><span class="s">'none'</span><span class="p">,</span> <span class="n">markeredgewidth</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">markersize</span> <span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+	<span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x_support</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+		<span class="k">if</span> <span class="n">y_support</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+			<span class="n">mshape</span> <span class="o">=</span> <span class="s">"^"</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">mshape</span> <span class="o">=</span> <span class="s">"o"</span>
+		<span class="k">if</span> <span class="n">pred_y_support</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+			<span class="n">color</span> <span class="o">=</span> <span class="s">"r"</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">color</span> <span class="o">=</span> <span class="s">"b"</span>
+
+		<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_support_low_dim</span><span class="p">[</span><span class="n">ind</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">x_support_low_dim</span><span class="p">[</span><span class="n">ind</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">mshape</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span> <span class="n">color</span><span class="p">,</span> <span class="n">markersize</span> <span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+	<span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+		<span class="k">if</span> <span class="n">y</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="o">!=</span> <span class="n">pred_y</span><span class="p">[</span><span class="n">ind</span><span class="p">]:</span>
+			<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_low_dim</span><span class="p">[</span><span class="n">ind</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">x_low_dim</span><span class="p">[</span><span class="n">ind</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="s">"o"</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span> <span class="s">"g"</span><span class="p">,</span> <span class="n">markersize</span> <span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">markerfacecolor</span><span class="o">=</span><span class="s">'none'</span><span class="p">)</span>
+
+	<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"x"</span><span class="p">)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"y"</span><span class="p">)</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">x_low_dim</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">x_low_dim</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span><span class="o">+</span><span class="mf">0.5</span> <span class="p">])</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">x_low_dim</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">x_low_dim</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span><span class="o">+</span><span class="mf">0.5</span> <span class="p">])</span>
+
+	<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+	<span class="k">if</span> <span class="n">img_save_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span> <span class="n">img_save_path</span> <span class="p">)</span>
+	<span class="k">if</span> <span class="n">show_img</span><span class="p">:</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+	<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="test-the-kernel-svm-on-linearly-non-separable-data">Test the kernel SVM on linearly non-separable data</h2>
+
+<p>First we load the data</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+</pre></td><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="n">num_samples</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">):</span>
+	<span class="n">x1</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="n">x2</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_samples</span><span class="p">):</span>
+		<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+			<span class="n">r_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">multivariate_normal</span><span class="p">(</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[[</span><span class="mi">20</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]],</span> <span class="mi">1</span> <span class="p">)</span>
+			<span class="k">if</span> <span class="n">r_x</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">&gt;</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span> <span class="n">r_x</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="p">)</span><span class="o">+</span><span class="mf">0.5</span><span class="p">:</span>
+				<span class="n">x1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">r_x</span> <span class="p">)</span>
+				<span class="k">break</span>
+		<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+			<span class="n">r_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">multivariate_normal</span><span class="p">(</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[[</span><span class="mi">20</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]],</span> <span class="mi">1</span> <span class="p">)</span>
+			<span class="k">if</span> <span class="n">r_x</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">&lt;</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span> <span class="n">r_x</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="p">):</span>
+				<span class="n">x2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">r_x</span> <span class="p">)</span>
+				<span class="k">break</span>
+
+	<span class="n">x1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span> <span class="n">x1</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span><span class="mi">0</span> <span class="p">)</span>
+	<span class="n">x2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span> <span class="n">x2</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+	<span class="n">y1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="n">num_samples</span><span class="p">])</span> <span class="o">*-</span><span class="mi">1</span>
+	<span class="n">y2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="n">num_samples</span><span class="p">])</span> <span class="o">*</span><span class="mi">1</span>
+	<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+	<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">y1</span><span class="p">,</span><span class="n">y2</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+	<span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>What does this loaded data look like? Let’s load and plot it.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="mi">500</span><span class="p">)</span>
+<span class="n">x_val</span><span class="p">,</span> <span class="n">y_val</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="c1">## x,y are used for training, and x_val, y_val are used for validation
+</span><span class="n">x_pos</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">y</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">x_neg</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">y</span><span class="o">==-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span> <span class="n">x_pos</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">x_pos</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="s">"^"</span><span class="p">,</span> <span class="n">markerfacecolor</span><span class="o">=</span><span class="s">'none'</span> <span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span> <span class="n">x_neg</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">x_neg</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="s">"o"</span><span class="p">,</span> <span class="n">markerfacecolor</span><span class="o">=</span><span class="s">'none'</span> <span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="https://nianlonggu.github.io/img/2019-07-04-SVM/SVM-Tutorial_12_0.png" alt="png" /></p>
+
+<p>From the figure, we can see that these points of two classes are obviously linearly non-separable, therefore we need to use the kernel SVM, and use Gaussian Kernel. Note that in the Gaussian Kernel there is a parameter: sigma, which represents the standard deviation.</p>
+
+<p>The SVM results are very sensitive to the selection of sigma.</p>
+<ol>
+  <li>If sigma is too small, the model is going to overfit. Then the training/validation accuracy would be high, but the percentage of support vectors will be extremely high – almost every point is a support vector!</li>
+  <li>If sigma is too large, the model is going to underfit. The percentage of suport vector “might” be lower. However, the training/validation accuracy is low, which means the separating hyperplane is not accurately learned.</li>
+</ol>
+
+<p>In this experiment, I used an empirical way to estimate the sigma:</p>
+<blockquote>
+  <p>Given the training dataset $X$, we use the function distance_matrix($X$,$X$) to compute the distance matrix w.r.t the element in $X$. Then we can use the average value of the distances between point pairs. Moreover, we can use a factor, such as 0.5, to adjust the value of $\sigma$.</p>
+</blockquote>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="n">estimated_sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span> <span class="n">distance_matrix</span><span class="p">(</span> <span class="n">x</span><span class="p">,</span><span class="n">x</span> <span class="p">)</span> <span class="p">)</span> <span class="o">*</span> <span class="mf">0.5</span>
+<span class="k">print</span><span class="p">(</span><span class="n">estimated_sigma</span><span class="p">)</span>
+<span class="n">svm</span><span class="o">=</span> <span class="n">SVM_Solver</span><span class="p">(</span> <span class="n">kernel_type</span> <span class="o">=</span> <span class="p">{</span><span class="s">"name"</span><span class="p">:</span><span class="s">"GAUSSIAN"</span><span class="p">,</span> <span class="s">"params"</span><span class="p">:[</span><span class="n">estimated_sigma</span><span class="p">]</span> <span class="p">}</span> <span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>2.800322186496282
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Then, we can train our SVM model!</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">svm</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span> <span class="n">x_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">,</span> <span class="n">max_iter</span> <span class="o">=</span> <span class="mi">200000</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre></td><td class="rouge-code"><pre>Iteration: 10000, 	Train accuracy: 99.10%, 	Val accuracy: 98.00%, 	Delta Objective Function: inf, 	Support Ratio: 19.40%
+Iteration: 20000, 	Train accuracy: 99.80%, 	Val accuracy: 99.00%, 	Delta Objective Function: 51.337039, 	Support Ratio: 16.10%
+Iteration: 30000, 	Train accuracy: 99.90%, 	Val accuracy: 99.50%, 	Delta Objective Function: 26.450561, 	Support Ratio: 14.00%
+Iteration: 40000, 	Train accuracy: 99.40%, 	Val accuracy: 99.50%, 	Delta Objective Function: 10.510557, 	Support Ratio: 14.30%
+Iteration: 50000, 	Train accuracy: 99.00%, 	Val accuracy: 98.00%, 	Delta Objective Function: 8.315844, 	Support Ratio: 13.70%
+Iteration: 60000, 	Train accuracy: 99.00%, 	Val accuracy: 99.00%, 	Delta Objective Function: 6.098615, 	Support Ratio: 12.70%
+Iteration: 70000, 	Train accuracy: 99.70%, 	Val accuracy: 99.00%, 	Delta Objective Function: 6.163077, 	Support Ratio: 12.20%
+Iteration: 80000, 	Train accuracy: 100.00%, 	Val accuracy: 99.50%, 	Delta Objective Function: 4.421311, 	Support Ratio: 12.40%
+Iteration: 90000, 	Train accuracy: 99.80%, 	Val accuracy: 99.00%, 	Delta Objective Function: 4.129242, 	Support Ratio: 11.40%
+Iteration: 100000, 	Train accuracy: 99.80%, 	Val accuracy: 99.00%, 	Delta Objective Function: 1.332299, 	Support Ratio: 10.50%
+Iteration: 110000, 	Train accuracy: 100.00%, 	Val accuracy: 100.00%, 	Delta Objective Function: 1.195627, 	Support Ratio: 10.20%
+Iteration: 120000, 	Train accuracy: 99.90%, 	Val accuracy: 100.00%, 	Delta Objective Function: 2.248688, 	Support Ratio: 10.50%
+Iteration: 130000, 	Train accuracy: 100.00%, 	Val accuracy: 100.00%, 	Delta Objective Function: 2.209730, 	Support Ratio: 9.80%
+Iteration: 140000, 	Train accuracy: 100.00%, 	Val accuracy: 100.00%, 	Delta Objective Function: 0.971279, 	Support Ratio: 9.60%
+Iteration: 150000, 	Train accuracy: 100.00%, 	Val accuracy: 99.50%, 	Delta Objective Function: 1.393107, 	Support Ratio: 9.50%
+Iteration: 160000, 	Train accuracy: 99.90%, 	Val accuracy: 99.50%, 	Delta Objective Function: 0.346211, 	Support Ratio: 8.90%
+Iteration: 170000, 	Train accuracy: 99.80%, 	Val accuracy: 99.50%, 	Delta Objective Function: 0.258947, 	Support Ratio: 8.70%
+Iteration: 180000, 	Train accuracy: 100.00%, 	Val accuracy: 100.00%, 	Delta Objective Function: 0.207311, 	Support Ratio: 8.60%
+Iteration: 190000, 	Train accuracy: 99.90%, 	Val accuracy: 99.00%, 	Delta Objective Function: 0.738704, 	Support Ratio: 8.30%
+Iteration: 200000, 	Train accuracy: 100.00%, 	Val accuracy: 100.00%, 	Delta Objective Function: 0.676768, 	Support Ratio: 8.30%
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Ok, let’s have a look of the results by plotting it!</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">plot_results</span><span class="p">(</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span> <span class="n">svm</span><span class="o">.</span><span class="n">support_ind</span><span class="p">,</span> <span class="n">pred_y</span><span class="o">=</span> <span class="n">svm</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">title</span> <span class="o">=</span> <span class="s">""</span><span class="p">,</span><span class="n">show_img</span> <span class="o">=</span> <span class="bp">True</span> <span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="https://nianlonggu.github.io/img/2019-07-04-SVM/SVM-Tutorial_18_0.png" alt="png" /></p>
+
+<p>Several conclusions can be drawn:</p>
+<ol>
+  <li>the training dataset is correctly separated, which implies an accurate separating hyperplane;</li>
+  <li>The support vectors (points with solid color) are only located around the margin area, which indicates a good selection of the kernel parameters. This SVM is neither over-fit nor under-fit.</li>
+</ol>
+
+<p>We can further evaluate the accuracy on test dataset:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span> <span class="mi">500</span> <span class="p">)</span>
+
+<span class="n">pred_y</span><span class="o">=</span><span class="n">svm</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span>
+<span class="n">test_acc</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span> <span class="n">pred_y</span> <span class="o">==</span> <span class="n">y_test</span>  <span class="p">)</span><span class="o">/</span> <span class="n">y_test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Test Accuracy: </span><span class="si">%.2</span><span class="s">f</span><span class="si">%%</span><span class="s">"</span><span class="o">%</span><span class="p">(</span><span class="n">test_acc</span> <span class="o">*</span><span class="mi">100</span><span class="p">))</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>Test Accuracy: 99.50%
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="test-the-kernel-svm-on-mnist-for-classification">Test the kernel SVM on MNIST for classification</h2>
+
+<p>To further prove the effectiveness of the SVM model, we tested it on a slightly more complex problem: ditingush between digit “4” and digit “9” using SVM.</p>
+
+<p>First of all, we need to load and prepare the data</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+</pre></td><td class="rouge-code"><pre><span class="c1">## load data
+</span><span class="p">(</span><span class="n">mnist_x</span><span class="p">,</span> <span class="n">mnist_y</span><span class="p">),</span> <span class="n">_</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
+
+<span class="c1">## extract the digit "4" images (positive 1) and digit "9" images (negative 1)
+</span><span class="n">x_pos</span><span class="o">=</span> <span class="n">mnist_x</span><span class="p">[</span><span class="n">mnist_y</span> <span class="o">==</span> <span class="mi">4</span><span class="p">]</span>
+<span class="n">y_pos</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span> <span class="n">x_pos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">)</span>
+<span class="n">x_neg</span><span class="o">=</span> <span class="n">mnist_x</span><span class="p">[</span><span class="n">mnist_y</span> <span class="o">==</span> <span class="mi">9</span><span class="p">]</span>
+<span class="n">y_neg</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span> <span class="n">x_neg</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">)</span> <span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1">## Put both positive/negative samples together to get the train/val/test dataset
+</span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span> <span class="p">[</span> <span class="n">x_pos</span><span class="p">,</span> <span class="n">x_neg</span> <span class="p">],</span> <span class="n">axis</span> <span class="o">=</span><span class="mi">0</span> <span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="p">)</span><span class="o">/</span><span class="mi">255</span>   <span class="c1">## normalization
+</span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span> <span class="p">[</span> <span class="n">y_pos</span><span class="p">,</span> <span class="n">y_neg</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span><span class="mi">0</span> <span class="p">)</span>
+
+<span class="c1">## randomly shuffle
+</span><span class="n">random_indx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">permutation</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">)</span> <span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">random_indx</span><span class="p">]</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">random_indx</span><span class="p">]</span>
+
+<span class="c1">## get x,y x_val, y_val, x_test, y_test
+</span><span class="n">x_val</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:</span><span class="mi">500</span><span class="p">]</span>
+<span class="n">y_val</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:</span><span class="mi">500</span><span class="p">]</span>
+<span class="n">x_test</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">500</span><span class="p">:</span><span class="mi">1000</span><span class="p">]</span>
+<span class="n">y_test</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="mi">500</span><span class="p">:</span><span class="mi">1000</span><span class="p">]</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">1000</span><span class="p">:</span><span class="mi">2000</span><span class="p">]</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="mi">1000</span><span class="p">:</span><span class="mi">2000</span><span class="p">]</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Train the SVM model</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="c1">## Estimate the value of sigma
+</span><span class="n">sigma_mnist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span> <span class="n">distance_matrix</span><span class="p">(</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="p">)</span> <span class="p">)</span><span class="o">*</span><span class="mf">0.5</span>
+
+<span class="n">svm_mnist</span> <span class="o">=</span> <span class="n">SVM_Solver</span><span class="p">(</span> <span class="n">kernel_type</span> <span class="o">=</span> <span class="p">{</span><span class="s">"name"</span><span class="p">:</span><span class="s">"GAUSSIAN"</span><span class="p">,</span> <span class="s">"params"</span><span class="p">:[</span><span class="n">sigma_mnist</span><span class="p">]}</span> <span class="p">)</span>
+<span class="n">svm_mnist</span><span class="o">.</span><span class="n">train</span><span class="p">(</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span> <span class="n">x_val</span><span class="p">,</span> <span class="n">y_val</span> <span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+</pre></td><td class="rouge-code"><pre>Iteration: 10000, 	Train accuracy: 98.70%, 	Val accuracy: 96.40%, 	Delta Objective Function: inf, 	Support Ratio: 34.50%
+Iteration: 20000, 	Train accuracy: 98.60%, 	Val accuracy: 96.00%, 	Delta Objective Function: 92.534743, 	Support Ratio: 29.50%
+Iteration: 30000, 	Train accuracy: 98.60%, 	Val accuracy: 95.80%, 	Delta Objective Function: 17.440160, 	Support Ratio: 27.20%
+Iteration: 40000, 	Train accuracy: 98.80%, 	Val accuracy: 95.60%, 	Delta Objective Function: 5.375707, 	Support Ratio: 25.50%
+Iteration: 50000, 	Train accuracy: 98.90%, 	Val accuracy: 95.40%, 	Delta Objective Function: 2.259709, 	Support Ratio: 24.40%
+Iteration: 60000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 1.122565, 	Support Ratio: 23.70%
+Iteration: 70000, 	Train accuracy: 98.70%, 	Val accuracy: 94.20%, 	Delta Objective Function: 0.762315, 	Support Ratio: 23.90%
+Iteration: 80000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.425399, 	Support Ratio: 23.60%
+Iteration: 90000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.291108, 	Support Ratio: 23.30%
+Iteration: 100000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.258185, 	Support Ratio: 22.80%
+Iteration: 110000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.179889, 	Support Ratio: 22.80%
+Iteration: 120000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.140847, 	Support Ratio: 22.30%
+Iteration: 130000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.071885, 	Support Ratio: 22.70%
+Iteration: 140000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.037175, 	Support Ratio: 22.50%
+Iteration: 150000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.056052, 	Support Ratio: 22.30%
+Iteration: 160000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.032109, 	Support Ratio: 22.20%
+Iteration: 170000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.021068, 	Support Ratio: 22.30%
+Iteration: 180000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.020332, 	Support Ratio: 22.30%
+Iteration: 190000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.019551, 	Support Ratio: 22.30%
+Iteration: 200000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.009766, 	Support Ratio: 22.20%
+Iteration: 210000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.010782, 	Support Ratio: 22.40%
+Iteration: 220000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.011163, 	Support Ratio: 22.30%
+Iteration: 230000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.009348, 	Support Ratio: 22.20%
+Iteration: 240000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.006827, 	Support Ratio: 22.40%
+Iteration: 250000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.004162, 	Support Ratio: 22.20%
+Iteration: 260000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.003338, 	Support Ratio: 22.40%
+Iteration: 270000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.002217, 	Support Ratio: 22.40%
+Iteration: 280000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.001653, 	Support Ratio: 22.10%
+Iteration: 290000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.001823, 	Support Ratio: 22.00%
+Iteration: 300000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.001461, 	Support Ratio: 22.20%
+Iteration: 310000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.001170, 	Support Ratio: 22.10%
+Iteration: 320000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.000930, 	Support Ratio: 22.00%
+Iteration: 330000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.000714, 	Support Ratio: 22.10%
+Iteration: 340000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.000511, 	Support Ratio: 22.10%
+Iteration: 350000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.000345, 	Support Ratio: 21.90%
+Iteration: 360000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.000353, 	Support Ratio: 22.00%
+Iteration: 370000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.000227, 	Support Ratio: 21.90%
+Iteration: 380000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.000179, 	Support Ratio: 22.10%
+Iteration: 390000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.000226, 	Support Ratio: 21.90%
+Iteration: 400000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.000133, 	Support Ratio: 22.00%
+Iteration: 410000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.000229, 	Support Ratio: 21.90%
+Iteration: 420000, 	Train accuracy: 98.80%, 	Val accuracy: 95.40%, 	Delta Objective Function: 0.000100, 	Support Ratio: 21.90%
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The Delta Objective Function is now less than epsilon= 1E-4, so the training is finished. Now we can test the classification results on test dataset.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="n">pred_y</span><span class="o">=</span><span class="n">svm_mnist</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span>
+<span class="n">test_acc</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span> <span class="n">pred_y</span> <span class="o">==</span> <span class="n">y_test</span>  <span class="p">)</span><span class="o">/</span> <span class="n">y_test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Test Accuracy: </span><span class="si">%.2</span><span class="s">f</span><span class="si">%%</span><span class="s">"</span><span class="o">%</span><span class="p">(</span><span class="n">test_acc</span> <span class="o">*</span><span class="mi">100</span><span class="p">))</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>Test Accuracy: 95.60%
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Moreover, we can also have a look of the support_x to see what do the support vectors look like:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td><td class="rouge-code"><pre><span class="n">support_x_pos</span> <span class="o">=</span> <span class="n">svm_mnist</span><span class="o">.</span><span class="n">support_x</span><span class="p">[</span> <span class="n">svm_mnist</span><span class="o">.</span><span class="n">support_y</span><span class="o">==</span><span class="mi">1</span> <span class="p">]</span>
+<span class="n">support_x_neg</span> <span class="o">=</span> <span class="n">svm_mnist</span><span class="o">.</span><span class="n">support_x</span><span class="p">[</span> <span class="n">svm_mnist</span><span class="o">.</span><span class="n">support_y</span><span class="o">==-</span><span class="mi">1</span> <span class="p">]</span>
+
+<span class="n">fig</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span> <span class="mi">80</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s">'w'</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s">'k'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">gray</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="mi">10</span> <span class="p">):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">support_x_pos</span><span class="p">[</span><span class="n">i</span><span class="p">,:],[</span><span class="mi">28</span><span class="p">,</span><span class="mi">28</span><span class="p">]</span> <span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">"digit 4"</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s">'off'</span><span class="p">)</span>
+    
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="mi">10</span> <span class="p">):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="n">i</span><span class="o">+</span><span class="mi">11</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">support_x_neg</span><span class="p">[</span><span class="n">i</span><span class="p">,:],[</span><span class="mi">28</span><span class="p">,</span><span class="mi">28</span><span class="p">]</span> <span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">"digit 9"</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s">'off'</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">wspace</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="n">hspace</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="https://nianlonggu.github.io/img/2019-07-04-SVM/SVM-Tutorial_31_0.png" alt="png" /></p>
+
+<p>From the results we can see the support vectors are somehow ambiguous to distinguish. E.g, the 9th digit 4 looks also like digit 9, and the second digit 9 also looks like digit 4. The SVM model is sensitive to such ambiguous samples and tend to use them as support vectors to determine the separating hyperplane.</p>
+
+<p><strong>Conclusion</strong></p>
+
+<p>In these long series, we mathematically show the principle of SVM and many possible solutions to the problem. We also show the implementation and performance on some small but interesting samples. Hope this could be somehow helpful.</p>
+
+<p><strong>Reference</strong></p>
+<ol>
+  <li><a href="http://cs229.stanford.edu/notes/">Andrew Ng’s course on Machine Learning at Stanford University</a></li>
+  <li><a href="http://www.ti.rwth-aachen.de">Prof. Mathar Rudolf’s course on Fundamental of Big Data Analytics</a></li>
+  <li><a href="https://www.zhihu.com/question/35602879">SVM中，高斯核为什么会把原始维度映射到无穷多维？</a></li>
+  <li><a href="https://zhuanlan.zhihu.com/p/29212107">机器学习算法实践-SVM中的SMO算法- 知乎</a></li>
+</ol>
+:ET

@@ -5,9 +5,647 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Wed, 17 Jul 2019 17:26:53 +0200</pubDate>
-    <lastBuildDate>Wed, 17 Jul 2019 17:26:53 +0200</lastBuildDate>
-    <generator>Jekyll v3.8.5</generator>
+    <pubDate>Fri, 08 Nov 2019 15:56:35 +0100</pubDate>
+    <lastBuildDate>Fri, 08 Nov 2019 15:56:35 +0100</lastBuildDate>
+    <generator>Jekyll v4.0.0</generator>
+    
+      <item>
+        <title>Training a Wasserstein GAN on the free google colab TPU</title>
+        <description>&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Why using TPU?&lt;br /&gt;
+TPU is much faster than GPU. A single TPU contains 8 cores, each with a 8GB memory. During training, each batch of data is equally dispatched to all 8 cores. This means the equivalent memrory size if 8x8 = 64 GB. This make it possible to train some large models.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;How to run GAN on TPU? &lt;br /&gt;
+Using TPU Estimator.&lt;br /&gt;
+Different from classic classification task, training of GAN involves alternation between training Generator and Discriminator. This fact makes it imossible to simply use Keras on TPU. TPU Estimator allows you to more flexibiy configure the network and training optimizer behaviors&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;start-of-coding&quot;&gt;Start of coding&lt;/h2&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;# here we force google colab to use tensorflow 1.x, the configuration will be slightly different for tf 2.0
+%tensorflow_version 1.x
+import tensorflow as tf
+# tf.enable_eager_execution()
+import numpy as np
+# we use mnist dataset as an example
+import keras.datasets.mnist as mnist
+import math
+import os
+import matplotlib.pyplot as plt
+import imageio
+
+from google.colab import auth
+auth.authenticate_user()
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;the command auth.authenticate_user() is needed for access the google cloud storage to save/restore the model and load the training/testing data.&lt;/p&gt;
+
+&lt;h3 id=&quot;step-0-some-helper-function-for-visualizing-the-results&quot;&gt;Step 0: Some helper function for visualizing the results&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;def add_padding( x, padding_size=(2,2,2,2), padding_value = 1 ):
+    # x is a 4 d ndarray with range [0,1]
+    background = padding_value * np.ones(  [ x.shape[0], x.shape[1]+ padding_size[0]+padding_size[2], x.shape[2] + padding_size[1]+padding_size[3], x.shape[3]   ]  ).astype(np.float32)
+    background[:, padding_size[0]:-padding_size[2], padding_size[1]:-padding_size[3], : ] = x
+    padded_x = background
+    return padded_x
+
+# to convert a bulk of images into grid of images
+def make_grid(images,  ncol= None):
+	# ncol represents the number of columns of the image grid, if ncol is None, then arrange the grid as close to a square as possible
+	# This function always assume that the input image is RGB color space , normalized float type
+	if np.max(images)-np.min(images) &amp;gt;1 :
+		images = np.clip( images, -1,1 )
+		images = images /2 +0.5
+		
+	image_num = images.shape[0]
+	num_h = None
+	num_w = None
+	im_h = images.shape[1]
+	im_w = images.shape[2]   
+	im_c = images.shape[3]
+	if (ncol==None):
+		num_w = int( np.ceil(np.sqrt(image_num )))
+		num_h = int( np.ceil( image_num/ num_w ))
+	else:
+		num_w = int(ncol)
+		num_h = int( np.ceil(  image_num/num_w ))
+
+	# create a white pannel, which is a [height, width, channel] ndarray
+	pannel = np.ones(( num_h * im_h, num_w * im_w , im_c )).astype(np.float32)
+
+	for i in range( image_num ):
+		start_h = int(i / num_w) * im_h
+		start_w = (i % num_w) * im_w
+		pannel[ start_h: start_h+im_h , start_w : start_w + im_w ,: ]= images[i,:,:,:]
+	return  pannel
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;step-1-preparation-of-training-dataset&quot;&gt;Step 1: preparation of training dataset&lt;/h3&gt;
+
+&lt;p&gt;For using TPU in a practical scenario, it is recommended to use &lt;strong&gt;tf.data.TFRecordDataset&lt;/strong&gt;. The reason of not using &lt;strong&gt;tf.data.Dataset.from_tensor_slices&lt;/strong&gt; is this will store the training dataset directly to the computation graph, which will consume a lot of memory, especially for large training dataset.&lt;/p&gt;
+
+&lt;p&gt;A typical work flow is:&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;generating TFRecod locally;&lt;/li&gt;
+  &lt;li&gt;uploading TFRecord to google cloud storage bucket;&lt;/li&gt;
+  &lt;li&gt;load TFRecord data using TFRecordDataset during training.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Get the original image data, write them into TFRecord file. Each image is corresponding to a single record in the TFRecord file&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;(X_train, y_train), (X_test, y_test) = mnist.load_data()
+X_train= X_train[:,:,:,np.newaxis]
+X_test = X_test[ :,:,:,np.newaxis ]
+X_train = (X_train/255).astype(np.float32)
+X_test = (X_test/255).astype(np.float32)
+
+print(X_train.shape)
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;Downloading data from https://s3.amazonaws.com/img-datasets/mnist.npz
+11493376/11490434 [==============================] - 0s 0us/step
+(60000, 28, 28, 1)
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The image shape will be used later on. Then we write mnist images into TFRecord files.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;def make_tfrecord( file_name, images ):
+    # define a TFRecordWriter
+    writer = tf.python_io.TFRecordWriter(file_name, options= tf.io.TFRecordOptions(tf.io.TFRecordCompressionType.GZIP) )
+    for img in images:
+        if isinstance( img, str ):  # This case img is the path to the image file
+            img =imageio.imread(img)
+            img = (img/255.0).astype(np.float32)
+        features = { 
+            &quot;image&quot;: tf.train.Feature( float_list = tf.train.FloatList( value = img.reshape(-1) ) ),
+            &quot;image_shape&quot;: tf.train.Feature( int64_list = tf.train.Int64List( value = img.shape )  )}
+        # tf_serialized_example contains the serialized information about the value and shape of an image
+        tf_serialized_example = tf.train.Example( features = tf.train.Features( feature = features ) ).SerializeToString()
+        writer.write( tf_serialized_example )
+    writer.close()
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;make_tfrecord( 'mnist_train.tfrecord', X_train  )
+make_tfrecord( 'mnist_eval.tfrecord', X_test[:5000] )
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Copy the generated TFRecord to the GDS storage bucket.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;! gsutil cp mnist_train.tfrecord mnist_eval.tfrecord gs://gan-tpu-tutorial/data
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;Copying file://mnist_train.tfrecord [Content-Type=application/octet-stream]...
+Copying file://mnist_eval.tfrecord [Content-Type=application/octet-stream]...
+- [2 files][ 16.9 MiB/ 16.9 MiB]                                                
+Operation completed over 2 objects/16.9 MiB.                                     
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;One can also load multiple TFRecords by&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;ds=tf.data.TFRecordDataset([&quot;record1.tfrecord&quot;,&quot;record2.tfrecord&quot;,&quot;record3.tfrecord&quot;], compression_type='GZIP')
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;step-2-configure-the-tpu-estimator&quot;&gt;Step 2: configure the TPU Estimator&lt;/h3&gt;
+
+&lt;p&gt;The TPU Estimator mainly contains two parts: train/eval/test input function, and model function&lt;/p&gt;
+
+&lt;h4 id=&quot;prepeare-the-input_functions-for-tf-estimator&quot;&gt;Prepeare the input_functions for tf estimator&lt;/h4&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt; def parse_tfrecord_func( serialized_record ):
+    parse_dic = { &quot;image&quot;: tf.FixedLenFeature(shape=(28,28,1), dtype = tf.float32 ),
+                  &quot;image_shape&quot;: tf.FixedLenFeature( shape=(3,), dtype = tf.int64 ) 
+                }
+    parses_record = tf.parse_single_example( serialized_record, parse_dic )
+    ## note that parse_single_example can only be placed before batch()
+    ## parse_example can only be placed after batch()
+    return {&quot;image&quot;: parses_record[&quot;image&quot;]}
+ 
+def train_input_fn( batch_size ):
+    
+    dataset_x_train = tf.data.TFRecordDataset([ &quot;gs://gan-tpu-tutorial/data/mnist_train.tfrecord&quot; ], compression_type='GZIP')
+    
+    dataset_x_train = dataset_x_train.shuffle(60000).repeat()
+    pattern = np.array([0,0,0,0,1]).repeat(batch_size).astype(np.float32)
+    dataset_g_w = tf.data.Dataset.from_tensor_slices( { &quot;g_w&quot;: pattern  } ).repeat()
+    dataset_output = tf.data.Dataset.from_tensor_slices( ( np.zeros( ( batch_size ) ).astype(np.float32) ) ).repeat()
+    
+    ds = tf.data.Dataset.zip(( dataset_x_train, dataset_g_w, dataset_output))
+    def merge_func(a,b,c):
+        a = parse_tfrecord_func(a)
+        a.update(b)
+        return a, c
+    ds = ds.map(merge_func)
+    return ds.batch( batch_size, drop_remainder = True ).prefetch(buffer_size =1)
+
+def eval_input_fn( batch_size ):
+    dataset_x_eval = tf.data.TFRecordDataset([ &quot;gs://gan-tpu-tutorial/data/mnist_eval.tfrecord&quot; ], compression_type='GZIP')
+    dataset_x_eval = dataset_x_eval.shuffle(10000).repeat()
+    dataset_output = tf.data.Dataset.from_tensor_slices( ( np.zeros( ( batch_size ) ).astype(np.float32) ) ).repeat()
+    
+    ds = tf.data.Dataset.zip(( dataset_x_eval, dataset_output))
+    def merge_func(a,b):
+        a = parse_tfrecord_func(a)
+        return a, b
+    ds = ds.map(merge_func)
+    return ds.batch(batch_size, drop_remainder = True).prefetch(buffer_size =1)
+
+def predict_input_fn( z ):
+    dataset_z_input = tf.data.Dataset.from_tensor_slices( ( z.astype(np.float32), np.zeros(( z.shape[0],) ).astype(np.float32)  ) )
+    return dataset_z_input.batch(64, drop_remainder= False)
+
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;dataset_x_train is loaded from the TFRecordDataset, the parse_tfrecord_func is used to convert the serialized tf record examples into image tensors.&lt;/li&gt;
+  &lt;li&gt;g_w is used to control when to update the generator’s parameters. Here the pattern “0 0 0 0 1” means training the generator once for every n_critic = 5 batches as stated in WGAN-GP.  This setting is due to the special property of the TPU mechanism&lt;/li&gt;
+  &lt;li&gt;dataset_output is some dummy values (0) for the label parameter of the estimator.train() function&lt;/li&gt;
+  &lt;li&gt;Each batch of ds contains follows contents:
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt; features: {&quot;image&quot;: image_tensors, &quot;g_w&quot;: g_w }
+ labels: dataset_output (dummy value 0)
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;predict_input_fn doesn’t use TFRecord, since in GAN during test we would like to input some random latent vectors to get the output, therefore, using Dataset.from_tensor_slices is more flexible.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h4 id=&quot;define-the-model_fn-part-of-the-tpuestimator&quot;&gt;Define the model_fn part of the TPUEstimator&lt;/h4&gt;
+
+&lt;h5 id=&quot;define-the-generator-and-discriminator&quot;&gt;Define the generator and discriminator&lt;/h5&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;def generator( z, scope=&quot;generator&quot;, trainable= True ):
+    with tf.variable_scope( scope, reuse= tf.AUTO_REUSE ):
+        net = tf.layers.BatchNormalization()( tf.layers.Dense( 7*7*128, activation= tf.nn.relu )(z) )
+        net = tf.reshape( net, [ tf.shape(net)[0], 7, 7, 128 ] )
+        net = tf.layers.BatchNormalization()( tf.layers.Conv2DTranspose( 64, 5, (2,2), &quot;same&quot;, activation= tf.nn.relu )(net) )
+        net = tf.layers.BatchNormalization()( tf.layers.Conv2DTranspose( 32, 5, (2,2), &quot;same&quot;, activation= tf.nn.relu )(net) )
+        net = tf.layers.Conv2D(1, 5, (1,1), &quot;same&quot;, activation= tf.nn.sigmoid  )(net)
+        return net
+
+def discriminator( x, scope=&quot;discriminator&quot;, trainable = True ):
+    with tf.variable_scope( scope, reuse= tf.AUTO_REUSE ):
+        net = tf.layers.Conv2D( 32, 5, (2,2), &quot;same&quot;, activation= tf.nn.leaky_relu )(x) 
+        net = tf.layers.BatchNormalization()( tf.layers.Conv2D( 64, 5, (2,2), &quot;same&quot;, activation= tf.nn.leaky_relu )(net) )
+        net = tf.layers.BatchNormalization()( tf.layers.Conv2D( 128, 5, (2,2), &quot;same&quot;, activation= tf.nn.leaky_relu )(net) )
+        net = tf.layers.Flatten()(net)
+        net = tf.layers.BatchNormalization()( tf.layers.Dense( 128, activation= tf.nn.leaky_relu  )(net) )
+        net = tf.layers.Dense( 1 )(net)
+        return net
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h5 id=&quot;define-some-metric-functions-for-evaluation&quot;&gt;Define some metric functions for evaluation&lt;/h5&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;def metric_fn(loss_gen, loss_dis, W_dis ):
+    &quot;&quot;&quot;Function to return metrics for evaluation.
+    The input parameters can be arbritary
+    &quot;&quot;&quot;
+    return {&quot;loss_gen&quot;: tf.metrics.mean(loss_gen), 
+            &quot;loss_dis&quot;: tf.metrics.mean(loss_dis),
+            &quot;wasserstein_distance&quot;: tf.metrics.mean( W_dis ),
+            }
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h5 id=&quot;define-the-model_fn&quot;&gt;Define the model_fn&lt;/h5&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;def model_fn(features, labels, mode, params):
+    
+    lr = params[&quot;learning_rate&quot;]
+    z_dim = params[&quot;z_dim&quot;]
+    
+    if mode == tf.estimator.ModeKeys.TRAIN or mode == tf.estimator.ModeKeys.EVAL:
+        &quot;&quot;&quot; Part I. create the model networks&quot;&quot;&quot;
+        x = features[&quot;image&quot;]
+        is_train = mode == tf.estimator.ModeKeys.TRAIN
+        random_z = tf.random.normal( [tf.shape(x)[0], z_dim ]  )
+        gen_x = generator( random_z, trainable= is_train )
+        dis_x = discriminator( x, trainable= is_train )
+        dis_gen_x = discriminator( gen_x, trainable= is_train )
+
+        # This is used to compute the gradient penalty
+        epsilon = tf.random.uniform( [ tf.shape(x)[0],1,1,1 ], minval=0, maxval= 1 )
+        interp_x = epsilon * x + (1-epsilon) * gen_x
+        dis_interp_x = discriminator( interp_x, trainable= is_train )
+        gradient_x = tf.gradients( dis_interp_x, [ interp_x ]  )[0]
+        gradient_penalty = tf.square( tf.sqrt( tf.reduce_sum( tf.square(gradient_x ),[1,2,3] ) ) - 1  )
+        LAMBDA = 10
+    
+        &quot;&quot;&quot;Part II. define the loss and relative parameters for mode == TRAIN/EVAL/PREDICT&quot;&quot;&quot;
+        ## compute loss
+        loss_dis = dis_gen_x  - dis_x + LAMBDA * gradient_penalty 
+        loss_gen = - dis_gen_x
+        W_dis = dis_x - dis_gen_x
+
+        ## operations for the training mode, define the optimizer, and reconfig it using tpu.CrossShardOptimizer
+        if mode == tf.estimator.ModeKeys.TRAIN:
+            g_w = features[&quot;g_w&quot;]
+            loss_dis = tf.reduce_mean( loss_dis   )  
+            ## when g_w =0, this loss_gen 's gradient will be 0, which means generator is not trained during current batch
+            loss_gen = tf.reduce_mean( loss_gen * g_w)
+            W_dis = tf.reduce_mean(W_dis)
+
+            # Define the optimizer
+            d_optimizer = tf.train.AdamOptimizer(learning_rate=lr, beta1=0, beta2= 0.99 )
+            g_optimizer = tf.train.AdamOptimizer(learning_rate=lr, beta1=0, beta2= 0.99 )
+            # convert to TPU optimizer version
+            d_optimizer = tf.tpu.CrossShardOptimizer(d_optimizer)
+            g_optimizer = tf.tpu.CrossShardOptimizer(g_optimizer)
+
+            with tf.control_dependencies( tf.get_collection( tf.GraphKeys.UPDATE_OPS )):
+                d_op = d_optimizer.minimize( loss = loss_dis, var_list = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,\
+                                           scope=&quot;discriminator&quot;)  )
+                g_op = g_optimizer.minimize(loss = loss_gen,  var_list = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,\
+                                           scope=&quot;generator&quot;),global_step= tf.train.get_global_step() )
+                # This group command will group the discriminator optimization and generator optimization together
+                # all the optimizations in the group will be run during each batch
+                # g_w can control whether to update the parameters of generator or not, which plays the role of n_critic in WGAN
+                train_op = tf.group( [ d_op , g_op] )
+                spec= tf.estimator.tpu.TPUEstimatorSpec(mode=mode, loss= W_dis ,train_op= train_op  )
+    
+        ## for EVAL mode, the parameters eval_metrics takes a tuple or list of two elements. The first element is a callable function,
+        ## The second element is a list of parameters. The return value of the callable function will be shown in the evaluatio results
+        elif mode == tf.estimator.ModeKeys.EVAL:
+            spec = tf.estimator.tpu.TPUEstimatorSpec(mode=mode, loss= tf.reduce_mean(W_dis), eval_metrics=(metric_fn, [loss_gen, loss_dis, W_dis ] ) )
+    
+    elif mode == tf.estimator.ModeKeys.PREDICT:
+        &quot;&quot;&quot; construct the model (only the generator part) &quot;&quot;&quot;
+        input_z = features
+        gen_x = generator( input_z, trainable= False )
+
+        &quot;&quot;&quot;Define the predictions&quot;&quot;&quot;
+        predictions = { &quot;generated_images&quot;:  gen_x   }
+        spec= tf.estimator.tpu.TPUEstimatorSpec( mode = mode, predictions = predictions )
+
+    return spec
+
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;create-the-tpuestimator-entity-and-run-the-train--evaluate-predict&quot;&gt;Create the TPUEstimator entity, and run the train / evaluate/ predict&lt;/h3&gt;
+
+&lt;p&gt;iterations_per_loop means the number of batches fed into TPU before returning to the host CPU&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;n&quot;&gt;model_dir&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;gs://gan-tpu-tutorial/model&quot;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;tpu_address&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'grpc://'&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environ&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'COLAB_TPU_ADDR'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;iterations_per_loop&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;200&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;run_config&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;estimator&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tpu&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;RunConfig&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;model_dir&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;model_dir&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;cluster&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;distribute&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cluster_resolver&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TPUClusterResolver&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tpu_address&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;session_config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ConfigProto&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;allow_soft_placement&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;log_device_placement&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;tpu_config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;estimator&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tpu&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TPUConfig&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;iterations_per_loop&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;model&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;estimator&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tpu&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TPUEstimator&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+                               &lt;span class=&quot;n&quot;&gt;model_fn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;model_fn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+                               &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;learning_rate&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;1e-3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;z_dim&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;100&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
+                               &lt;span class=&quot;n&quot;&gt;config&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;run_config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+                               &lt;span class=&quot;n&quot;&gt;use_tpu&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+                               &lt;span class=&quot;n&quot;&gt;train_batch_size&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;m&quot;&gt;512&lt;/span&gt;  &lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+                               &lt;span class=&quot;n&quot;&gt;eval_batch_size&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;m&quot;&gt;512&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+                               &lt;span class=&quot;n&quot;&gt;predict_batch_size&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;64&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+                              &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;training&quot;&gt;Training&lt;/h3&gt;
+&lt;p&gt;What is the relationship between max_steps and epochs?&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;max_epoch = max_steps * batch_size / total_number_of_training_samples
+model.train( input_fn = lambda params: train_input_fn( params[&quot;batch_size&quot;] ), max_steps= 10000 )
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;evaluate&quot;&gt;Evaluate&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;eval_result = model.evaluate(input_fn=lambda params: eval_input_fn( params[&quot;batch_size&quot;]), steps = 10)
+eval_result
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;predict&quot;&gt;Predict&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;random_z = np.random.normal( size=(1024, 100)  ).astype(np.float32)
+pred_results = model.predict( input_fn=lambda params: predict_input_fn(random_z) )
+images = np.array([ result[&quot;generated_images&quot;] for result in pred_results  ])
+print(&quot;generated images&quot;)
+plt.figure(figsize = (5,5)) 
+plt.gray()
+plt.imshow( make_grid(add_padding(images[np.random.choice( images.shape[0], 64, replace= False )  ])).squeeze() )
+plt.show()
+
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;generated images
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://nianlonggu.github.io/img/2019-11-08-gan-tpu/GAN_on_colab_TPU.png&quot; alt=&quot;png&quot; /&gt;&lt;/p&gt;
+
+</description>
+        <pubDate>Fri, 08 Nov 2019 16:48:00 +0100</pubDate>
+        <link>http://localhost:4000/2019/11/08/GAN-on-colab-TPU/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/11/08/GAN-on-colab-TPU/</guid>
+        
+        <category>GAN</category>
+        
+        <category>Wassserstein GAN</category>
+        
+        <category>google colab</category>
+        
+        <category>TPU</category>
+        
+        
+      </item>
     
       <item>
         <title>EM Algorithm and Gaussian Mixture Model for Clustering</title>
@@ -583,7 +1221,7 @@ parameter changes:  0.002146320352925
 &lt;span class=&quot;n&quot;&gt;plt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;show&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
 &lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;&lt;img src=&quot;https://nianlonggu.github.io/img/2019-07-10-EM//EM_24_0.png&quot; alt=&quot;png&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://nianlonggu.github.io/img/2019-07-10-EM/EM_24_0.png&quot; alt=&quot;png&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;From this figure we can see the real clusters are actually non-convex, since there is a sine-shape gap between two real clusters. However, the GMM clustering resluts always provide convex clutsers. For example, either the blue points set or the red points set is convex. This is determined by the fact that Gaussian distribution has convex shape.&lt;/p&gt;
 
@@ -3173,102 +3811,6 @@ z, &amp; \text{if}\ -1 \leq z &lt; 1\\
         <pubDate>Fri, 24 May 2019 20:00:00 +0200</pubDate>
         <link>http://localhost:4000/2019/05/24/tutorial-on-SVM/</link>
         <guid isPermaLink="true">http://localhost:4000/2019/05/24/tutorial-on-SVM/</guid>
-        
-        <category>支持向量机</category>
-        
-        <category>机器学习</category>
-        
-        <category>SVM</category>
-        
-        <category>Machine Learning</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>An Introduction to Support Vector Machines (SVM): Basics</title>
-        <description>&lt;blockquote&gt;
-  &lt;p&gt;Just to clarify, these contents are mainly summarized from the course I took: “Fundamental of Big Data Analytics”, taught by Prof. Mathar Rudolf. For for information please visit: &lt;a href=&quot;https://www.ti.rwth-aachen.de&quot;&gt;https://www.ti.rwth-aachen.de&lt;/a&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;!-- ## Contents
-[What is SVM?](#what-is-SVM)&lt;br&gt;
-[SVM in Linearly Separable Case](#SVM-in-Linearly-Separable-Case) --&gt;
-
-&lt;p id=&quot;what-is-SVM&quot;&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;what-is-svm&quot;&gt;What is SVM?&lt;/h2&gt;
-&lt;p&gt;Support Vector Machine (SVM) is a method for classification (and possibly for regression). Here we mainly discuss the most common application: &lt;strong&gt;binary classification problem&lt;/strong&gt;.&lt;/p&gt;
-&lt;blockquote&gt;
-  &lt;p&gt;Given a training dataset with binary classes {+1, -1}, SVM means to find a separating hyperplane which can maximize the margin.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;Here the margin represents the minimum distance from points of both classes to the hyperplane. &lt;strong&gt;Support vectors&lt;/strong&gt; represent the points which are closest to the hyperplane. These points determine the position and direction of the hyperplane, so they are called “support vectors”.
- &lt;br /&gt;
- &lt;!-- &lt;center&gt;&lt;img src=&quot;https://nianlonggu.github.io/img/2019-05-23-SVM/what-is-svm.svg&quot;&gt; &lt;/center&gt; --&gt;
-&lt;!-- &lt;center&gt;![what is svm](https://nianlonggu.github.io/img/2019-05-23-SVM/what-is-svm.svg) &lt;/center&gt; center here will make it not work --&gt;&lt;/p&gt;
-&lt;center&gt;&lt;a name=&quot;linear-svm&quot;&gt;&lt;/a&gt;&lt;/center&gt;
-&lt;p&gt;&lt;img src=&quot;https://nianlonggu.github.io/img/2019-05-23-SVM/what-is-svm.svg&quot; alt=&quot;what is svm&quot; /&gt;
-&lt;em&gt;&lt;center&gt;Linear SVM&lt;/center&gt;&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;In the series of SVMs, following aspects will be discusses:&lt;br /&gt;&lt;/p&gt;
-&lt;ol&gt;
-  &lt;li&gt;The optimization problem of SVM in linearly separable case&lt;/li&gt;
-  &lt;li&gt;Using gradient descent algorithm to solve the SVM optimization problem&lt;/li&gt;
-  &lt;li&gt;Lagrangian dual optimization and Karush-Kuhn-Tucker (KKT) condition&lt;/li&gt;
-  &lt;li&gt;Dual problem of SVM and analysis&lt;/li&gt;
-  &lt;li&gt;Solve the dual problem using Sequential Minimal Optimization (SMO)&lt;/li&gt;
-  &lt;li&gt;The optimization problem of SVM with penalty term&lt;/li&gt;
-  &lt;li&gt;Kernel SVM for nonlinear cases&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p id=&quot;SVM-in-Linearly-Separable-Case&quot;&gt;&lt;/p&gt;
-
-&lt;h3 id=&quot;svm-in-linearly-separable-case&quot;&gt;SVM in Linearly Separable Case&lt;/h3&gt;
-&lt;p&gt;The linearly separable case means that in the training dataset, points with two different classes can be linearly separated by a hyperplane $H:\{\mathbf{x}|\mathbf{w}^{T}\mathbf{x}+b=0 \}$. The goal of SVM is to find the optimal parameters of $\hat{\mathbf{w}}$ and $\hat{b}$ which maximize the margin. See figure &lt;a href=&quot;#linear-svm&quot;&gt;Linear-SVM&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;Given a training dataset $\{(\mathbf{x}_i,\ y_i)\}, i=1,\dots,n$, where $\mathbf{x}\in{R^p}$ and $y\in\{-1,+1\}$. If such a separating hyperplane exists as shown in figure &lt;a href=&quot;#linear-svm&quot;&gt;Linear-SVM&lt;/a&gt;, there exists a positive value, $\gamma&amp;gt;0$, which satisfies that&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li&gt;for any $y_i=+1$, $\mathbf{w}^T\mathbf{x}_i+b\geq \gamma$&lt;/li&gt;
-  &lt;li&gt;for any $y_i=-1$, $\mathbf{w}^T\mathbf{x}_i+b\leq -\gamma$&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Those two conditions can be summarized into one condition by considering $y_i$ and $\mathbf{x}_ {i}$ jointly:&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li&gt;$y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq \gamma \ \ \ $ for any $i=1,\dots,n$&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;The equality holds for &lt;strong&gt;marginal points&lt;/strong&gt; (like the blue square, and red circles in figure &lt;a href=&quot;#linear-svm&quot;&gt;Linear-SVM&lt;/a&gt;). This condition ensures that the hyperplane can correctly classify two classes in the training dataset, yet we have another condition in SVM which is to maximize the margin.&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;How is the margin is defined?&lt;/strong&gt; &lt;br /&gt;
-The margin is defined by the Euclidean distance between the closest points (marginal points) to the hyperplane. Since for marginal points $(\mathbf{x}, y)$ it holds $\mathbf{w}^T\mathbf{x}+b = \gamma$ or $\mathbf{w}^T\mathbf{x}+b = -\gamma$, and the hyperplane satisfies $\mathbf{w}^T\mathbf{x}+b = 0$, computing the margin is equivalent to computing the distance between two parallel hyperplane $h_1:\{\mathbf{x}|\mathbf{w}^T\mathbf{x}+b = \gamma\}$ and $h_2:\{\mathbf{w}^T\mathbf{x}+b = 0\}$. Therefore, the margin is &lt;script type=&quot;math/tex&quot;&gt;\frac{\gamma}{\|\mathbf{w}\|}&lt;/script&gt;. &lt;script type=&quot;math/tex&quot;&gt;\|\mathbf{w}\|&lt;/script&gt; represent the norm of the vector &lt;script type=&quot;math/tex&quot;&gt;\mathbf{w}&lt;/script&gt;.&lt;/p&gt;
-&lt;blockquote&gt;
-  &lt;p&gt;Recall of linear algebra:&lt;br /&gt;&lt;/p&gt;
-  &lt;ul&gt;
-    &lt;li&gt;the normal vector of hyperplane $h_1:\{\mathbf{x}|\mathbf{w}^T\mathbf{x}+b_1=0\}$ is &lt;script type=&quot;math/tex&quot;&gt;\frac{\mathbf{w}}{\|\mathbf{w}\|}&lt;/script&gt;&lt;/li&gt;
-    &lt;li&gt;the distance from origin $\mathbf{0}$ to hyperplane &lt;script type=&quot;math/tex&quot;&gt;h_1:\{\mathbf{x}\mid\mathbf{w}^T\mathbf{x}+b_1=0\}&lt;/script&gt; is &lt;script type=&quot;math/tex&quot;&gt;\frac{\vert b_1\vert}{\| \mathbf{w} \|}&lt;/script&gt;. &lt;br /&gt;This can be proved by simply solve the equation:
-&lt;script type=&quot;math/tex&quot;&gt;\mathbf{w}^T(\alpha \frac{\mathbf{w}}{\|\mathbf{w}\|})+b_1=0&lt;/script&gt;, where &lt;script type=&quot;math/tex&quot;&gt;\vert\alpha\vert&lt;/script&gt; is the distance&lt;/li&gt;
-    &lt;li&gt;the distance between two parallel hyperplanes &lt;script type=&quot;math/tex&quot;&gt;h_1:\{\mathbf{x}\vert\mathbf{w}^T\mathbf{x}+b_1=0\}&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;h_2:\{\mathbf{x}\vert\mathbf{w}^T\mathbf{x}+b_2=0\}&lt;/script&gt; is &lt;script type=&quot;math/tex&quot;&gt;\frac{\vert b_1-b_2\vert}{\|\mathbf{w}\|}&lt;/script&gt;&lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;Therefore, the SVM optimization problem is:&lt;/p&gt;
-&lt;center&gt;$$\text{max} \frac{\gamma}{\|\mathbf{w}\|},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq\gamma\ ,\ \ i=1,\dots,n$$&lt;/center&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;note that here we cannot just maximize &lt;script type=&quot;math/tex&quot;&gt;\gamma&lt;/script&gt;, since the definition of a hyperplane &lt;script type=&quot;math/tex&quot;&gt;h:\{\mathbf{x}\vert\mathbf{w}^T\mathbf{x}+b=\gamma\}&lt;/script&gt; is scale invariant. &lt;script type=&quot;math/tex&quot;&gt;\{\mathbf{x}\vert\mathbf{w}^T\mathbf{x}+b=\gamma\}&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\{\mathbf{x}\vert\alpha\mathbf{w}^T\mathbf{x}+\alpha b=\alpha\gamma\}&lt;/script&gt; represent the same hyperplane. Therefore, maximizing &lt;script type=&quot;math/tex&quot;&gt;\gamma&lt;/script&gt; may make the magnitude of &lt;script type=&quot;math/tex&quot;&gt;\mathbf{w}&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;b&lt;/script&gt; reach infinity, and has no contribution to maximizing the real margin.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;It is the geodesic margin &lt;script type=&quot;math/tex&quot;&gt;\frac{\gamma}{\|\mathbf{w}\|}&lt;/script&gt; that matters, not the functional margin &lt;script type=&quot;math/tex&quot;&gt;\gamma&lt;/script&gt;. Therefore, we can select an arbitrary positive value for &lt;script type=&quot;math/tex&quot;&gt;\gamma&lt;/script&gt;. This will only influence the scale of final optimal &lt;script type=&quot;math/tex&quot;&gt;\hat{\mathbf{w}}&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\hat{b}&lt;/script&gt;, but the optimal separating hyperplane remains the same. For simplicity, we can set &lt;script type=&quot;math/tex&quot;&gt;\gamma=1&lt;/script&gt;. Then the SVM optimization problem is:&lt;/p&gt;
-&lt;center&gt; $$\text{max} \frac{1}{\|\mathbf{w}\|},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1\ ,\ \ i=1,\dots,n$$ &lt;/center&gt;
-&lt;p&gt;We can convert this problem into a convex optimization problem by reforming the objective function. The the final form of the SVM optimization problem is:&lt;/p&gt;
-&lt;center&gt; $$\text{min} \frac{1}{2}{\|\mathbf{w}\|^2},\ \ \text{s.t.}\ \ y_i(\mathbf{w}^T\mathbf{x}_ i+b)\geq 1\ ,\ \ i=1,\dots,n$$ &lt;/center&gt;
-
-&lt;p&gt;This is the standard expression of the linear SVM. In the next post I will introduce how to solve this optimization problem and get the optimal separating hyperplane &lt;script type=&quot;math/tex&quot;&gt;\{\mathbf{x}\vert\hat{\mathbf{w}}^T\mathbf{x}+\hat{b}=0\}&lt;/script&gt;.&lt;/p&gt;
-</description>
-        <pubDate>Thu, 23 May 2019 19:00:00 +0200</pubDate>
-        <link>http://localhost:4000/2019/05/23/tutorial-on-SVM/</link>
-        <guid isPermaLink="true">http://localhost:4000/2019/05/23/tutorial-on-SVM/</guid>
         
         <category>支持向量机</category>
         
