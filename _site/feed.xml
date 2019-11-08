@@ -5,13 +5,17 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 08 Nov 2019 15:56:35 +0100</pubDate>
-    <lastBuildDate>Fri, 08 Nov 2019 15:56:35 +0100</lastBuildDate>
+    <pubDate>Fri, 08 Nov 2019 17:31:24 +0100</pubDate>
+    <lastBuildDate>Fri, 08 Nov 2019 17:31:24 +0100</lastBuildDate>
     <generator>Jekyll v4.0.0</generator>
     
       <item>
         <title>Training a Wasserstein GAN on the free google colab TPU</title>
-        <description>&lt;ol&gt;
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;The jupyter notebook is available on my github repo. Click &lt;a href=&quot;https://github.com/nianlonggu/Tensorflow-Notebooks/blob/master/Training_a_Wasserstein_GAN_on_the_free_google_colab_TPU.ipynb&quot;&gt;&lt;strong&gt;HERE&lt;/strong&gt;&lt;/a&gt; to play with google colab on live!&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ol&gt;
   &lt;li&gt;
     &lt;p&gt;Why using TPU?&lt;br /&gt;
 TPU is much faster than GPU. A single TPU contains 8 cores, each with a 8GB memory. During training, each batch of data is equally dispatched to all 8 cores. This means the equivalent memrory size if 8x8 = 64 GB. This make it possible to train some large models.&lt;/p&gt;
@@ -207,7 +211,7 @@ print(X_train.shape)
 make_tfrecord( 'mnist_eval.tfrecord', X_test[:5000] )
 &lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;Copy the generated TFRecord to the GDS storage bucket.&lt;/p&gt;
+&lt;p&gt;Copy the generated TFRecord to the GCS storage bucket.&lt;/p&gt;
 
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
 &lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;! gsutil cp mnist_train.tfrecord mnist_eval.tfrecord gs://gan-tpu-tutorial/data
@@ -398,6 +402,7 @@ def discriminator( x, scope=&quot;discriminator&quot;, trainable = True ):
 &lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;h5 id=&quot;define-the-model_fn&quot;&gt;Define the model_fn&lt;/h5&gt;
+
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
 2
 3
@@ -467,7 +472,6 @@ def discriminator( x, scope=&quot;discriminator&quot;, trainable = True ):
 67
 68
 69
-70
 &lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;def model_fn(features, labels, mode, params):
     
     lr = params[&quot;learning_rate&quot;]
@@ -537,7 +541,6 @@ def discriminator( x, scope=&quot;discriminator&quot;, trainable = True ):
         spec= tf.estimator.tpu.TPUEstimatorSpec( mode = mode, predictions = predictions )
 
     return spec
-
 &lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;h3 id=&quot;create-the-tpuestimator-entity-and-run-the-train--evaluate-predict&quot;&gt;Create the TPUEstimator entity, and run the train / evaluate/ predict&lt;/h3&gt;
@@ -589,10 +592,12 @@ def discriminator( x, scope=&quot;discriminator&quot;, trainable = True ):
 &lt;h3 id=&quot;training&quot;&gt;Training&lt;/h3&gt;
 &lt;p&gt;What is the relationship between max_steps and epochs?&lt;/p&gt;
 
+&lt;ul&gt;
+  &lt;li&gt;max_epoch = max_steps * batch_size / total_number_of_training_samples&lt;/li&gt;
+&lt;/ul&gt;
+
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
-2
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;max_epoch = max_steps * batch_size / total_number_of_training_samples
-model.train( input_fn = lambda params: train_input_fn( params[&quot;batch_size&quot;] ), max_steps= 10000 )
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;model.train( input_fn = lambda params: train_input_fn( params[&quot;batch_size&quot;] ), max_steps= 10000 )
 &lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;h3 id=&quot;evaluate&quot;&gt;Evaluate&lt;/h3&gt;
@@ -624,10 +629,7 @@ plt.imshow( make_grid(add_padding(images[np.random.choice( images.shape[0], 64, 
 plt.show()
 
 &lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;generated images
-&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;This is one example of generated images:&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;https://nianlonggu.github.io/img/2019-11-08-gan-tpu/GAN_on_colab_TPU.png&quot; alt=&quot;png&quot; /&gt;&lt;/p&gt;
 

@@ -13,6 +13,8 @@ tags:
     - TPU
 ---
 
+> The jupyter notebook is available on my github repo. Click [**HERE**](https://github.com/nianlonggu/Tensorflow-Notebooks/blob/master/Training_a_Wasserstein_GAN_on_the_free_google_colab_TPU.ipynb) to play with google colab on live!
+
 1. Why using TPU?<br>
 TPU is much faster than GPU. A single TPU contains 8 cores, each with a 8GB memory. During training, each batch of data is equally dispatched to all 8 cores. This means the equivalent memrory size if 8x8 = 64 GB. This make it possible to train some large models.
 
@@ -137,7 +139,7 @@ make_tfrecord( 'mnist_train.tfrecord', X_train  )
 make_tfrecord( 'mnist_eval.tfrecord', X_test[:5000] )
 ```
 
-Copy the generated TFRecord to the GDS storage bucket.
+Copy the generated TFRecord to the GCS storage bucket.
 
 
 ```
@@ -265,6 +267,8 @@ def metric_fn(loss_gen, loss_dis, W_dis ):
 ```
 
 ##### Define the model_fn
+
+
 ```
 def model_fn(features, labels, mode, params):
     
@@ -335,7 +339,6 @@ def model_fn(features, labels, mode, params):
         spec= tf.estimator.tpu.TPUEstimatorSpec( mode = mode, predictions = predictions )
 
     return spec
-
 ```
 
 ### Create the TPUEstimator entity, and run the train / evaluate/ predict
@@ -369,8 +372,11 @@ model = tf.estimator.tpu.TPUEstimator(
 ### Training
 What is the relationship between max_steps and epochs?
 
+
+* max_epoch = max_steps * batch_size / total_number_of_training_samples
+
+
 ```
-max_epoch = max_steps * batch_size / total_number_of_training_samples
 model.train( input_fn = lambda params: train_input_fn( params["batch_size"] ), max_steps= 10000 )
 ```
 
@@ -397,8 +403,7 @@ plt.imshow( make_grid(add_padding(images[np.random.choice( images.shape[0], 64, 
 plt.show()
 
 ```
-
-    generated images
+This is one example of generated images:
 
 ![png](https://nianlonggu.github.io/img/2019-11-08-gan-tpu/GAN_on_colab_TPU.png)
 
