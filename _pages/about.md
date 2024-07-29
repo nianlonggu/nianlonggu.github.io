@@ -33,19 +33,20 @@ Pre-trained Language Models" has been accepted at [SwissText 2024](https://www.s
 
 ### Publications
 
+
 <html lang="en">
 <head>
 <style>
   .grid-container {
     display: grid;
-    grid-template-columns: 75px 300px minmax(300px, auto);
+    grid-template-columns: 50px 300px minmax(300px, auto);
     gap: 20px;
     align-items: start;
     margin-bottom: 20px;
   }
   .grid-container-no-figure {
     display: grid;
-    grid-template-columns: 75px minmax(300px, auto);
+    grid-template-columns: 50px minmax(300px, auto);
     gap: 20px;
     align-items: start;
     margin-bottom: 20px;
@@ -76,9 +77,28 @@ Pre-trained Language Models" has been accepted at [SwissText 2024](https://www.s
   .align-top {
     align-self: start;
   }
+  /* Media Queries for responsive design */
+  @media (max-width: 768px) {
+    .grid-container {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .grid-container .grid-item:nth-child(2) {
+      order: 2; /* Image goes after text */
+    }
+    .grid-container .grid-item:nth-child(3) {
+      order: 1; /* Text goes first */
+    }
+    .grid-item img {
+      max-width: 400px; /* Limit max width */
+      height: auto;
+      margin: 0 auto; /* Center image */
+    }
+  }
 </style>
 </head>
 <body>
+
 
 <div class="grid-container">
   <div class="grid-item align-top">
@@ -412,3 +432,4 @@ Pre-trained Language Models" has been accepted at [SwissText 2024](https://www.s
 
 </body>
 </html>
+
