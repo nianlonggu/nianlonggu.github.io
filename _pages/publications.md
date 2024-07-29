@@ -21,14 +21,14 @@ author_profile: true
 <style>
   .grid-container {
     display: grid;
-    grid-template-columns: 75px 350px auto;
+    grid-template-columns: 75px 350px minmax(300px, auto);
     gap: 20px;
     align-items: start;
     margin-bottom: 20px;
   }
   .grid-container-no-figure {
     display: grid;
-    grid-template-columns: 75px auto;
+    grid-template-columns: 75px minmax(300px, auto);
     gap: 20px;
     align-items: start;
     margin-bottom: 20px;
