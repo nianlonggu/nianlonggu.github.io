@@ -90,7 +90,7 @@ Pre-trained Language Models" has been accepted at [SwissText 2024](https://www.s
       order: 1; /* Text goes first */
     }
     .grid-item img {
-      max-width: 400px; /* Limit max width */
+      max-width: 350px; /* Limit max width */
       height: auto;
       margin: 0 auto; /* Center image */
     }
