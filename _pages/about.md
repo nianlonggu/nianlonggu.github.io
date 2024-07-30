@@ -10,7 +10,7 @@ redirect_from:
 
 I'm Nianlong Gu, a Machine Learning Scientist at [Universität Zürich](https://www.liri.uzh.ch/). I earned my PhD in Computer Science from [ETH Zürich](https://ethz.ch/), where I developed advanced NLP models for scientific literature retrieval, extractive summarization, and LLM-based citation text generation. My current research focuses on AI-based vocal segmentation and speech recognition, crucial for bioacoustic studies and language evolution research. I also develop web platform to assist researchers in annotating audio files using AI.
 
-### Research Interests
+## Research Interests
 
 - Vocal Segmentation and Speech Recognition
   - AI-based tools for human and animal voice activity detection
@@ -23,15 +23,33 @@ I'm Nianlong Gu, a Machine Learning Scientist at [Universität Zürich](https://
   - Large language models for scientific writing and discovery
   - Deep learning and reinforcement learning applications
 
-### News
+<!-- ### News
 * 07/2024: Our paper "Controllable Citation Sentence Generation with Language Models" has been accepted at The 4th Workshop on Scholarly Document Processing @ ACL 2024.
 * 06/2024: Our paper "Sentiment- and Keyword-Controllable Text Generation in German with
 Pre-trained Language Models" has been accepted at [SwissText 2024](https://www.swisstext.org/).
 * 04/2024: We presented our work "[WhisperSeg: Positive Transfer of the Whisper Speech Transformer to Human and Animal Voice Activity Detection](https://ieeexplore.ieee.org/document/10447620)" at [ICASSP 2024](https://2024.ieeeicassp.org/).
-* 03/2024: Our paper "[SciPara: A New Dataset for Investigating Paragraph Discourse Structure in Scientific Papers](https://aclanthology.org/2024.codi-1.2/)" has been accepted at [CODI 2024](https://sites.google.com/view/codi2024/home). 
+* 03/2024: Our paper "[SciPara: A New Dataset for Investigating Paragraph Discourse Structure in Scientific Papers](https://aclanthology.org/2024.codi-1.2/)" has been accepted at [CODI 2024](https://sites.google.com/view/codi2024/home).  -->
 
 
-### Publications
+## Education
+
+### ETH Zürich
+Dr. Sc. in Computer Science<br>
+*Institute of Neuroinformatics, Department of Information Technology and Electrical Engineering*   
+Zürich, Switzerland | _Aug. 2019 – Dec. 2022_
+
+### RWTH Aachen University
+M.Sc. in Communications Engineering<br>
+*Faculty of Electrical Engineering and Information Technology*  
+Aachen, Germany | _Sep. 2016 – Jul. 2019_
+
+### Fudan University
+B.Sc. in Microelectronics<br>
+Shanghai, China | _Sep. 2011 – Jul. 2016_
+
+
+
+## Publications
 
 
 <html lang="en">
